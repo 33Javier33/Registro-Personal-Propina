@@ -909,4 +909,1800 @@
           </select>
           <select id="subAreaPlanta" style="display: none;"></select>
           <input type="number" id="anioPlanta" placeholder="Año" inputmode="numeric" required />
-          <input type="number" id
+          <input type="number" id="puntosPlanta" placeholder="Cantidad de puntos" inputmode="numeric" required />
+          <input type="hidden" name="tipo" value="Planta" />
+          <button type="submit">Agregar</button>
+        </form>
+      </div>
+    </div>
+    <div id="partTimeCard" class="persona-form-card collapsed">
+      <h3>Part Time</h3>
+      <div class="card-content">
+        <form id="partTimeForm">
+          <input type="text" id="nombrePartTime" placeholder="Nombre" required />
+          <input type="text" id="apellidoPartTime" placeholder="Apellido" required />
+          <select type="text" id="areaPartTime" required>
+            <option value="">Selecciona Área</option>
+            <option value="Mesas">Mesas</option>
+            <option value="Máquinas">Máquinas</option>
+            <option value="Bóveda">Bóveda</option>
+            <option value="Otros">Otros</option>
+          </select>
+          <select id="subAreaPartTime" style="display: none;"></select>
+          <input type="number" id="anioPartTime" placeholder="Año" inputmode="numeric" required />
+          <input type="number" id="puntosPartTime" placeholder="Cantidad de puntos" inputmode="numeric" required />
+          <input type="hidden" name="tipo" value="Part Time" />
+          <button type="submit">Agregar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="fichasSection" class="collapsible-section collapsed">
+  <h2>Fichas de Personas</h2>
+  <div class="collapsible-content">
+    <input type="text" id="searchFichas" placeholder="Buscar persona por nombre o apellido..." style="width: 100%; margin-bottom: 15px;" />
+
+    <div id="plantaContainer" class="fichas-type-container">
+      <h3 id="plantaSectionHeader">Personal de Planta</h3>
+      <div class="fichas-grid-container"></div>
+    </div>
+    <div id="partTimeContainer" class="fichas-type-container">
+      <h3 id="partTimeSectionHeader">Personal Part Time</h3>
+      <div class="fichas-grid-container"></div>
+    </div>
+  </div>
+</section>
+
+<section id="montosSection" class="collapsible-section collapsed">
+  <h2>Registrar Montos por Noche</h2>
+  <div class="collapsible-content">
+    <div id="totalDiario">Total diario: $0</div>
+    <form id="montosForm">
+      <input type="date" id="fecha" required />
+      <select type="text" id="areaMonto" required>
+        <option value="">Selecciona Área</option>
+        <option value="Mesas">Mesas</option>
+        <option value="Máquinas">Máquinas</option>
+        <option value="Otros">Otros</option>
+      </select>
+      <input type="text" id="monto" placeholder="Monto" inputmode="numeric" required />
+      <button type="submit">Agregar Monto</button>
+    </form>
+    <div>
+        <button id="resetMontosBtn" class="reset-button">Reiniciar Montos</button> <span>(Borra todos los montos)</span>
+    </div>
+    <div id="tarjetasMontos"></div>
+  </div>
+</section>
+
+<section id="retirosPropinaSection" class="collapsible-section collapsed">
+    <h2>Retiros de Propina</h2>
+    <div class="collapsible-content">
+        <input type="text" id="searchRetiros" placeholder="Buscar persona por nombre o apellido..." />
+        <div id="searchResultsContainer"></div>
+        <hr>
+        <div id="calculationContainer">
+            <div class="planta-calculation-container">
+                <p>Calcula el monto por persona de planta:</p>
+                <p>Total a dividir: <span id="totalMontoPlanta">$0</span></p>
+                <button id="registrarValorPorPuntoBtn" style="margin-bottom: 10px;">Registrar Divisor</button>
+                <div class="total-result" id="resultadoPlanta">$0 por punto</div>
+            </div>
+        </div>
+        <div id="retiroActionsContainer">
+            <button id="guardarRetirosBtn">Guardar Retiros</button>
+            <button id="resetRetirosBtn" class="reset-button">Reiniciar Retiros</button>
+        </div>
+        <div id="retirosListContainer"></div>
+    </div>
+</section>
+
+<section id="anticiposHistorialSection" class="collapsible-section collapsed">
+    <h2>Historial de Anticipos</h2>
+    <div class="collapsible-content">
+      <button id="resetAnticiposBtn" class="reset-button">Reiniciar Historial</button>
+      <div id="anticiposHistorialContainer"></div>
+    </div>
+</section>
+
+<section id="montosPedidosHistorialSection" class="collapsible-section collapsed">
+    <h2>Historial de Montos Pedidos</h2>
+    <div class="collapsible-content">
+      <button id="resetMontosPedidosBtn" class="reset-button">Reiniciar Historial</button>
+      <div id="montosPedidosHistorialContainer"></div>
+    </div>
+</section>
+
+<section id="valorPorPuntoHistorialSection" class="collapsible-section collapsed">
+    <h2>Historial de Divisores</h2>
+    <div class="collapsible-content">
+      <button id="resetValorPorPuntoBtn" class="reset-button">Reiniciar Historial</button>
+      <div id="valorPorPuntoHistorialContainer"></div>
+    </div>
+</section>
+
+
+<div id="anticipoModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="modalTitle"></h4>
+        </div>
+        <div class="modal-body">
+            <label for="anticipoMontoInput">Monto:</label>
+            <input type="text" id="anticipoMontoInput" placeholder="Monto del anticipo" inputmode="numeric" required />
+            <label for="anticipoFechaInput">Fecha:</label>
+            <input type="date" id="anticipoFechaInput" required />
+            <label for="anticipoHoraInput">Hora:</label>
+            <input type="time" id="anticipoHoraInput" required />
+        </div>
+        <div class="modal-footer">
+            <button class="reset-button" id="cancelAnticipoBtn">Cancelar</button>
+            <button id="saveAnticipoBtn">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<div id="montosPedidosModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="montosPedidosModalTitle"></h4>
+        </div>
+        <div class="modal-body">
+            <label for="montosPedidosMontoInput">Monto:</label>
+            <input type="text" id="montosPedidosMontoInput" placeholder="Monto del pedido" inputmode="numeric" required />
+            <label for="montosPedidosFechaInput">Fecha:</label>
+            <input type="date" id="montosPedidosFechaInput" required />
+            <label for="montosPedidosHoraInput">Hora:</label>
+            <input type="time" id="montosPedidosHoraInput" required />
+        </div>
+        <div class="modal-footer">
+            <button class="reset-button" id="cancelMontosPedidosBtn">Cancelar</button>
+            <button id="saveMontosPedidosBtn">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<div id="valorPorPuntoModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="valorPorPuntoModalTitle">Registrar Divisor</h4>
+        </div>
+        <div class="modal-body">
+            <label for="valorPorPuntoInput">Divisor:</label>
+            <input type="text" id="valorPorPuntoInput" placeholder="Divisor" inputmode="numeric" required />
+            <label for="valorPorPuntoFechaInput">Fecha:</label>
+            <input type="date" id="valorPorPuntoFechaInput" required />
+            <label for="valorPorPuntoHoraInput">Hora:</label>
+            <input type="time" id="valorPorPuntoHoraInput" required />
+        </div>
+        <div class="modal-footer">
+            <button class="reset-button" id="cancelValorPorPuntoBtn">Cancelar</button>
+            <button id="saveValorPorPuntoBtn">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<div id="informeModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="informeModalTitle"></h4>
+            <button class="reset-button" id="closeInformeBtn">X</button>
+        </div>
+        <div class="modal-body" id="informeModalBody">
+            </div>
+    </div>
+</div>
+
+<div id="editPartTimeModal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 id="editPartTimeModalTitle">Editar Retiro de Part Time</h4>
+        </div>
+        <div class="modal-body">
+            <p><strong>Total de propinas:</strong> <span id="editTotalPropinas"></span></p>
+            <label for="editDivisorPartTimeInput">Divisor:</label>
+            <input type="number" id="editDivisorPartTimeInput" min="1" placeholder="Ingresa divisor" inputmode="numeric" />
+        </div>
+        <div class="modal-footer">
+            <button class="reset-button" id="cancelEditPartTimeBtn">Cancelar</button>
+            <button id="saveEditPartTimeBtn">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+  let currentEditIndex = -1;
+  let totalDiarioMonto = 0;
+  let latestValorPorPunto = 0;
+  let latestDivisor = 0;
+  let retirosList = JSON.parse(localStorage.getItem('retirosList')) || [];
+  const areaOptions = {
+      'Mesas': ['Croupier', 'Supervisor'],
+      'Máquinas': ['Vendedores', 'Técnicos'],
+      'Bóveda': ['Bóveda'],
+      'Otros': ['Otros']
+  };
+
+  function formatNumberWithPoints(value) {
+    if (value === null || value === undefined || isNaN(value)) {
+        return "0";
+    }
+    const num = Math.round(value).toString();
+    return num.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return '';
+    const [year, month, day] = dateString.split('-');
+    return `${day}/${month}/${year}`;
+  }
+  
+  function getTodayDateString() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function getCurrentTimeString() {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+  const montoInput = document.getElementById('monto');
+  montoInput.addEventListener('input', () => {
+    let val = (montoInput.value || '').replace(/\D/g, '');
+    if (val !== '') {
+      montoInput.value = formatNumberWithPoints(val);
+    } else {
+      montoInput.value = '';
+    }
+  });
+  montoInput.addEventListener('blur', () => {
+    let val = (montoInput.value || '').replace(/\./g, '');
+    if (val !== '') {
+      montoInput.value = formatNumberWithPoints(parseInt(val));
+    }
+  });
+
+  document.querySelectorAll('select').forEach(select => {
+    select.addEventListener('change', (e) => {
+      const subAreaSelect = e.target.closest('form')?.querySelector('select[id^="subArea"]');
+      if (subAreaSelect) {
+        const selectedArea = e.target.value;
+        if (areaOptions.hasOwnProperty(selectedArea) && areaOptions[selectedArea].length > 1) {
+          subAreaSelect.style.display = 'block';
+          subAreaSelect.innerHTML = '<option value="">Selecciona Sub-área</option>';
+          areaOptions[selectedArea].forEach(sub => {
+            const option = document.createElement('option');
+            option.value = sub;
+            option.textContent = sub;
+            subAreaSelect.appendChild(option);
+          });
+        } else {
+          subAreaSelect.style.display = 'none';
+          subAreaSelect.innerHTML = '';
+        }
+      }
+    });
+  });
+
+  document.getElementById('plantaForm').addEventListener('submit', (e) => handlePersonFormSubmit(e, 'Planta'));
+  document.getElementById('partTimeForm').addEventListener('submit', (e) => handlePersonFormSubmit(e, 'Part Time'));
+
+  function handlePersonFormSubmit(e, tipo) {
+    e.preventDefault();
+    const form = e.target;
+    const tipoSinEspacio = tipo.replace(/\s/g, '');
+    const nombre = form.querySelector(`input#nombre${tipoSinEspacio}`).value;
+    const apellido = form.querySelector(`input#apellido${tipoSinEspacio}`).value;
+    const area = form.querySelector(`select#area${tipoSinEspacio}`).value;
+    const subAreaSelect = form.querySelector(`select#subArea${tipoSinEspacio}`);
+    const subArea = subAreaSelect ? subAreaSelect.value || area : area;
+    const anio = form.querySelector(`input#anio${tipoSinEspacio}`).value;
+    const puntos = form.querySelector(`input#puntos${tipoSinEspacio}`).value;
+
+    const nuevaPersona = { nombre, apellido, area, subArea, anio, puntos, tipo };
+    let historial = JSON.parse(localStorage.getItem('historial')) || [];
+
+    if (currentEditIndex !== -1) {
+      historial[currentEditIndex] = { ...historial[currentEditIndex], ...nuevaPersona };
+      currentEditIndex = -1;
+      form.querySelector('button[type="submit"]').textContent = 'Agregar';
+      alert('Persona modificada con éxito.');
+    } else {
+        if (tipo === 'Part Time') {
+            nuevaPersona.diasTrabajados = [];
+        }
+        historial.push(nuevaPersona);
+        alert('Persona agregada con éxito.');
+    }
+
+    localStorage.setItem('historial', JSON.stringify(historial));
+    cargarYMostrarFichas();
+    form.reset();
+    if (subAreaSelect) subAreaSelect.style.display = 'none';
+    renderRetirosList(); // Asegura que la lista de retiros se actualice.
+  }
+
+  function calcularPozoIndividual(persona) {
+    const montosPorFecha = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
+    let totalPozoIndividual = 0;
+    const diasTrabajados = persona.diasTrabajados || [];
+
+    diasTrabajados.forEach(fecha => {
+        if (montosPorFecha[fecha]) {
+            montosPorFecha[fecha].forEach(montoData => {
+                totalPozoIndividual += parseFloat(montoData.monto);
+            });
+        }
+    });
+    return totalPozoIndividual;
+}
+
+  function calcularYMostrarPozoIndividualEnFicha(persona, container) {
+    const totalPozoIndividual = calcularPozoIndividual(persona);
+    const diasTrabajados = persona.diasTrabajados || [];
+    
+    const pozoContainer = container.querySelector('.pozo-individual-container') || document.createElement('div');
+    pozoContainer.className = 'pozo-individual-container';
+    pozoContainer.innerHTML = `
+        <p>Días trabajados: ${diasTrabajados.length}</p>
+        <p>Total de propinas: $${formatNumberWithPoints(totalPozoIndividual)}</p>
+    `;
+    
+    if (!container.querySelector('.pozo-individual-container')) {
+        container.appendChild(pozoContainer);
+    }
+  }
+
+  function renderCalendar(container, persona, index) {
+    const today = new Date();
+    let currentMonth = today.getMonth();
+    let currentYear = today.getFullYear();
+
+    function updateCalendar() {
+      container.innerHTML = '';
+      const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+      const header = document.createElement('div');
+      header.className = 'calendar-header';
+      header.innerHTML = `
+        <button class="prev-month">‹</button>
+        <span>${monthNames[currentMonth]} ${currentYear}</span>
+        <button class="next-month">›</button>
+      `;
+      container.appendChild(header);
+
+      const grid = document.createElement('div');
+      grid.className = 'calendar-grid';
+
+      dayNames.forEach(day => {
+        const dayName = document.createElement('div');
+        dayName.className = 'day-name';
+        dayName.textContent = day;
+        grid.appendChild(dayName);
+      });
+
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'day empty';
+        grid.appendChild(emptyDay);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(currentYear, currentMonth, day);
+        const dateString = date.toISOString().split('T')[0];
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'day';
+        dayDiv.textContent = day;
+        dayDiv.dataset.date = dateString;
+
+        const historial = JSON.parse(localStorage.getItem('historial')) || [];
+        const currentPersona = historial[index];
+        if (currentPersona && currentPersona.diasTrabajados && currentPersona.diasTrabajados.includes(dateString)) {
+          dayDiv.classList.add('marked');
+        }
+
+        dayDiv.addEventListener('click', () => {
+          const historial = JSON.parse(localStorage.getItem('historial')) || [];
+          const currentPersona = historial[index];
+          if (!currentPersona) return;
+          if (!currentPersona.diasTrabajados) {
+              currentPersona.diasTrabajados = [];
+          }
+          const dateIndex = currentPersona.diasTrabajados.indexOf(dateString);
+          if (dateIndex > -1) {
+            currentPersona.diasTrabajados.splice(dateIndex, 1);
+          } else {
+            currentPersona.diasTrabajados.push(dateString);
+          }
+          localStorage.setItem('historial', JSON.stringify(historial));
+          updateCalendar();
+          const fichaContent = document.querySelector(`.ficha[data-index="${index}"] .ficha-content`);
+          if (fichaContent) {
+              calcularYMostrarPozoIndividualEnFicha(currentPersona, fichaContent);
+          }
+          renderRetirosList();
+        });
+        grid.appendChild(dayDiv);
+      }
+      container.appendChild(grid);
+
+      header.querySelector('.prev-month').addEventListener('click', () => {
+        currentMonth--;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+        updateCalendar();
+      });
+
+      header.querySelector('.next-month').addEventListener('click', () => {
+        currentMonth++;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+        updateCalendar();
+      });
+    }
+    updateCalendar();
+  }
+
+  function handleEditPerson(persona, index) {
+      currentEditIndex = index;
+      const tipoSinEspacio = persona.tipo.replace(/\s/g, '');
+      const formId = `${tipoSinEspacio.toLowerCase()}Form`;
+      const form = document.getElementById(formId);
+
+      if (form) {
+          document.getElementById('personaSection').classList.remove('collapsed');
+          const cardId = `${tipoSinEspacio.toLowerCase()}Card`;
+          document.getElementById(cardId).classList.add('expanded');
+          document.getElementById(cardId).classList.remove('collapsed');
+
+          const nombreInput = form.querySelector(`input#nombre${tipoSinEspacio}`);
+          if (nombreInput) nombreInput.value = persona.nombre || '';
+
+          const apellidoInput = form.querySelector(`input#apellido${tipoSinEspacio}`);
+          if (apellidoInput) apellidoInput.value = persona.apellido || '';
+
+          const areaSelect = form.querySelector(`select#area${tipoSinEspacio}`);
+          if (areaSelect) areaSelect.value = persona.area || '';
+
+          const subAreaSelect = form.querySelector(`select#subArea${tipoSinEspacio}`);
+          if (subAreaSelect) {
+              if (areaOptions.hasOwnProperty(persona.area) && areaOptions[persona.area].length > 1) {
+                  subAreaSelect.style.display = 'block';
+                  subAreaSelect.innerHTML = '<option value="">Selecciona Sub-área</option>';
+                  areaOptions[persona.area].forEach(sub => {
+                      const option = document.createElement('option');
+                      option.value = sub;
+                      option.textContent = sub;
+                      subAreaSelect.appendChild(option);
+                  });
+                  subAreaSelect.value = persona.subArea || '';
+              } else {
+                  subAreaSelect.style.display = 'none';
+                  subAreaSelect.innerHTML = '';
+              }
+          }
+
+          const anioInput = form.querySelector(`input#anio${tipoSinEspacio}`);
+          if (anioInput) anioInput.value = persona.anio || '';
+
+          const puntosInput = form.querySelector(`input#puntos${tipoSinEspacio}`);
+          if (puntosInput) puntosInput.value = persona.puntos || '';
+
+          const submitBtn = form.querySelector('button[type="submit"]');
+          if (submitBtn) submitBtn.textContent = 'Guardar Cambios';
+
+          form.scrollIntoView({ behavior: 'smooth' });
+      }
+  }
+
+  function cargarYMostrarFichas() {
+    const historial = JSON.parse(localStorage.getItem('historial')) || [];
+    const plantaContainer = document.querySelector('#plantaContainer .fichas-grid-container');
+    const partTimeContainer = document.querySelector('#partTimeContainer .fichas-grid-container');
+
+    plantaContainer.innerHTML = '';
+    partTimeContainer.innerHTML = '';
+
+    historial.forEach((persona, index) => {
+      if (!persona || !persona.tipo) {
+          console.warn('Persona sin tipo o indefinida, omitiendo:', persona);
+          return;
+      }
+      
+      const ficha = document.createElement('div');
+      ficha.className = `ficha collapsed ${persona.tipo.replace(/\s/g, '-').toLowerCase() === 'planta' ? 'ficha-planta' : 'ficha-part-time'}`;
+      ficha.dataset.index = index;
+
+      const titulo = document.createElement('h3');
+      titulo.textContent = `${persona.nombre} ${persona.apellido} (${persona.tipo})`;
+
+      titulo.addEventListener('click', () => {
+        ficha.classList.toggle('collapsed');
+      });
+
+      const cuerpo = document.createElement('div');
+      cuerpo.className = 'ficha-content';
+      cuerpo.innerHTML = `
+        <p><strong>Área:</strong> ${persona.area}${persona.subArea && persona.subArea !== persona.area ? ` (${persona.subArea})` : ''}</p>
+        <p><strong>Año:</strong> ${persona.anio}</p>
+        <p><strong>Puntos:</strong> ${persona.puntos}</p>
+        <button class="edit-button" data-index="${index}">✏️ Editar</button>
+      `;
+
+      if (persona.tipo === 'Part Time') {
+        const calendarContainer = document.createElement('div');
+        calendarContainer.className = 'calendar-container';
+        cuerpo.appendChild(calendarContainer);
+        renderCalendar(calendarContainer, persona, index);
+        calcularYMostrarPozoIndividualEnFicha(persona, cuerpo);
+      }
+
+      if (persona.tipo === 'Planta') {
+        plantaContainer.appendChild(ficha);
+      } else if (persona.tipo === 'Part Time') {
+        partTimeContainer.appendChild(ficha);
+      }
+      ficha.appendChild(titulo);
+      ficha.appendChild(cuerpo);
+    });
+    
+    document.querySelectorAll('.edit-button').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const index = parseInt(e.currentTarget.dataset.index);
+        const historial = JSON.parse(localStorage.getItem('historial')) || [];
+        const persona = historial[index];
+        if (persona) {
+            handleEditPerson(persona, index);
+        }
+      });
+    });
+    
+    filterFichas();
+  }
+  
+  const searchFichasInput = document.getElementById('searchFichas');
+  if (searchFichasInput) {
+    searchFichasInput.addEventListener('input', filterFichas);
+  }
+  
+  function filterFichas() {
+    const query = (searchFichasInput.value || '').toLowerCase();
+    const fichas = document.querySelectorAll('.fichas-grid-container .ficha');
+    
+    fichas.forEach(ficha => {
+      const nombreApellido = (ficha.querySelector('h3')?.textContent || '').toLowerCase();
+      if (nombreApellido.includes(query)) {
+        ficha.style.display = '';
+      } else {
+        ficha.style.display = 'none';
+      }
+    });
+  }
+
+  const searchRetirosInput = document.getElementById('searchRetiros');
+  const searchResultsContainer = document.getElementById('searchResultsContainer');
+  const retirosListContainer = document.getElementById('retirosListContainer');
+  const totalMontoPlantaDisplay = document.getElementById('totalMontoPlanta');
+  const resultadoPlantaDisplay = document.getElementById('resultadoPlanta');
+  const registrarValorPorPuntoBtn = document.getElementById('registrarValorPorPuntoBtn');
+
+  registrarValorPorPuntoBtn.addEventListener('click', openValorPorPuntoModal);
+
+
+  function updatePlantaRetiros() {
+      if (latestDivisor === 0) {
+          latestValorPorPunto = 0;
+      } else {
+          latestValorPorPunto = totalDiarioMonto / latestDivisor;
+      }
+
+      retirosList = retirosList.map(personaRetiro => {
+        const historial = JSON.parse(localStorage.getItem('historial')) || [];
+        const persona = historial.find(p => p.nombre === personaRetiro.nombre && p.apellido === personaRetiro.apellido);
+        if (persona && persona.tipo === 'Planta') {
+            const puntos = parseFloat(persona.puntos) || 0;
+            personaRetiro.montoRetiroFinal = latestValorPorPunto * puntos;
+            personaRetiro.anticipos = getTotalAnticipos(personaRetiro.nombre, personaRetiro.apellido);
+            personaRetiro.totalAlcance = (personaRetiro.montoRetiroFinal || 0) - (personaRetiro.anticipos || 0);
+        }
+        return personaRetiro;
+      });
+
+      localStorage.setItem('retirosList', JSON.stringify(retirosList));
+      renderRetirosList();
+  }
+  
+  function renderRetirosList() {
+    const historial = JSON.parse(localStorage.getItem('historial')) || [];
+    
+    retirosListContainer.innerHTML = '';
+    
+    const groupedByTipo = retirosList.reduce((acc, personaRetiro) => {
+      const persona = historial.find(p => p.nombre === personaRetiro.nombre && p.apellido === personaRetiro.apellido);
+      if (!persona) return acc;
+      
+      const tipo = persona.tipo;
+      const area = persona.area;
+      const subArea = persona.subArea;
+
+      if (!acc[tipo]) {
+        acc[tipo] = {};
+      }
+      if (!acc[tipo][area]) {
+        acc[tipo][area] = {};
+      }
+      if (!acc[tipo][area][subArea]) {
+        acc[tipo][area][subArea] = [];
+      }
+      acc[tipo][area][subArea].push(personaRetiro);
+      return acc;
+    }, {});
+    
+    totalMontoPlantaDisplay.textContent = `$${formatNumberWithPoints(totalDiarioMonto)}`;
+    resultadoPlantaDisplay.textContent = `$${formatNumberWithPoints(latestValorPorPunto)} por punto`;
+
+    for (const tipo in groupedByTipo) {
+      const tipoDiv = document.createElement('div');
+      tipoDiv.className = 'retiro-tipo-container collapsed';
+      
+      const tipoHeader = document.createElement('h3');
+      tipoHeader.textContent = `Personal ${tipo === 'Planta' ? 'de Planta' : tipo}`;
+
+      tipoHeader.addEventListener('click', () => {
+          tipoDiv.classList.toggle('collapsed');
+      });
+      
+      const contentWrapper = document.createElement('div');
+      contentWrapper.className = 'retiro-content-wrapper';
+
+      const groupedByArea = groupedByTipo[tipo];
+      for (const area in groupedByArea) {
+        const areaDiv = document.createElement('div');
+        areaDiv.className = 'retiro-area-container';
+        areaDiv.innerHTML = `<h4>${area}</h4>`;
+
+        for (const subArea in groupedByArea[area]) {
+          const subAreaDiv = document.createElement('div');
+          subAreaDiv.className = 'retiro-sub-area-container';
+          if (subArea !== area) {
+              subAreaDiv.innerHTML = `<h5>${subArea}</h5>`;
+          }
+
+          const listDiv = document.createElement('div');
+          groupedByArea[area][subArea].forEach((personaRetiro) => {
+            
+            const persona = historial.find(p => p.nombre === personaRetiro.nombre && p.apellido === personaRetiro.apellido);
+            if (!persona) return; 
+
+            const personItem = document.createElement('div');
+            personItem.className = `retiro-person-item collapsed ${persona.tipo === 'Planta' ? 'planta' : 'part-time'}`;
+            
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'retiro-header';
+
+            const personNameSpan = document.createElement('span');
+            personNameSpan.className = 'person-name';
+            personNameSpan.textContent = `${persona.nombre} ${persona.apellido}`;
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'retiro-actions';
+            
+            actionsDiv.innerHTML += `
+                <button class="report-button" title="Ver Informe" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}">📊</button>
+                <button class="pdf-button" title="Generar Recibo" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}">📄</button>
+                <button class="edit-button" title="Editar" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}">✏️</button>
+                <button class="delete-button" title="Eliminar" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}">🗑️</button>
+            `;
+
+            const bodyDiv = document.createElement('div');
+            bodyDiv.className = 'retiro-body';
+
+            if (persona.tipo === 'Part Time') {
+                const pozoIndividual = calcularPozoIndividual(persona);
+                const divisorActual = parseFloat(personaRetiro.divisorRetiro) || 0;
+                const puntoActual = (pozoIndividual / divisorActual) || 0;
+                const alcanceActual = puntoActual * (parseFloat(persona.puntos) || 0);
+                
+                const montosPedidos = getTotalMontosPedidos(persona.nombre, persona.apellido);
+                const restanteAlcance = alcanceActual - montosPedidos;
+
+                bodyDiv.innerHTML = `
+                    <span class="person-details">Días trabajados: ${persona.diasTrabajados.length} | Puntos: ${persona.puntos}</span>
+                    <div class="part-time-individual-calculation">
+                        <p>Total de propinas: <span class="total-tips">$${formatNumberWithPoints(pozoIndividual)}</span></p>
+                        <p>Divisor: ${divisorActual || 'Sin especificar'}</p>
+                        <p>Punto-actual-PT: <span class="total-result">$${formatNumberWithPoints(puntoActual)}</span></p>
+                    </div>
+                    <div class="part-time-details-container">
+                        <span class="alcance-data">Alcance-Actual: $${formatNumberWithPoints(alcanceActual)}</span>
+                        <span class="montos-pedidos-data">Montos-Pedidos: $${formatNumberWithPoints(montosPedidos)}</span>
+                        <span class="restante-alcance-data">Restante-Alcance: $${formatNumberWithPoints(restanteAlcance)}</span>
+                    </div>
+                    <button class="registrar-monto-pedido-btn" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}" style="margin-top: 10px;">Registrar Monto Pedido</button>
+                `;
+                
+                bodyDiv.querySelector('.registrar-monto-pedido-btn').addEventListener('click', () => {
+                    openMontosPedidosModal(persona.nombre, persona.apellido);
+                });
+
+            } else { // Planta
+                const puntos = parseFloat(persona.puntos) || 0;
+                const montoFinal = personaRetiro.montoRetiroFinal !== undefined ? personaRetiro.montoRetiroFinal : 0;
+                const anticipos = getTotalAnticipos(persona.nombre, persona.apellido);
+                const totalAlcance = montoFinal - anticipos;
+                
+                bodyDiv.innerHTML = `
+                    <span class="person-details">Puntos: ${puntos} | Divisor: ${latestDivisor}</span>
+                    <p class="valor-por-punto">
+                        Valor por punto: $${formatNumberWithPoints(latestValorPorPunto)}<br>
+                        Total a recibir: $${formatNumberWithPoints(montoFinal)}
+                    </p>
+                    <div class="planta-details-container">
+                        <span class="alcance-data">Total Alcance: $${formatNumberWithPoints(totalAlcance)}</span>
+                        <span class="anticipos-data">Anticipos Totales: $${formatNumberWithPoints(anticipos)}</span>
+                    </div>
+                    <button class="registrar-anticipo-btn" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}" style="margin-top: 10px;">Registrar Anticipo</button>
+                `;
+
+                bodyDiv.querySelector('.registrar-anticipo-btn').addEventListener('click', () => {
+                    openAnticipoModal(persona.nombre, persona.apellido);
+                });
+            }
+
+            headerDiv.appendChild(personNameSpan);
+            headerDiv.appendChild(actionsDiv);
+            personItem.appendChild(headerDiv);
+            personItem.appendChild(bodyDiv);
+
+            headerDiv.addEventListener('click', () => {
+                personItem.classList.toggle('collapsed');
+            });
+            
+            actionsDiv.querySelector('.report-button').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const nombre = e.currentTarget.dataset.nombre;
+                const apellido = e.currentTarget.dataset.apellido;
+                showInforme(nombre, apellido);
+            });
+
+            actionsDiv.querySelector('.pdf-button').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const nombre = e.currentTarget.dataset.nombre;
+                const apellido = e.currentTarget.dataset.apellido;
+                generatePDF(nombre, apellido);
+            });
+            
+            actionsDiv.querySelector('.edit-button').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const nombre = e.currentTarget.dataset.nombre;
+                const apellido = e.currentTarget.dataset.apellido;
+                const persona = historial.find(p => p.nombre === nombre && p.apellido === apellido);
+                const index = historial.findIndex(p => p.nombre === nombre && p.apellido === apellido);
+                if (persona.tipo === 'Part Time') {
+                    openEditPartTimeModal(persona);
+                } else {
+                    handleEditPerson(persona, index);
+                }
+            });
+
+
+            actionsDiv.querySelector('.delete-button').addEventListener('click', (e) => {
+              e.stopPropagation();
+              const nombre = e.currentTarget.dataset.nombre;
+              const apellido = e.currentTarget.dataset.apellido;
+              const personaIndex = retirosList.findIndex(p => p.nombre === nombre && p.apellido === apellido);
+              if (personaIndex > -1) {
+                retirosList.splice(personaIndex, 1);
+                localStorage.setItem('retirosList', JSON.stringify(retirosList));
+                renderRetirosList();
+              }
+            });
+
+            listDiv.appendChild(personItem);
+          });
+          subAreaDiv.appendChild(listDiv);
+          areaDiv.appendChild(subAreaDiv);
+        }
+        contentWrapper.appendChild(areaDiv);
+      }
+      tipoDiv.appendChild(tipoHeader);
+      tipoDiv.appendChild(contentWrapper);
+      retirosListContainer.appendChild(tipoDiv);
+    }
+  }
+
+  searchRetirosInput.addEventListener('input', () => {
+    const query = (searchRetirosInput.value || '').toLowerCase();
+    searchResultsContainer.innerHTML = '';
+    if (query.length < 2) return;
+
+    const historial = JSON.parse(localStorage.getItem('historial')) || [];
+    const filtered = historial.filter(persona =>
+      persona.nombre.toLowerCase().includes(query) || persona.apellido.toLowerCase().includes(query)
+    );
+
+    filtered.forEach(persona => {
+      const resultItem = document.createElement('div');
+      resultItem.className = 'search-result-item';
+      resultItem.innerHTML = `
+        <span>${persona.nombre} ${persona.apellido} (${persona.tipo})</span>
+        <button data-nombre="${persona.nombre}" data-apellido="${persona.apellido}">Agregar</button>
+      `;
+      searchResultsContainer.appendChild(resultItem);
+    });
+
+    document.querySelectorAll('#searchResultsContainer button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const nombre = e.currentTarget.dataset.nombre;
+        const apellido = e.currentTarget.dataset.apellido;
+        const historial = JSON.parse(localStorage.getItem('historial')) || [];
+        const personaToAdd = historial.find(p => p.nombre === nombre && p.apellido === apellido);
+
+        if (personaToAdd && !retirosList.some(p => p.nombre === nombre && p.apellido === apellido)) {
+          retirosList.push(personaToAdd);
+          localStorage.setItem('retirosList', JSON.stringify(retirosList));
+          renderRetirosList();
+          searchRetirosInput.value = '';
+          searchResultsContainer.innerHTML = '';
+        } else if (retirosList.some(p => p.nombre === nombre && p.apellido === apellido)) {
+          alert('Esta persona ya ha sido agregada.');
+        }
+      });
+    });
+  });
+
+  function guardarRetiros() {
+    retirosList = retirosList.map(persona => {
+      const personaCompleta = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === persona.nombre && p.apellido === persona.apellido) || persona;
+      
+      if (persona.tipo === 'Planta') {
+        const puntos = parseFloat(persona.puntos) || 0;
+        persona.montoRetiroFinal = latestValorPorPunto * puntos;
+        persona.anticipos = getTotalAnticipos(persona.nombre, persona.apellido);
+        persona.totalAlcance = (persona.montoRetiroFinal || 0) - (persona.anticipos || 0);
+      } else if (persona.tipo === 'Part Time') {
+        const pozoIndividual = calcularPozoIndividual(personaCompleta);
+        const divisor = parseFloat(persona.divisorRetiro) || 0;
+        const puntoActual = (pozoIndividual / divisor) || 0;
+        const puntos = parseFloat(personaCompleta.puntos) || 0;
+        const alcanceActual = puntoActual * puntos;
+        const montosPedidos = getTotalMontosPedidos(persona.nombre, persona.apellido);
+        persona.restanteAlcance = alcanceActual - montosPedidos;
+      }
+      return persona;
+    });
+
+    localStorage.setItem('retirosList', JSON.stringify(retirosList));
+    renderRetirosList();
+    alert('Los totales de retiro han sido guardados.');
+  }
+
+  document.getElementById('guardarRetirosBtn').addEventListener('click', guardarRetiros);
+
+  document.getElementById('resetRetirosBtn').addEventListener('click', () => {
+    if (confirm('¿Estás seguro de que deseas borrar la lista de retiros? Esta acción no se puede deshacer.')) {
+      localStorage.removeItem('retirosList');
+      retirosList = [];
+      renderRetirosList();
+    }
+  });
+
+
+  let montosPorFecha = {};
+  function cargarYMostrarMontos() {
+    montosPorFecha = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
+    mostrarMontosAgrupados();
+  }
+
+  function guardarMontos() {
+    localStorage.setItem('montosPorFecha', JSON.stringify(montosPorFecha));
+  }
+
+  function mostrarMontosAgrupados() {
+    const contenedor = document.getElementById('tarjetasMontos');
+    contenedor.innerHTML = '';
+
+    const fechasOrdenadas = Object.keys(montosPorFecha);
+    fechasOrdenadas.sort((a, b) => b.localeCompare(a));
+
+    let totalSum = 0;
+    fechasOrdenadas.forEach(fecha => {
+      const montos = montosPorFecha[fecha];
+      let totalFecha = 0;
+      montos.forEach(m => {
+        totalFecha += parseFloat(m.monto);
+      });
+      totalSum += totalFecha;
+
+      const div = document.createElement('div');
+      div.className = 'tarjeta collapsed';
+
+      const titulo = document.createElement('h3');
+      const fechaTexto = document.createTextNode(`Fecha: ${formatDate(fecha)}`);
+
+      const totalSpan = document.createElement('span');
+      totalSpan.className = 'total-in-header';
+      totalSpan.textContent = `$${formatNumberWithPoints(totalFecha)}`;
+
+      titulo.appendChild(fechaTexto);
+      titulo.appendChild(totalSpan);
+
+      titulo.addEventListener('click', () => {
+        div.classList.toggle('collapsed');
+      });
+
+      const cuerpo = document.createElement('div');
+      let htmlMontos = `<div class="montos-list">`;
+      montos.forEach((m, index) => {
+        htmlMontos += `<div class="monto-item">
+          <span><strong>${m.area}</strong><br>Monto: $${formatNumberWithPoints(parseFloat(m.monto))}</span>
+          <button class="delete-button" data-fecha="${fecha}" data-index="${index}">🗑️</button>
+        </div>`;
+      });
+      htmlMontos += `</div>`;
+
+      const totalHtml = `<div class="total-por-fecha">Total: $${formatNumberWithPoints(totalFecha)}</div>`;
+
+      cuerpo.innerHTML = htmlMontos + totalHtml;
+
+      div.appendChild(titulo);
+      div.appendChild(cuerpo);
+      contenedor.appendChild(div);
+    });
+
+    totalDiarioMonto = totalSum;
+    document.getElementById('totalDiario').textContent = `Total diario: $${formatNumberWithPoints(totalSum)}`;
+    updatePlantaRetiros();
+    renderRetirosList();
+    cargarYMostrarFichas();
+  }
+
+  document.getElementById('montosForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const fecha = document.getElementById('fecha').value;
+    const area = document.getElementById('areaMonto').value;
+    let montoStr = (document.getElementById('monto').value || '').trim();
+    let montoNum = parseInt(montoStr.replace(/\./g, '')) || 0;
+    if (!fecha || !area || montoNum === 0) {
+      alert('Por favor, complete todos los campos correctamente');
+      return;
+    }
+    if (!montosPorFecha[fecha]) {
+      montosPorFecha[fecha] = [];
+    }
+    montosPorFecha[fecha].push({ area, monto: montoNum });
+    guardarMontos();
+    mostrarMontosAgrupados();
+    document.getElementById('montosForm').reset();
+  });
+  
+  document.addEventListener('click', e => {
+      if (e.target.classList.contains('delete-button') && e.target.closest('.monto-item')) {
+          const button = e.target;
+          const fecha = button.dataset.fecha;
+          const index = parseInt(button.dataset.index);
+          
+          if (montosPorFecha[fecha] && montosPorFecha[fecha].length > index) {
+              montosPorFecha[fecha].splice(index, 1);
+              if (montosPorFecha[fecha].length === 0) {
+                  delete montosPorFecha[fecha];
+              }
+              guardarMontos();
+              mostrarMontosAgrupados();
+          }
+      }
+  });
+
+  document.getElementById('resetMontosBtn').addEventListener('click', () => {
+    if (confirm('¿Estás seguro de que deseas borrar todos los registros de montos? Esta acción no se puede deshacer.')) {
+      localStorage.removeItem('montosPorFecha');
+      cargarYMostrarMontos();
+    }
+  });
+
+  let currentAnticipoPerson = null;
+  const anticipoModal = document.getElementById('anticipoModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const anticipoMontoInput = document.getElementById('anticipoMontoInput');
+  const anticipoFechaInput = document.getElementById('anticipoFechaInput');
+  const anticipoHoraInput = document.getElementById('anticipoHoraInput');
+  const saveAnticipoBtn = document.getElementById('saveAnticipoBtn');
+  const cancelAnticipoBtn = document.getElementById('cancelAnticipoBtn');
+  
+  let currentMontosPedidosPerson = null;
+  const montosPedidosModal = document.getElementById('montosPedidosModal');
+  const montosPedidosModalTitle = document.getElementById('montosPedidosModalTitle');
+  const montosPedidosMontoInput = document.getElementById('montosPedidosMontoInput');
+  const montosPedidosFechaInput = document.getElementById('montosPedidosFechaInput');
+  const montosPedidosHoraInput = document.getElementById('montosPedidosHoraInput');
+  const saveMontosPedidosBtn = document.getElementById('saveMontosPedidosBtn');
+  const cancelMontosPedidosBtn = document.getElementById('cancelMontosPedidosBtn');
+  
+  const valorPorPuntoModal = document.getElementById('valorPorPuntoModal');
+  const valorPorPuntoInput = document.getElementById('valorPorPuntoInput');
+  const valorPorPuntoFechaInput = document.getElementById('valorPorPuntoFechaInput');
+  const valorPorPuntoHoraInput = document.getElementById('valorPorPuntoHoraInput');
+  const saveValorPorPuntoBtn = document.getElementById('saveValorPorPuntoBtn');
+  const cancelValorPorPuntoBtn = document.getElementById('cancelValorPorPuntoBtn');
+
+  const editPartTimeModal = document.getElementById('editPartTimeModal');
+  const editTotalPropinasSpan = document.getElementById('editTotalPropinas');
+  const editDivisorPartTimeInput = document.getElementById('editDivisorPartTimeInput');
+  const saveEditPartTimeBtn = document.getElementById('saveEditPartTimeBtn');
+  const cancelEditPartTimeBtn = document.getElementById('cancelEditPartTimeBtn');
+  let currentPartTimePerson;
+
+  anticipoMontoInput.addEventListener('input', () => {
+    let val = (anticipoMontoInput.value || '').replace(/\D/g, '');
+    if (val !== '') {
+      anticipoMontoInput.value = formatNumberWithPoints(val);
+    } else {
+      anticipoMontoInput.value = '';
+    }
+  });
+  
+  anticipoMontoInput.addEventListener('blur', () => {
+    let val = (anticipoMontoInput.value || '').replace(/\./g, '');
+    if (val !== '') {
+      anticipoMontoInput.value = formatNumberWithPoints(parseInt(val));
+    }
+  });
+  
+  montosPedidosMontoInput.addEventListener('input', () => {
+      let val = (montosPedidosMontoInput.value || '').replace(/\D/g, '');
+      if (val !== '') {
+          montosPedidosMontoInput.value = formatNumberWithPoints(val);
+      } else {
+          montosPedidosMontoInput.value = '';
+      }
+  });
+  
+  montosPedidosMontoInput.addEventListener('blur', () => {
+      let val = (montosPedidosMontoInput.value || '').replace(/\./g, '');
+      if (val !== '') {
+          montosPedidosMontoInput.value = formatNumberWithPoints(parseInt(val));
+      }
+  });
+  
+  valorPorPuntoInput.addEventListener('input', () => {
+    let val = (valorPorPuntoInput.value || '').replace(/\D/g, '');
+    if (val !== '') {
+        valorPorPuntoInput.value = formatNumberWithPoints(val);
+    } else {
+        valorPorPuntoInput.value = '';
+    }
+  });
+  
+  valorPorPuntoInput.addEventListener('blur', () => {
+    let val = (valorPorPuntoInput.value || '').replace(/\./g, '');
+    if (val !== '') {
+      valorPorPuntoInput.value = formatNumberWithPoints(parseInt(val));
+    }
+  });
+
+
+  function openAnticipoModal(nombre, apellido) {
+      currentAnticipoPerson = { nombre, apellido };
+      modalTitle.textContent = `Registrar Anticipo para ${nombre} ${apellido}`;
+      anticipoMontoInput.value = '';
+      anticipoFechaInput.value = getTodayDateString();
+      anticipoHoraInput.value = getCurrentTimeString();
+      anticipoModal.style.display = 'flex';
+  }
+
+  function closeAnticipoModal() {
+      currentAnticipoPerson = null;
+      anticipoModal.style.display = 'none';
+  }
+  
+  function openMontosPedidosModal(nombre, apellido) {
+      currentMontosPedidosPerson = { nombre, apellido };
+      montosPedidosModalTitle.textContent = `Registrar Monto Pedido para ${nombre} ${apellido}`;
+      montosPedidosMontoInput.value = '';
+      montosPedidosFechaInput.value = getTodayDateString();
+      montosPedidosHoraInput.value = getCurrentTimeString();
+      montosPedidosModal.style.display = 'flex';
+  }
+
+  function closeMontosPedidosModal() {
+      currentMontosPedidosPerson = null;
+      montosPedidosModal.style.display = 'none';
+  }
+  
+  function openValorPorPuntoModal() {
+      valorPorPuntoInput.value = latestDivisor || '';
+      valorPorPuntoFechaInput.value = getTodayDateString();
+      valorPorPuntoHoraInput.value = getCurrentTimeString();
+      valorPorPuntoModal.style.display = 'flex';
+  }
+
+  function closeValorPorPuntoModal() {
+      valorPorPuntoModal.style.display = 'none';
+  }
+
+
+  saveAnticipoBtn.addEventListener('click', () => {
+      if (!currentAnticipoPerson) return;
+      
+      const monto = parseFloat((anticipoMontoInput.value || '').replace(/\./g, '')) || 0;
+      const fecha = anticipoFechaInput.value;
+      const hora = anticipoHoraInput.value;
+
+      if (monto <= 0 || !fecha || !hora) {
+          alert('Por favor, ingresa un monto válido, fecha y hora.');
+          return;
+      }
+
+      agregarAnticipoAHistorial(currentAnticipoPerson.nombre, currentAnticipoPerson.apellido, monto, fecha, hora);
+      
+      const personaIndex = retirosList.findIndex(p => p.nombre === currentAnticipoPerson.nombre && p.apellido === currentAnticipoPerson.apellido);
+      if (personaIndex > -1) {
+          retirosList[personaIndex].anticipos = getTotalAnticipos(currentAnticipoPerson.nombre, currentAnticipoPerson.apellido);
+          retirosList[personaIndex].totalAlcance = (retirosList[personaIndex].montoRetiroFinal || 0) - retirosList[personaIndex].anticipos;
+          localStorage.setItem('retirosList', JSON.stringify(retirosList));
+          renderRetirosList();
+      }
+
+      closeAnticipoModal();
+  });
+
+  cancelAnticipoBtn.addEventListener('click', closeAnticipoModal);
+  
+  saveMontosPedidosBtn.addEventListener('click', () => {
+      if (!currentMontosPedidosPerson) return;
+      
+      const monto = parseFloat((montosPedidosMontoInput.value || '').replace(/\./g, '')) || 0;
+      const fecha = montosPedidosFechaInput.value;
+      const hora = montosPedidosHoraInput.value;
+
+      if (monto <= 0 || !fecha || !hora) {
+          alert('Por favor, ingresa un monto válido, fecha y hora.');
+          return;
+      }
+      
+      agregarMontoPedidoAHistorial(currentMontosPedidosPerson.nombre, currentMontosPedidosPerson.apellido, monto, fecha, hora);
+      
+      const personaIndex = retirosList.findIndex(p => p.nombre === currentMontosPedidosPerson.nombre && p.apellido === currentMontosPedidosPerson.apellido);
+      if (personaIndex > -1) {
+          const persona = retirosList[personaIndex];
+          const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === persona.nombre && p.apellido === persona.apellido);
+          const pozoIndividual = calcularPozoIndividual(historialPersona);
+          const divisor = parseFloat(persona.divisorRetiro) || 0;
+          const puntoActual = (pozoIndividual / divisor) || 0;
+          const puntos = parseFloat(historialPersona.puntos) || 0;
+          const alcanceActual = puntoActual * puntos;
+          
+          const totalMontosPedidos = getTotalMontosPedidos(currentMontosPedidosPerson.nombre, currentMontosPedidosPerson.apellido);
+          persona.restanteAlcance = alcanceActual - totalMontosPedidos;
+          localStorage.setItem('retirosList', JSON.stringify(retirosList));
+          renderRetirosList();
+      }
+
+      closeMontosPedidosModal();
+  });
+  
+  cancelMontosPedidosBtn.addEventListener('click', closeMontosPedidosModal);
+  
+  saveValorPorPuntoBtn.addEventListener('click', () => {
+      const divisor = parseFloat((valorPorPuntoInput.value || '').replace(/\./g, '')) || 0;
+      const fecha = valorPorPuntoFechaInput.value;
+      const hora = valorPorPuntoHoraInput.value;
+      
+      if (divisor <= 0 || !fecha || !hora) {
+          alert('Por favor, ingresa un divisor válido, fecha y hora.');
+          return;
+      }
+      
+      let historial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
+      historial.unshift({ valor: divisor, fecha, hora, id: Date.now() });
+      localStorage.setItem('valorPorPuntoHistorial', JSON.stringify(historial));
+      
+      latestDivisor = divisor;
+      updatePlantaRetiros();
+      renderValorPorPuntoHistorial();
+      closeValorPorPuntoModal();
+  });
+  
+  cancelValorPorPuntoBtn.addEventListener('click', closeValorPorPuntoModal);
+
+
+  function openEditPartTimeModal(persona) {
+      currentPartTimePerson = persona;
+      const totalPropinas = calcularPozoIndividual(persona);
+      editTotalPropinasSpan.textContent = `$${formatNumberWithPoints(totalPropinas)}`;
+      editDivisorPartTimeInput.value = persona.divisorRetiro || '';
+      editPartTimeModal.style.display = 'flex';
+  }
+
+  function closeEditPartTimeModal() {
+      currentPartTimePerson = null;
+      editPartTimeModal.style.display = 'none';
+  }
+
+  saveEditPartTimeBtn.addEventListener('click', () => {
+      const divisor = parseFloat(editDivisorPartTimeInput.value);
+      if (isNaN(divisor) || divisor <= 0) {
+          alert('Por favor, ingresa un divisor válido.');
+          return;
+      }
+
+      const personaIndex = retirosList.findIndex(p => p.nombre === currentPartTimePerson.nombre && p.apellido === currentPartTimePerson.apellido);
+      if (personaIndex > -1) {
+          retirosList[personaIndex].divisorRetiro = divisor;
+          const pozoIndividual = calcularPozoIndividual(currentPartTimePerson);
+          const puntoActual = (pozoIndividual / divisor) || 0;
+          const puntos = parseFloat(currentPartTimePerson.puntos) || 0;
+          const alcanceActual = puntoActual * puntos;
+          const totalMontosPedidos = getTotalMontosPedidos(currentPartTimePerson.nombre, currentPartTimePerson.apellido);
+          retirosList[personaIndex].restanteAlcance = alcanceActual - totalMontosPedidos;
+          localStorage.setItem('retirosList', JSON.stringify(retirosList));
+          renderRetirosList();
+      }
+      closeEditPartTimeModal();
+  });
+
+  cancelEditPartTimeBtn.addEventListener('click', closeEditPartTimeModal);
+  
+  function getTotalAnticipos(nombre, apellido) {
+      const historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
+      return historialAnticipos.filter(ant => ant.nombre === nombre && ant.apellido === apellido).reduce((sum, ant) => sum + (parseFloat(ant.monto) || 0), 0);
+  }
+  
+  function getTotalMontosPedidos(nombre, apellido) {
+      const historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
+      return historialMontosPedidos.filter(mp => mp.nombre === nombre && mp.apellido === apellido).reduce((sum, mp) => sum + (parseFloat(mp.monto) || 0), 0);
+  }
+
+  function agregarAnticipoAHistorial(nombre, apellido, monto, fecha, hora) {
+      let historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
+      const id = Date.now();
+      
+      const nuevoRegistro = { nombre, apellido, monto, fecha, hora, id };
+      historialAnticipos.unshift(nuevoRegistro);
+      
+      localStorage.setItem('anticiposHistorial', JSON.stringify(historialAnticipos));
+      renderAnticiposHistorial();
+  }
+  
+  function agregarMontoPedidoAHistorial(nombre, apellido, monto, fecha, hora) {
+      let historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
+      const id = Date.now();
+      
+      const nuevoRegistro = { nombre, apellido, monto, fecha, hora, id };
+      historialMontosPedidos.unshift(nuevoRegistro);
+      
+      localStorage.setItem('montosPedidosHistorial', JSON.stringify(historialMontosPedidos));
+      renderMontosPedidosHistorial();
+  }
+
+  function eliminarAnticipoDeHistorial(id, nombre, apellido) {
+      let historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
+      const index = historialAnticipos.findIndex(reg => reg.id === id);
+
+      if (index !== -1) {
+          historialAnticipos.splice(index, 1);
+          localStorage.setItem('anticiposHistorial', JSON.stringify(historialAnticipos));
+
+          const personaEnRetiros = retirosList.find(p => p.nombre === nombre && p.apellido === apellido);
+          if (personaEnRetiros) {
+              personaEnRetiros.anticipos = getTotalAnticipos(nombre, apellido);
+              personaEnRetiros.totalAlcance = (personaEnRetiros.montoRetiroFinal || 0) - personaEnRetiros.anticipos;
+              localStorage.setItem('retirosList', JSON.stringify(retirosList));
+          }
+          
+          renderAnticiposHistorial();
+          renderRetirosList();
+      }
+  }
+  
+  function eliminarMontoPedidoDeHistorial(id, nombre, apellido) {
+      let historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
+      const index = historialMontosPedidos.findIndex(reg => reg.id === id);
+
+      if (index !== -1) {
+          historialMontosPedidos.splice(index, 1);
+          localStorage.setItem('montosPedidosHistorial', JSON.stringify(historialMontosPedidos));
+
+          const personaEnRetiros = retirosList.find(p => p.nombre === nombre && p.apellido === apellido);
+          if (personaEnRetiros) {
+              const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === personaEnRetiros.nombre && p.apellido === personaEnRetiros.apellido);
+              const pozoIndividual = calcularPozoIndividual(historialPersona);
+              const divisor = parseFloat(personaEnRetiros.divisorRetiro) || 0;
+              const puntoActual = (pozoIndividual / divisor) || 0;
+              const puntos = parseFloat(historialPersona.puntos) || 0;
+              const alcanceActual = puntoActual * puntos;
+              const totalMontosPedidos = getTotalMontosPedidos(nombre, apellido);
+              personaEnRetiros.restanteAlcance = alcanceActual - totalMontosPedidos;
+              localStorage.setItem('retirosList', JSON.stringify(retirosList));
+          }
+          
+          renderMontosPedidosHistorial();
+          renderRetirosList();
+      }
+  }
+  
+  function eliminarValorPorPuntoDeHistorial(id) {
+    let historial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
+    const index = historial.findIndex(reg => reg.id === id);
+    if (index !== -1) {
+        historial.splice(index, 1);
+        localStorage.setItem('valorPorPuntoHistorial', JSON.stringify(historial));
+        
+        if (historial.length > 0) {
+            latestDivisor = historial[0].valor;
+        } else {
+            latestDivisor = 0;
+        }
+        
+        renderValorPorPuntoHistorial();
+        updatePlantaRetiros();
+    }
+  }
+
+  function renderAnticiposHistorial() {
+      const historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
+      const container = document.getElementById('anticiposHistorialContainer');
+      container.innerHTML = '';
+
+      const groupedByPerson = historialAnticipos.reduce((acc, registro) => {
+          const key = `${registro.nombre} ${registro.apellido}`;
+          if (!acc[key]) {
+              acc[key] = {
+                  nombre: registro.nombre,
+                  apellido: registro.apellido,
+                  registros: []
+              };
+          }
+          acc[key].registros.push(registro);
+          return acc;
+      }, {});
+
+      for (const key in groupedByPerson) {
+          const personData = groupedByPerson[key];
+          const personDiv = document.createElement('div');
+          personDiv.className = 'anticipo-person-item';
+          personDiv.innerHTML = `
+              <h4>${personData.nombre} ${personData.apellido}</h4>
+              <ul class="anticipo-list"></ul>
+          `;
+          const ul = personDiv.querySelector('ul');
+          personData.registros.sort((a, b) => b.id - a.id);
+          personData.registros.forEach(registro => {
+              const li = document.createElement('li');
+              li.className = 'anticipo-item';
+              const signo = registro.monto >= 0 ? '' : '-';
+              li.innerHTML = `
+                  <span>$${signo}${formatNumberWithPoints(registro.monto)}</span>
+                  <span class="date-time">${formatDate(registro.fecha)} ${registro.hora}</span>
+                  <button class="delete-button" data-id="${registro.id}" data-nombre="${registro.nombre}" data-apellido="${registro.apellido}">🗑️</button>
+              `;
+              ul.appendChild(li);
+          });
+          container.appendChild(personDiv);
+      }
+      
+      document.querySelectorAll('#anticiposHistorialContainer .delete-button').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+              const id = parseInt(e.target.dataset.id);
+              const nombre = e.target.dataset.nombre;
+              const apellido = e.target.dataset.apellido;
+              if (confirm('¿Estás seguro de que deseas eliminar este registro de anticipo?')) {
+                  eliminarAnticipoDeHistorial(id, nombre, apellido);
+              }
+          });
+      });
+  }
+  
+  function renderMontosPedidosHistorial() {
+      const historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
+      const container = document.getElementById('montosPedidosHistorialContainer');
+      container.innerHTML = '';
+
+      const groupedByPerson = historialMontosPedidos.reduce((acc, registro) => {
+          const key = `${registro.nombre} ${registro.apellido}`;
+          if (!acc[key]) {
+              acc[key] = {
+                  nombre: registro.nombre,
+                  apellido: registro.apellido,
+                  registros: []
+              };
+          }
+          acc[key].registros.push(registro);
+          return acc;
+      }, {});
+
+      for (const key in groupedByPerson) {
+          const personData = groupedByPerson[key];
+          const personDiv = document.createElement('div');
+          personDiv.className = 'montos-pedidos-person-item';
+          personDiv.innerHTML = `
+              <h4>${personData.nombre} ${personData.apellido}</h4>
+              <ul class="montos-pedidos-list"></ul>
+          `;
+          const ul = personDiv.querySelector('ul');
+          personData.registros.sort((a, b) => b.id - a.id);
+          personData.registros.forEach(registro => {
+              const li = document.createElement('li');
+              li.className = 'montos-pedidos-item';
+              const signo = registro.monto >= 0 ? '' : '-';
+              li.innerHTML = `
+                  <span>$${signo}${formatNumberWithPoints(registro.monto)}</span>
+                  <span class="date-time">${formatDate(registro.fecha)} ${registro.hora})</span>
+                  <button class="delete-button" data-id="${registro.id}" data-nombre="${registro.nombre}" data-apellido="${registro.apellido}">🗑️</button>
+              `;
+              ul.appendChild(li);
+          });
+          container.appendChild(personDiv);
+      }
+      
+      document.querySelectorAll('#montosPedidosHistorialContainer .delete-button').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+              const id = parseInt(e.target.dataset.id);
+              const nombre = e.target.dataset.nombre;
+              const apellido = e.target.dataset.apellido;
+              if (confirm('¿Estás seguro de que deseas eliminar este registro de monto pedido?')) {
+                  eliminarMontoPedidoDeHistorial(id, nombre, apellido);
+              }
+          });
+      });
+  }
+  
+  function renderValorPorPuntoHistorial() {
+      const historial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
+      const container = document.getElementById('valorPorPuntoHistorialContainer');
+      container.innerHTML = '';
+      
+      if (historial.length > 0) {
+          historial.forEach(registro => {
+              const item = document.createElement('div');
+              item.className = 'valor-por-punto-item';
+              item.innerHTML = `
+                  <span><strong>Divisor:</strong> ${formatNumberWithPoints(registro.valor)}</span>
+                  <span><strong>Fecha:</strong> ${formatDate(registro.fecha)}</span>
+                  <span><strong>Hora:</strong> ${registro.hora}</span>
+                  <button class="delete-button" data-id="${registro.id}">🗑️</button>
+              `;
+              container.appendChild(item);
+          });
+          
+          document.querySelectorAll('#valorPorPuntoHistorialContainer .delete-button').forEach(btn => {
+              btn.addEventListener('click', (e) => {
+                  const id = parseInt(e.target.dataset.id);
+                  if (confirm('¿Estás seguro de que deseas eliminar este registro?')) {
+                      eliminarValorPorPuntoDeHistorial(id);
+                  }
+              });
+          });
+      }
+  }
+
+  document.getElementById('resetAnticiposBtn').addEventListener('click', () => {
+    if (confirm('¿Estás seguro de que deseas borrar todo el historial de anticipos? Esto también reiniciará el cálculo de los anticipos actuales.')) {
+      localStorage.removeItem('anticiposHistorial');
+      renderAnticiposHistorial();
+      renderRetirosList();
+    }
+  });
+  
+  document.getElementById('resetMontosPedidosBtn').addEventListener('click', () => {
+      if (confirm('¿Estás seguro de que deseas borrar todo el historial de montos pedidos? Esto también reiniciará el cálculo de los montos pedidos.')) {
+          localStorage.removeItem('montosPedidosHistorial');
+          renderMontosPedidosHistorial();
+          renderRetirosList();
+      }
+  });
+  
+  document.getElementById('resetValorPorPuntoBtn').addEventListener('click', () => {
+    if (confirm('¿Estás seguro de que deseas borrar todo el historial de divisores?')) {
+      localStorage.removeItem('valorPorPuntoHistorial');
+      latestDivisor = 0;
+      renderValorPorPuntoHistorial();
+      updatePlantaRetiros();
+    }
+  });
+
+  const informeModal = document.getElementById('informeModal');
+  const informeModalTitle = document.getElementById('informeModalTitle');
+  const informeModalBody = document.getElementById('informeModalBody');
+  const closeInformeBtn = document.getElementById('closeInformeBtn');
+
+  function showInforme(nombre, apellido) {
+      const personaRetiro = retirosList.find(p => p.nombre === nombre && p.apellido === apellido);
+      if (!personaRetiro) {
+          alert('Persona no encontrada en la lista de retiros.');
+          return;
+      }
+      
+      const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === nombre && p.apellido === apellido);
+      if (!historialPersona) {
+          alert('Persona no encontrada en el historial.');
+          return;
+      }
+      
+      const historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
+      const anticiposPersona = historialAnticipos.filter(ant => ant.nombre === nombre && ant.apellido === apellido);
+      
+      const historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
+      const montosPedidosPersona = historialMontosPedidos.filter(mp => mp.nombre === nombre && mp.apellido === apellido);
+
+      informeModalTitle.textContent = `Informe de Retiro para ${nombre} ${apellido}`;
+      
+      let htmlContent = '';
+      if (historialPersona.tipo === 'Planta') {
+        const totalRecibir = personaRetiro.montoRetiroFinal || 0;
+        const totalAnticipos = getTotalAnticipos(nombre, apellido);
+        const totalAlcance = personaRetiro.totalAlcance || 0;
+        
+        htmlContent = `
+            <p><strong>Total de propinas:</strong> <span class="informe-total">$${formatNumberWithPoints(totalDiarioMonto)}</span></p>
+            <p><strong>Divisor:</strong> <span class="informe-total">${latestDivisor}</span></p>
+            <p><strong>Valor por punto:</strong> <span class="informe-total">$${formatNumberWithPoints(latestValorPorPunto)}</span></p>
+            <p><strong>Total a recibir:</strong> <span class="informe-total">$${formatNumberWithPoints(totalRecibir)}</span></p>
+            <p><strong>Total de anticipos:</strong> <span class="informe-anticipos">$${formatNumberWithPoints(totalAnticipos)}</span></p>
+            <p><strong>Total Alcance:</strong> <span class="informe-total">$${formatNumberWithPoints(totalAlcance)}</span></p>
+        `;
+      } else {
+        const pozoIndividual = calcularPozoIndividual(historialPersona);
+        const divisorActual = personaRetiro.divisorRetiro || 'N/A';
+        const puntoActual = (pozoIndividual / divisorActual) || 0;
+        const alcanceActual = puntoActual * (parseFloat(historialPersona.puntos) || 0);
+        const totalMontosPedidos = getTotalMontosPedidos(nombre, apellido);
+        const restanteAlcance = alcanceActual - totalMontosPedidos;
+
+        htmlContent = `
+            <p><strong>Días trabajados:</strong> ${historialPersona.diasTrabajados.length}</p>
+            <p><strong>Total de propinas del pozo:</strong> <span class="informe-total">$${formatNumberWithPoints(pozoIndividual)}</span></p>
+            <p><strong>Divisor aplicado:</strong> ${divisorActual}</p>
+            <p><strong>Punto-actual-PT:</strong> <span class="informe-total">$${formatNumberWithPoints(puntoActual)}</span></p>
+            <p><strong>Alcance-Actual:</strong> <span class="informe-total">$${formatNumberWithPoints(alcanceActual)}</span></p>
+            <p><strong>Montos-Pedidos:</strong> <span class="informe-total">$${formatNumberWithPoints(totalMontosPedidos)}</span></p>
+            <p><strong>Restante-Alcance:</strong> <span class="informe-total">$${formatNumberWithPoints(restanteAlcance)}</span></p>
+        `;
+      }
+
+
+      if (anticiposPersona.length > 0) {
+          htmlContent += `
+              <div class="informe-historial">
+                  <h5>Historial de Anticipos:</h5>
+                  <ul>
+          `;
+          anticiposPersona.sort((a, b) => b.id - a.id);
+          anticiposPersona.forEach(ant => {
+              htmlContent += `<li>$${formatNumberWithPoints(ant.monto)} (${formatDate(ant.fecha)} ${ant.hora})</li>`;
+          });
+          htmlContent += `</ul></div>`;
+      } else {
+          htmlContent += `<p>No hay anticipos registrados.</p>`;
+      }
+      
+      if (montosPedidosPersona.length > 0) {
+          htmlContent += `
+              <div class="informe-historial">
+                  <h5>Historial de Montos Pedidos:</h5>
+                  <ul>
+          `;
+          montosPedidosPersona.sort((a, b) => b.id - a.id);
+          montosPedidosPersona.forEach(mp => {
+              htmlContent += `<li>$${formatNumberWithPoints(mp.monto)} (${formatDate(mp.fecha)} ${mp.hora})</li>`;
+          });
+          htmlContent += `</ul></div>`;
+      } else {
+          htmlContent += `<p>No hay montos pedidos registrados.</p>`;
+      }
+      
+      informeModalBody.innerHTML = htmlContent;
+      informeModal.style.display = 'flex';
+  }
+
+  closeInformeBtn.addEventListener('click', () => {
+      informeModal.style.display = 'none';
+  });
+  
+  function generatePDF(nombre, apellido) {
+      const personaRetiro = retirosList.find(p => p.nombre === nombre && p.apellido === apellido);
+      if (!personaRetiro) {
+          alert('Datos de la persona no encontrados para generar el PDF.');
+          return;
+      }
+      
+      const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === nombre && p.apellido === apellido);
+      if (!historialPersona) {
+          alert('Datos de la persona no encontrados para generar el PDF.');
+          return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const today = new Date();
+      const formattedDate = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
+      
+      const historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
+      const anticiposPersona = historialAnticipos.filter(ant => ant.nombre === nombre && ant.apellido === apellido);
+      
+      const historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
+      const montosPedidosPersona = historialMontosPedidos.filter(mp => mp.nombre === nombre && mp.apellido === apellido);
+
+      let y = 20;
+
+      doc.setFontSize(16);
+      doc.text("Recibo de Retiro de Propina", 105, y, null, null, "center");
+      y += 10;
+      doc.setFontSize(10);
+      doc.text(`Fecha: ${formattedDate}`, 180, y, null, null, "right");
+      y += 20;
+
+      doc.setFontSize(12);
+      doc.text(`Nombre: ${historialPersona.nombre} ${historialPersona.apellido}`, 20, y);
+      y += 10;
+      doc.text(`Área: ${historialPersona.area}`, 20, y);
+      y += 10;
+      doc.text(`Puntos: ${historialPersona.puntos}`, 20, y);
+      y += 20;
+      
+      if (historialPersona.tipo === 'Planta') {
+          const totalRecibir = personaRetiro.montoRetiroFinal || 0;
+          const totalAnticipos = getTotalAnticipos(nombre, apellido);
+          const totalAlcance = personaRetiro.totalAlcance || 0;
+          doc.text(`Total de propinas: $${formatNumberWithPoints(totalDiarioMonto)}`, 20, y);
+          y += 10;
+          doc.text(`Divisor: ${latestDivisor}`, 20, y);
+          y += 10;
+          doc.text(`Valor por punto: $${formatNumberWithPoints(latestValorPorPunto)}`, 20, y);
+          y += 10;
+          doc.text(`Total a Recibir: $${formatNumberWithPoints(totalRecibir)}`, 20, y);
+          y += 10;
+          doc.text(`Anticipos: $${formatNumberWithPoints(totalAnticipos)}`, 20, y);
+          y += 10;
+          doc.text(`Total Alcance: $${formatNumberWithPoints(totalAlcance)}`, 20, y);
+          y += 20;
+      } else {
+          const pozoIndividual = calcularPozoIndividual(historialPersona);
+          const puntoActual = (pozoIndividual / (personaRetiro.divisorRetiro || 1)) || 0;
+          const alcanceActual = puntoActual * (parseFloat(historialPersona.puntos) || 0);
+          const totalMontosPedidos = getTotalMontosPedidos(nombre, apellido);
+          const restanteAlcance = alcanceActual - totalMontosPedidos;
+          
+          doc.text(`Días trabajados: ${historialPersona.diasTrabajados.length}`, 20, y);
+          y += 10;
+          doc.text(`Total de propinas del pozo: $${formatNumberWithPoints(pozoIndividual)}`, 20, y);
+          y += 10;
+          doc.text(`Divisor aplicado: ${personaRetiro.divisorRetiro}`, 20, y);
+          y += 10;
+          doc.text(`Punto-actual-PT: $${formatNumberWithPoints(puntoActual)}`, 20, y);
+          y += 10;
+          doc.text(`Alcance-Actual: $${formatNumberWithPoints(alcanceActual)}`, 20, y);
+          y += 10;
+          doc.text(`Montos-Pedidos: $${formatNumberWithPoints(totalMontosPedidos)}`, 20, y);
+          y += 10;
+          doc.text(`Restante-Alcance: $${formatNumberWithPoints(restanteAlcance)}`, 20, y);
+          y += 20;
+      }
+      
+
+      if (anticiposPersona.length > 0) {
+        doc.setFontSize(12);
+        doc.text("Historial de Anticipos:", 20, y);
+        y += 10;
+        doc.setFontSize(10);
+        anticiposPersona.sort((a, b) => b.id - a.id);
+        anticiposPersona.forEach(ant => {
+          doc.text(`- $${formatNumberWithPoints(ant.monto)} (${formatDate(ant.fecha)} ${ant.hora})`, 25, y);
+          y += 7;
+        });
+        y += 10;
+      }
+      
+      if (montosPedidosPersona.length > 0) {
+          doc.setFontSize(12);
+          doc.text("Historial de Montos Pedidos:", 20, y);
+          y += 10;
+          doc.setFontSize(10);
+          montosPedidosPersona.sort((a, b) => b.id - a.id);
+          montosPedidosPersona.forEach(mp => {
+              doc.text(`- $${formatNumberWithPoints(mp.monto)} (${formatDate(mp.fecha)} ${mp.hora})`, 25, y);
+              y += 7;
+          });
+          y += 10;
+      }
+      
+      doc.setFontSize(12);
+      doc.text("________________________________", 20, y);
+      y += 10;
+      doc.text("Firma", 20, y);
+
+      doc.save(`Recibo-${historialPersona.nombre}-${historialPersona.apellido}.pdf`);
+  }
+
+  function setupCollapsibleSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      const h2 = section.querySelector('h2');
+      if (h2) {
+        h2.addEventListener('click', () => {
+          section.classList.toggle('collapsed');
+          section.classList.toggle('expanded');
+        });
+      }
+    }
+  }
+
+  function setupCollapsibleCard(cardId) {
+    const card = document.getElementById(cardId);
+    if (card) {
+      const h3 = card.querySelector('h3');
+      if (h3) {
+        h3.addEventListener('click', () => {
+          card.classList.toggle('collapsed');
+          card.classList.toggle('expanded');
+        });
+      }
+    }
+  }
+  
+  function setupMainCollapsibles() {
+      document.getElementById('plantaSectionHeader').addEventListener('click', () => {
+          document.getElementById('plantaContainer').classList.toggle('collapsed');
+      });
+      document.getElementById('partTimeSectionHeader').addEventListener('click', () => {
+          document.getElementById('partTimeContainer').classList.toggle('collapsed');
+      });
+  }
+
+  window.onload = () => {
+    // Limpia el historial al cargar la página, eliminando registros incompletos o mal formateados.
+    const historial = JSON.parse(localStorage.getItem('historial')) || [];
+    const historialCorregido = historial.filter(persona => {
+        return persona && typeof persona === 'object' && persona.tipo;
+    }).map(persona => {
+        if (persona.tipo && persona.tipo.toLowerCase() === 'parttime') {
+            persona.tipo = 'Part Time';
+        }
+        return persona;
+    });
+    localStorage.setItem('historial', JSON.stringify(historialCorregido));
+    
+    const valorPorPuntoHistorial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
+    if (valorPorPuntoHistorial.length > 0) {
+        latestDivisor = valorPorPuntoHistorial[0].valor;
+    } else {
+        latestDivisor = 0;
+    }
+
+    cargarYMostrarFichas();
+    cargarYMostrarMontos();
+    renderAnticiposHistorial();
+    renderMontosPedidosHistorial();
+    renderValorPorPuntoHistorial();
+    
+    setupCollapsibleSection('personaSection');
+    setupCollapsibleSection('fichasSection');
+    setupCollapsibleSection('retirosPropinaSection');
+    setupCollapsibleSection('montosSection');
+    setupCollapsibleSection('anticiposHistorialSection');
+    setupCollapsibleSection('montosPedidosHistorialSection');
+    setupCollapsibleSection('valorPorPuntoHistorialSection');
+    setupCollapsibleCard('plantaCard');
+    setupCollapsibleCard('partTimeCard');
+    
+    setupMainCollapsibles();
+  };
+</script>
+</body>
+</html>
