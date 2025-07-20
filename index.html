@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Registro Personas y Montos</title>
+<style>
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2em;
+    color: #222;
+  }
+
+  section {
+    margin-bottom: 30px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.5em;
+    color: #555;
+  }
+
+  #totalDiario {
+    font-weight: bold;
+    font-size: 1.5em;
+    margin: 10px 0;
+    color: #007bff;
+    text-align: center;
+  }
+
+  form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  input, select, button {
+    flex: 1 1 45%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1em;
+  }
+  input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+    outline: none;
+  }
+  button {
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #388E3C;
+  }
+
+  .reset-button {
+    background-color: #f44336;
+  }
+  .reset-button:hover {
+    background-color: #d32f2f;
+  }
+
+  /* NUEVOS CAMBIOS PARA COLAPSAR Y BUSCAR */
+  .fichas-type-container {
+    margin-top: 15px;
+  }
+  .fichas-type-container h3 {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 25px;
+  }
+  .fichas-type-container h3::after {
+    content: '▼';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.2s ease-in-out;
+  }
+  .fichas-type-container.collapsed h3::after {
+    transform: translateY(-50%) rotate(-90deg);
+  }
+  .fichas-type-container.collapsed .fichas-grid-container {
+    display: none;
+  }
+  /* FIN DE NUEVOS CAMBIOS */
+
+  .fichas-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .ficha {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 10px;
+    position: relative;
+    border-left: 5px solid;
+  }
+  .ficha.ficha-planta {
+    border-color: #007bff;
+  }
+  .ficha.ficha-planta h3 {
+    color: #007bff;
+  }
+  .ficha.ficha-part-time {
+    border-color: #28a745;
+  }
+  .ficha.ficha-part-time h3 {
+    color: #28a745;
+  }
+  .ficha .edit-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+  }
+  .ficha .edit-button:hover {
+    background-color: #0056b3;
+  }
+
+  .ficha h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 25px;
+  }
+
+  .ficha h3::after {
+    content: '▼';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .ficha.collapsed h3::after {
+    transform: translateY(-50%) rotate(-90deg);
+  }
+
+  .ficha.collapsed .ficha-content {
+    display: none;
+  }
+
+  .ficha p {
+    margin: 2px 0;
+    font-size: 0.9em;
+    color: #555;
+  }
+
+  /* Estilos para el calendario */
+  .calendar-container {
+    margin-top: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.9em;
+    background-color: #f9f9f9;
+  }
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  .calendar-header button {
+    padding: 5px 10px;
+    background-color: #eee;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .calendar-header button:hover {
+    background-color: #ddd;
+  }
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    text-align: center;
+  }
+  .day-name {
+    font-weight: bold;
+    color: #777;
+    padding-bottom: 5px;
+  }
+  .day {
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+    border: 1px solid #eee;
+  }
+  .day:hover {
+    background-color: #e0e0e0;
+  }
+  .day.marked {
+    background-color: #28a745;
+    color: #fff;
+    font-weight: bold;
+  }
+  .day.marked:hover {
+    background-color: #218838;
+  }
+  .day.empty {
+    background-color: transparent;
+    border: none;
+    cursor: default;
+  }
+
+  .pozo-individual-container {
+    background-color: #e6ffec;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #b3ffc6;
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  #tarjetasMontos {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .tarjeta {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    padding: 10px;
+  }
+
+  .tarjeta h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1.1em;
+    color: #222;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .tarjeta h3 .total-in-header {
+    font-size: 1em;
+    font-weight: bold;
+    color: #007bff;
+    margin-left: auto;
+    padding-right: 20px;
+  }
+
+  .tarjeta h3::after {
+    content: '▼';
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .tarjeta.collapsed h3::after {
+    transform: rotate(-90deg);
+  }
+
+  .tarjeta.collapsed .montos-list,
+  .tarjeta.collapsed .total-por-fecha {
+    display: none;
+  }
+
+  .total-por-fecha {
+    margin-top: 8px;
+    font-weight: bold;
+    font-size: 1.3em;
+    color: #007bff;
+    text-align: right;
+  }
+  .montos-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  /* Estilo corregido para el item de monto para que el ícono quede en línea */
+  .monto-item {
+    flex: 1 1 30%;
+    background-color: #f9f9f9;
+    padding: 6px;
+    border-radius: 6px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+    font-size: 0.9em;
+    display: flex;
+    justify-content: space-between; /* Alinea los elementos al final */
+    align-items: center;
+  }
+  .delete-button {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    color: #f44336;
+    cursor: pointer;
+    padding: 2px;
+    line-height: 1;
+  }
+
+  .collapsible-section h2 {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 25px;
+  }
+
+  .collapsible-section h2::after {
+    content: '▶';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .collapsible-section.expanded h2::after {
+    content: '▼';
+  }
+
+  .collapsible-section.collapsed .collapsible-content {
+    display: none;
+  }
+
+  .persona-forms-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .persona-form-card {
+    flex: 1 1 45%;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    position: relative;
+  }
+  /* Colores para los títulos de los formularios de agregar persona */
+  #plantaCard h3 {
+    color: #007bff;
+  }
+  #partTimeCard h3 {
+    color: #dc3545;
+  }
+  .persona-form-card h3 {
+    margin-top: 0;
+    font-size: 1.2em;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 25px;
+  }
+  .persona-form-card h3::after {
+    content: '▶';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.2s ease-in-out;
+  }
+  .persona-form-card.expanded h3::after {
+    content: '▼';
+  }
+  .persona-form-card.collapsed .card-content {
+    display: none;
+  }
+  .edit-mode-btn {
+    background-color: #ff9800;
+  }
+  .edit-mode-btn:hover {
+    background-color: #e68a00;
+  }
+
+  /* Nueva Sección de Retiros de Propina */
+  #retirosPropinaSection {
+    background-color: #e9ecef;
+  }
+  #retirosPropinaSection h2 {
+    color: #17a2b8;
+  }
+  #searchRetiros {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  #searchResultsContainer {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    background-color: #fff;
+  }
+  .search-result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+  }
+  .search-result-item:last-child {
+    border-bottom: none;
+  }
+  .search-result-item button {
+    background-color: #28a745;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  .search-result-item button:hover {
+    background-color: #218838;
+  }
+  .retiro-tipo-container {
+    margin-bottom: 20px;
+  }
+  /* ESTILO PARA COLAPSAR LOS TÍTULOS DE TIPO DE PERSONAL EN LA SECCIÓN DE RETIROS */
+  .retiro-tipo-container h3 {
+    color: #333;
+    font-size: 1.3em;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 5px;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 25px;
+  }
+  .retiro-tipo-container h3::after {
+    content: '▼';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.2s ease-in-out;
+  }
+  .retiro-tipo-container.collapsed h3::after {
+    transform: translateY(-50%) rotate(-90deg);
+  }
+  .retiro-tipo-container.collapsed .retiro-content-wrapper {
+    display: none;
+  }
+  /* FIN DE ESTILOS PARA COLAPSAR */
+  .retiro-area-container {
+    margin-bottom: 20px;
+  }
+  .retiro-area-container h4 {
+    color: #555;
+    font-size: 1.1em;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 5px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
+  .retiro-sub-area-container {
+    padding-left: 15px;
+  }
+  .retiro-sub-area-container h5 {
+    color: #666;
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
+
+  /* ESTILOS NUEVOS PARA LAS TARJETAS DE RETIRO COLAPSABLES */
+  .retiro-person-item {
+    background-color: #f8f9fa;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border-left: 5px solid transparent;
+  }
+  .retiro-person-item.planta { border-color: #007bff; }
+  .retiro-person-item.part-time { border-color: #28a745; }
+
+  .retiro-person-item.collapsed .retiro-body {
+    display: none;
+  }
+
+  .retiro-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  .retiro-header .person-name {
+    font-weight: bold;
+    font-size: 1.1em;
+    position: relative;
+    padding-right: 20px;
+  }
+  
+  .retiro-header .person-name::after {
+    content: '▼';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .retiro-person-item.collapsed .person-name::after {
+    transform: translateY(-50%) rotate(-90deg);
+  }
+  
+  .retiro-body {
+    margin-top: 10px;
+  }
+
+  .retiro-actions {
+    display: flex;
+    gap: 5px;
+    margin-left: 10px;
+  }
+  .retiro-actions button {
+    background: none;
+    border: none;
+    font-size: 1.4em;
+    cursor: pointer;
+    padding: 0;
+  }
+  /* Estilos para los nuevos iconos */
+  .retiro-actions .report-button,
+  .retiro-actions .pdf-button {
+    font-size: 1.1em;
+    color: #4CAF50;
+  }
+  .retiro-actions .pdf-button {
+      color: #dc3545;
+  }
+  .retiro-actions .edit-button {
+    color: #ff9800;
+  }
+  .retiro-actions .edit-button:hover {
+    color: #e68a00;
+  }
+  /* Estilo para el icono de eliminar */
+  .retiro-actions .delete-button {
+    color: #dc3545;
+    font-size: 1.5em; /* Ajusté el tamaño del emoji */
+    cursor: pointer;
+  }
+  .retiro-actions .delete-button:hover {
+    color: #c82333;
+  }
+  .valor-por-punto {
+    font-size: 0.9em;
+    font-style: italic;
+    color: #666;
+  }
+  .person-details {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 2px;
+  }
+
+  /* Nuevo estilo para el calculo de división de planta */
+  .planta-calculation-container {
+    background-color: #e6f3ff;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #b3d9ff;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  .planta-calculation-container p {
+    font-size: 0.9em;
+    color: #004085;
+    margin: 0 0 5px 0;
+  }
+  .planta-calculation-container .total-result {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #007bff;
+    margin-top: 10px;
+  }
+  
+  /* Estilo para el cálculo individual de part-time */
+  .part-time-individual-calculation {
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #b3ffc6;
+      border-radius: 8px;
+      background-color: #e6ffec;
+      text-align: center;
+  }
+  .part-time-individual-calculation input {
+      flex: none;
+      width: 100px;
+      font-size: 1em;
+      text-align: center;
+      margin-bottom: 5px;
+  }
+  .part-time-individual-calculation .total-tips {
+      font-weight: bold;
+      color: #006400;
+      font-size: 1.1em;
+  }
+
+  /* ESTILOS NUEVOS PARA MOSTRAR ANTICIPOS */
+  .planta-details-container,
+  .part-time-details-container {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+  }
+  .alcance-data, .anticipos-data, .montos-pedidos-data, .restante-alcance-data {
+      font-size: 1.1em;
+      font-weight: bold;
+      padding: 5px 0;
+  }
+  .alcance-data {
+      color: #006400; /* Verde oscuro para el alcance */
+  }
+  .anticipos-data {
+      color: #e68a00; /* Naranja para los anticipos */
+  }
+  .montos-pedidos-data {
+      color: #007bff; /* Azul para montos pedidos */
+  }
+  .restante-alcance-data {
+      color: #dc3545; /* Rojo para restante alcance */
+  }
+  /* FIN ESTILOS NUEVOS */
+
+  .divisor-message {
+    font-size: 0.8em;
+    color: #777;
+    margin-top: 4px;
+    min-height: 1.2em; /* Para evitar saltos de diseño */
+  }
+
+  #calculationContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  #calculationContainer > div {
+    flex: 1;
+    min-width: 250px;
+  }
+  #retiroActionsContainer {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  #guardarRetirosBtn {
+    background-color: #17a2b8;
+  }
+  #guardarRetirosBtn:hover {
+    background-color: #138496;
+  }
+
+  #anticiposHistorialSection h2 {
+    color: #ff9800;
+  }
+  .anticipo-person-item {
+    background-color: #fff8e1;
+    border-left: 5px solid #ffc107;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .anticipo-person-item h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #e68a00;
+  }
+  .anticipo-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .anticipo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px dashed #ccc;
+    font-size: 0.9em;
+  }
+  .anticipo-item:last-child {
+    border-bottom: none;
+  }
+  .anticipo-item .delete-button {
+    color: #dc3545;
+    font-size: 1em;
+    padding: 0 5px;
+  }
+  .anticipo-item span {
+    display: block;
+  }
+  .anticipo-item .date-time {
+    font-style: italic;
+    color: #777;
+    font-size: 0.8em;
+  }
+  
+  #montosPedidosHistorialSection h2 {
+      color: #007bff;
+  }
+  .montos-pedidos-person-item {
+      background-color: #e6f3ff;
+      border-left: 5px solid #007bff;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .montos-pedidos-person-item h4 {
+      margin-top: 0;
+      margin-bottom: 5px;
+      color: #007bff;
+  }
+  .montos-pedidos-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+  }
+  .montos-pedidos-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px dashed #ccc;
+      font-size: 0.9em;
+  }
+  .montos-pedidos-item:last-child {
+      border-bottom: none;
+  }
+  
+  #valorPorPuntoHistorialSection h2 {
+      color: #004d40;
+  }
+  .valor-por-punto-item {
+    background-color: #e0f2f1;
+    border-left: 5px solid #009688;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+  }
+  .valor-por-punto-item .delete-button {
+      background: none;
+      border: none;
+      font-size: 1.2em;
+      color: #f44336;
+      cursor: pointer;
+  }
+
+  @media(max-width: 600px) {
+    form {
+      flex-direction: column;
+    }
+    input, select, button {
+      flex: 1 1 100%;
+    }
+    .persona-forms-container, #calculationContainer {
+      flex-direction: column;
+    }
+    .persona-form-card, #calculationContainer > div {
+      flex: 1 1 100%;
+    }
+  }
+
+  /* ESTILOS PARA EL MODAL */
+  .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      overflow-y: auto; /* Permite scroll en el modal si el contenido es largo */
+  }
+  .modal-content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      width: 90%;
+      max-width: 400px;
+  }
+  .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+  }
+  .modal-header h4 {
+      margin: 0;
+  }
+  .modal-body label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+  }
+  .modal-body input {
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 10px;
+  }
+  .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 15px;
+  }
+  /* Estilo específico para el informe en el modal */
+  #informeModalBody p {
+      font-size: 1.1em;
+      margin: 5px 0;
+  }
+  #informeModalBody .informe-total {
+      font-weight: bold;
+      color: #006400;
+      font-size: 1.2em;
+  }
+  #informeModalBody .informe-anticipos {
+      color: #e68a00;
+  }
+  #informeModalBody .informe-historial {
+      margin-top: 20px;
+      border-top: 1px solid #ccc;
+      padding-top: 10px;
+  }
+  #informeModalBody .informe-historial h5 {
+      margin-top: 0;
+      font-size: 1em;
+  }
+  #informeModalBody .informe-historial ul {
+      list-style: none;
+      padding: 0;
+  }
+  #informeModalBody .informe-historial li {
+      background-color: #f9f9f9;
+      padding: 8px;
+      border-radius: 4px;
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9em;
+  }
+  
+</style>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<h1>Registro Personas y Montos</h1>
+
+<section id="personaSection" class="collapsible-section collapsed">
+  <h2>Agregar Persona</h2>
+  <div class="collapsible-content persona-forms-container">
+    <div id="plantaCard" class="persona-form-card collapsed">
+      <h3>Planta</h3>
+      <div class="card-content">
+        <form id="plantaForm">
+          <input type="text" id="nombrePlanta" placeholder="Nombre" required />
+          <input type="text" id="apellidoPlanta" placeholder="Apellido" required />
+          <select type="text" id="areaPlanta" required>
+            <option value="">Selecciona Área</option>
+            <option value="Mesas">Mesas</option>
+            <option value="Máquinas">Máquinas</option>
+            <option value="Bóveda">Bóveda</option>
+            <option value="Otros">Otros</option>
+          </select>
+          <select id="subAreaPlanta" style="display: none;"></select>
+          <input type="number" id="anioPlanta" placeholder="Año" inputmode="numeric" required />
+          <input type="number" id
