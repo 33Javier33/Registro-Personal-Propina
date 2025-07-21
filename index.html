@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Registro Personas y Montos</title>
+<title>Registro de Personas y Montos</title>
 <style>
   body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -74,6 +74,16 @@
   }
   .reset-button:hover {
     background-color: #d32f2f;
+  }
+  
+  .logout-button {
+    background-color: #dc3545;
+    font-weight: normal;
+    padding: 5px 10px;
+    font-size: 0.9em;
+  }
+  .logout-button:hover {
+    background-color: #c82333;
   }
 
   /* NUEVOS CAMBIOS PARA COLAPSAR Y BUSCAR */
@@ -582,6 +592,12 @@
     color: #555;
     margin-top: 2px;
   }
+  .registro-user {
+    font-size: 0.8em;
+    color: #888;
+    text-align: right;
+    margin-top: 5px;
+  }
 
   /* Nuevo estilo para el calculo de división de planta */
   .planta-calculation-container {
@@ -717,8 +733,11 @@
     border-bottom: none;
   }
   .anticipo-item .delete-button {
-    color: #dc3545;
+    background: none;
+    border: none;
     font-size: 1em;
+    color: #dc3545;
+    cursor: pointer;
     padding: 0 5px;
   }
   .anticipo-item span {
@@ -784,6 +803,45 @@
       font-size: 1.2em;
       color: #f44336;
       cursor: pointer;
+  }
+
+  /* Estilos para el historial de retiros guardados */
+  #retirosGuardadosSection h2 {
+    color: #17a2b8;
+  }
+  .retiro-guardado-item {
+    background-color: #f0f8ff;
+    border: 1px solid #cceeff;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .retiro-guardado-item h4 {
+    margin: 0;
+    font-size: 1em;
+    cursor: pointer;
+  }
+  .retiro-guardado-item .actions {
+    display: flex;
+    gap: 5px;
+  }
+  .retiro-guardado-item .actions button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8em;
+  }
+  .retiro-guardado-item .actions button.delete {
+    background-color: #dc3545;
+  }
+  .retiro-guardado-item.collapsed .retiro-guardado-content {
+    display: none;
   }
 
   @media(max-width: 600px) {
@@ -889,140 +947,166 @@
 <body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<h1>Registro Personas y Montos</h1>
-
-<section id="personaSection" class="collapsible-section collapsed">
-  <h2>Agregar Persona</h2>
-  <div class="collapsible-content persona-forms-container">
-    <div id="plantaCard" class="persona-form-card collapsed">
-      <h3>Planta</h3>
-      <div class="card-content">
-        <form id="plantaForm">
-          <input type="text" id="nombrePlanta" placeholder="Nombre" required />
-          <input type="text" id="apellidoPlanta" placeholder="Apellido" required />
-          <select type="text" id="areaPlanta" required>
-            <option value="">Selecciona Área</option>
-            <option value="Mesas">Mesas</option>
-            <option value="Máquinas">Máquinas</option>
-            <option value="Bóveda">Bóveda</option>
-            <option value="Otros">Otros</option>
-          </select>
-          <select id="subAreaPlanta" style="display: none;"></select>
-          <input type="number" id="anioPlanta" placeholder="Año" inputmode="numeric" required />
-          <input type="number" id="puntosPlanta" placeholder="Cantidad de puntos" inputmode="numeric" required />
-          <input type="hidden" name="tipo" value="Planta" />
-          <button type="submit">Agregar</button>
-        </form>
-      </div>
-    </div>
-    <div id="partTimeCard" class="persona-form-card collapsed">
-      <h3>Part Time</h3>
-      <div class="card-content">
-        <form id="partTimeForm">
-          <input type="text" id="nombrePartTime" placeholder="Nombre" required />
-          <input type="text" id="apellidoPartTime" placeholder="Apellido" required />
-          <select type="text" id="areaPartTime" required>
-            <option value="">Selecciona Área</option>
-            <option value="Mesas">Mesas</option>
-            <option value="Máquinas">Máquinas</option>
-            <option value="Bóveda">Bóveda</option>
-            <option value="Otros">Otros</option>
-          </select>
-          <select id="subAreaPartTime" style="display: none;"></select>
-          <input type="number" id="anioPartTime" placeholder="Año" inputmode="numeric" required />
-          <input type="number" id="puntosPartTime" placeholder="Cantidad de puntos" inputmode="numeric" required />
-          <input type="hidden" name="tipo" value="Part Time" />
-          <button type="submit">Agregar</button>
-        </form>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="fichasSection" class="collapsible-section collapsed">
-  <h2>Fichas de Personas</h2>
-  <div class="collapsible-content">
-    <input type="text" id="searchFichas" placeholder="Buscar persona por nombre o apellido..." style="width: 100%; margin-bottom: 15px;" />
-
-    <div id="plantaContainer" class="fichas-type-container">
-      <h3 id="plantaSectionHeader">Personal de Planta</h3>
-      <div class="fichas-grid-container"></div>
-    </div>
-    <div id="partTimeContainer" class="fichas-type-container">
-      <h3 id="partTimeSectionHeader">Personal Part Time</h3>
-      <div class="fichas-grid-container"></div>
-    </div>
-  </div>
-</section>
-
-<section id="montosSection" class="collapsible-section collapsed">
-  <h2>Registrar Montos por Noche</h2>
-  <div class="collapsible-content">
-    <div id="totalDiario">Total diario: $0</div>
-    <form id="montosForm">
-      <input type="date" id="fecha" required />
-      <select type="text" id="areaMonto" required>
-        <option value="">Selecciona Área</option>
-        <option value="Mesas">Mesas</option>
-        <option value="Máquinas">Máquinas</option>
-        <option value="Otros">Otros</option>
-      </select>
-      <input type="text" id="monto" placeholder="Monto" inputmode="numeric" required />
-      <button type="submit">Agregar Monto</button>
+<div id="login-container">
+  <section id="loginSection">
+    <h2>Ingresar</h2>
+    <form id="loginForm">
+      <input type="text" id="loginNombre" placeholder="Nombre" required />
+      <input type="text" id="loginApellido" placeholder="Apellido" required />
+      <button type="submit">Ingresar</button>
     </form>
-    <div>
-        <button id="resetMontosBtn" class="reset-button">Reiniciar Montos</button> <span>(Borra todos los montos)</span>
+  </section>
+</div>
+
+<div id="main-content" style="display: none;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h1 style="margin: 0;">Registro Personas y Montos</h1>
+    <div style="text-align: right;">
+        <span id="userInfo"></span>
+        <button id="logoutBtn" class="logout-button">Cerrar Sesión</button>
     </div>
-    <div id="tarjetasMontos"></div>
   </div>
-</section>
 
-<section id="retirosPropinaSection" class="collapsible-section collapsed">
-    <h2>Retiros de Propina</h2>
-    <div class="collapsible-content">
-        <input type="text" id="searchRetiros" placeholder="Buscar persona por nombre o apellido..." />
-        <div id="searchResultsContainer"></div>
-        <hr>
-        <div id="calculationContainer">
-            <div class="planta-calculation-container">
-                <p>Calcula el monto por persona de planta:</p>
-                <p>Total a dividir: <span id="totalMontoPlanta">$0</span></p>
-                <button id="registrarValorPorPuntoBtn" style="margin-bottom: 10px;">Registrar Divisor</button>
-                <div class="total-result" id="resultadoPlanta">$0 por punto</div>
-            </div>
+  <section id="personaSection" class="collapsible-section collapsed">
+    <h2>Agregar Persona</h2>
+    <div class="collapsible-content persona-forms-container">
+      <div id="plantaCard" class="persona-form-card collapsed">
+        <h3>Planta</h3>
+        <div class="card-content">
+          <form id="plantaForm">
+            <input type="text" id="nombrePlanta" placeholder="Nombre" required />
+            <input type="text" id="apellidoPlanta" placeholder="Apellido" required />
+            <select type="text" id="areaPlanta" required>
+              <option value="">Selecciona Área</option>
+              <option value="Mesas">Mesas</option>
+              <option value="Máquinas">Máquinas</option>
+              <option value="Bóveda">Bóveda</option>
+              <option value="Otros">Otros</option>
+            </select>
+            <select id="subAreaPlanta" style="display: none;"></select>
+            <input type="number" id="anioPlanta" placeholder="Año" inputmode="numeric" required />
+            <input type="number" id="puntosPlanta" placeholder="Cantidad de puntos" inputmode="numeric" required />
+            <input type="hidden" name="tipo" value="Planta" />
+            <button type="submit">Agregar</button>
+          </form>
         </div>
-        <div id="retiroActionsContainer">
-            <button id="guardarRetirosBtn">Guardar Retiros</button>
-            <button id="resetRetirosBtn" class="reset-button">Reiniciar Retiros</button>
+      </div>
+      <div id="partTimeCard" class="persona-form-card collapsed">
+        <h3>Part Time</h3>
+        <div class="card-content">
+          <form id="partTimeForm">
+            <input type="text" id="nombrePartTime" placeholder="Nombre" required />
+            <input type="text" id="apellidoPartTime" placeholder="Apellido" required />
+            <select type="text" id="areaPartTime" required>
+              <option value="">Selecciona Área</option>
+              <option value="Mesas">Mesas</option>
+              <option value="Máquinas">Máquinas</option>
+              <option value="Bóveda">Bóveda</option>
+              <option value="Otros">Otros</option>
+            </select>
+            <select id="subAreaPartTime" style="display: none;"></select>
+            <input type="number" id="anioPartTime" placeholder="Año" inputmode="numeric" required />
+            <input type="number" id="puntosPartTime" placeholder="Cantidad de puntos" inputmode="numeric" required />
+            <input type="hidden" name="tipo" value="Part Time" />
+            <button type="submit">Agregar</button>
+          </form>
         </div>
-        <div id="retirosListContainer"></div>
+      </div>
     </div>
-</section>
+  </section>
 
-<section id="anticiposHistorialSection" class="collapsible-section collapsed">
-    <h2>Historial de Anticipos</h2>
+  <section id="fichasSection" class="collapsible-section collapsed">
+    <h2>Fichas de Personas</h2>
     <div class="collapsible-content">
-      <button id="resetAnticiposBtn" class="reset-button">Reiniciar Historial</button>
-      <div id="anticiposHistorialContainer"></div>
-    </div>
-</section>
+      <input type="text" id="searchFichas" placeholder="Buscar persona por nombre o apellido..." style="width: 100%; margin-bottom: 15px;" />
 
-<section id="montosPedidosHistorialSection" class="collapsible-section collapsed">
-    <h2>Historial de Montos Pedidos</h2>
+      <div id="plantaContainer" class="fichas-type-container">
+        <h3 id="plantaSectionHeader">Personal de Planta</h3>
+        <div class="fichas-grid-container"></div>
+      </div>
+      <div id="partTimeContainer" class="fichas-type-container">
+        <h3 id="partTimeSectionHeader">Personal Part Time</h3>
+        <div class="fichas-grid-container"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="montosSection" class="collapsible-section collapsed">
+    <h2>Registrar Montos por Noche</h2>
     <div class="collapsible-content">
-      <button id="resetMontosPedidosBtn" class="reset-button">Reiniciar Historial</button>
-      <div id="montosPedidosHistorialContainer"></div>
+      <div id="totalDiario">Total diario: $0</div>
+      <form id="montosForm">
+        <input type="date" id="fecha" required />
+        <select type="text" id="areaMonto" required>
+          <option value="">Selecciona Área</option>
+          <option value="Mesas">Mesas</option>
+          <option value="Máquinas">Máquinas</option>
+          <option value="Otros">Otros</option>
+        </select>
+        <input type="text" id="monto" placeholder="Monto" inputmode="numeric" required />
+        <button type="submit">Agregar Monto</button>
+      </form>
+      <div>
+          <button id="resetMontosBtn" class="reset-button">Reiniciar Montos</button> <span>(Borra todos los montos)</span>
+      </div>
+      <div id="tarjetasMontos"></div>
     </div>
-</section>
+  </section>
 
-<section id="valorPorPuntoHistorialSection" class="collapsible-section collapsed">
-    <h2>Historial de Divisores</h2>
+  <section id="retirosPropinaSection" class="collapsible-section collapsed">
+      <h2>Retiros de Propina</h2>
+      <div class="collapsible-content">
+          <input type="text" id="searchRetiros" placeholder="Buscar persona por nombre o apellido..." />
+          <div id="searchResultsContainer"></div>
+          <hr>
+          <div id="calculationContainer">
+              <div class="planta-calculation-container">
+                  <p>Calcula el monto por persona de planta:</p>
+                  <p>Total a dividir: <span id="totalMontoPlanta">$0</span></p>
+                  <button id="registrarValorPorPuntoBtn" style="margin-bottom: 10px;">Registrar Divisor</button>
+                  <div class="total-result" id="resultadoPlanta">$0 por punto</div>
+              </div>
+          </div>
+          <div id="retiroActionsContainer">
+              <button id="guardarRetirosBtn">Guardar Retiros</button>
+              <button id="resetRetirosBtn" class="reset-button">Reiniciar Retiros</button>
+          </div>
+          <div id="retirosListContainer"></div>
+      </div>
+  </section>
+
+  <section id="retirosGuardadosSection" class="collapsible-section collapsed">
+    <h2>Historial de Retiros Guardados</h2>
     <div class="collapsible-content">
-      <button id="resetValorPorPuntoBtn" class="reset-button">Reiniciar Historial</button>
-      <div id="valorPorPuntoHistorialContainer"></div>
+      <button id="resetRetirosGuardadosBtn" class="reset-button">Reiniciar Historial</button>
+      <div id="retirosGuardadosContainer"></div>
     </div>
-</section>
+  </section>
 
+  <section id="anticiposHistorialSection" class="collapsible-section collapsed">
+      <h2>Historial de Anticipos</h2>
+      <div class="collapsible-content">
+        <button id="resetAnticiposBtn" class="reset-button">Reiniciar Historial</button>
+        <div id="anticiposHistorialContainer"></div>
+      </div>
+  </section>
+
+  <section id="montosPedidosHistorialSection" class="collapsible-section collapsed">
+      <h2>Historial de Montos Pedidos</h2>
+      <div class="collapsible-content">
+        <button id="resetMontosPedidosBtn" class="reset-button">Reiniciar Historial</button>
+        <div id="montosPedidosHistorialContainer"></div>
+      </div>
+  </section>
+
+  <section id="valorPorPuntoHistorialSection" class="collapsible-section collapsed">
+      <h2>Historial de Divisores</h2>
+      <div class="collapsible-content">
+        <button id="resetValorPorPuntoBtn" class="reset-button">Reiniciar Historial</button>
+        <div id="valorPorPuntoHistorialContainer"></div>
+      </div>
+  </section>
+</div>
 
 <div id="anticipoModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
@@ -1103,7 +1187,7 @@
         <div class="modal-body">
             <p><strong>Total de propinas:</strong> <span id="editTotalPropinas"></span></p>
             <label for="editDivisorPartTimeInput">Divisor:</label>
-            <input type="number" id="editDivisorPartTimeInput" min="1" placeholder="Ingresa divisor" inputmode="numeric" />
+            <input type="text" id="editDivisorPartTimeInput" min="1" placeholder="Ingresa divisor" inputmode="numeric" />
         </div>
         <div class="modal-footer">
             <button class="reset-button" id="cancelEditPartTimeBtn">Cancelar</button>
@@ -1113,11 +1197,15 @@
 </div>
 
 <script>
+  // =======================================================
+  //                 VARIABLES GLOBALES Y CONSTANTES
+  // =======================================================
   let currentEditIndex = -1;
   let totalDiarioMonto = 0;
   let latestValorPorPunto = 0;
   let latestDivisor = 0;
   let retirosList = JSON.parse(localStorage.getItem('retirosList')) || [];
+  let retirosGuardados = JSON.parse(localStorage.getItem('retirosGuardados')) || [];
   const areaOptions = {
       'Mesas': ['Croupier', 'Supervisor'],
       'Máquinas': ['Vendedores', 'Técnicos'],
@@ -1125,6 +1213,23 @@
       'Otros': ['Otros']
   };
 
+  const loginForm = document.getElementById('loginForm');
+  const loginContainer = document.getElementById('login-container');
+  const mainContent = document.getElementById('main-content');
+  const userInfoSpan = document.getElementById('userInfo');
+  const logoutBtn = document.getElementById('logoutBtn');
+  let loggedInUser = null;
+  const fechaMontoInput = document.getElementById('fecha');
+
+  // =======================================================
+  //                 UTILIDADES
+  // =======================================================
+
+  /**
+   * Formatea un número con puntos como separador de miles.
+   * @param {number} value - El número a formatear.
+   * @returns {string} El número formateado como cadena.
+   */
   function formatNumberWithPoints(value) {
     if (value === null || value === undefined || isNaN(value)) {
         return "0";
@@ -1133,12 +1238,21 @@
     return num.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
+  /**
+   * Formatea una cadena de fecha de 'YYYY-MM-DD' a 'DD/MM/YYYY'.
+   * @param {string} dateString - La fecha en formato 'YYYY-MM-DD'.
+   * @returns {string} La fecha en formato 'DD/MM/YYYY'.
+   */
   function formatDate(dateString) {
     if (!dateString) return '';
     const [year, month, day] = dateString.split('-');
     return `${day}/${month}/${year}`;
   }
   
+  /**
+   * Obtiene la fecha actual en formato 'YYYY-MM-DD'.
+   * @returns {string} La fecha actual.
+   */
   function getTodayDateString() {
     const today = new Date();
     const year = today.getFullYear();
@@ -1147,28 +1261,57 @@
     return `${year}-${month}-${day}`;
   }
 
+  /**
+   * Obtiene la hora actual en formato 'HH:mm'.
+   * @returns {string} La hora actual.
+   */
   function getCurrentTimeString() {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;
   }
+  
+  /**
+   * Valida si el usuario ha iniciado sesión y muestra el contenido principal.
+   */
+  function checkLogin() {
+      const user = JSON.parse(localStorage.getItem('loggedInUser'));
+      if (user && user.nombre && user.apellido) {
+          loggedInUser = user;
+          loginContainer.style.display = 'none';
+          mainContent.style.display = 'block';
+          userInfoSpan.textContent = `Sesión iniciada como: ${loggedInUser.nombre} ${loggedInUser.apellido}`;
+          
+      } else {
+          loginContainer.style.display = 'block';
+          mainContent.style.display = 'none';
+          userInfoSpan.textContent = '';
+      }
+  }
 
-  const montoInput = document.getElementById('monto');
-  montoInput.addEventListener('input', () => {
-    let val = (montoInput.value || '').replace(/\D/g, '');
-    if (val !== '') {
-      montoInput.value = formatNumberWithPoints(val);
-    } else {
-      montoInput.value = '';
-    }
+  // =======================================================
+  //                 GESTIÓN DE SESIÓN
+  // =======================================================
+
+  loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById('loginNombre').value;
+      const apellido = document.getElementById('loginApellido').value;
+      localStorage.setItem('loggedInUser', JSON.stringify({ nombre, apellido }));
+      checkLogin();
+      location.reload(); 
   });
-  montoInput.addEventListener('blur', () => {
-    let val = (montoInput.value || '').replace(/\./g, '');
-    if (val !== '') {
-      montoInput.value = formatNumberWithPoints(parseInt(val));
-    }
+  
+  logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('loggedInUser');
+      checkLogin();
+      location.reload();
   });
+  
+  // =======================================================
+  //                 GESTIÓN DE PERSONAL (PLANTILLA/PART-TIME)
+  // =======================================================
 
   document.querySelectorAll('select').forEach(select => {
     select.addEventListener('change', (e) => {
@@ -1195,6 +1338,9 @@
   document.getElementById('plantaForm').addEventListener('submit', (e) => handlePersonFormSubmit(e, 'Planta'));
   document.getElementById('partTimeForm').addEventListener('submit', (e) => handlePersonFormSubmit(e, 'Part Time'));
 
+  /**
+   * Maneja el envío de formularios de agregar o editar personas.
+   */
   function handlePersonFormSubmit(e, tipo) {
     e.preventDefault();
     const form = e.target;
@@ -1203,11 +1349,13 @@
     const apellido = form.querySelector(`input#apellido${tipoSinEspacio}`).value;
     const area = form.querySelector(`select#area${tipoSinEspacio}`).value;
     const subAreaSelect = form.querySelector(`select#subArea${tipoSinEspacio}`);
-    const subArea = subAreaSelect ? subAreaSelect.value || area : area;
+    const subArea = subAreaSelect.style.display !== 'none' ? subAreaSelect.value || area : area;
     const anio = form.querySelector(`input#anio${tipoSinEspacio}`).value;
     const puntos = form.querySelector(`input#puntos${tipoSinEspacio}`).value;
+    
+    const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
 
-    const nuevaPersona = { nombre, apellido, area, subArea, anio, puntos, tipo };
+    const nuevaPersona = { nombre, apellido, area, subArea, anio, puntos: parseFloat(puntos), tipo, loggedBy };
     let historial = JSON.parse(localStorage.getItem('historial')) || [];
 
     if (currentEditIndex !== -1) {
@@ -1227,9 +1375,14 @@
     cargarYMostrarFichas();
     form.reset();
     if (subAreaSelect) subAreaSelect.style.display = 'none';
-    renderRetirosList(); // Asegura que la lista de retiros se actualice.
+    renderRetirosList(); 
   }
 
+  /**
+   * Calcula el total de propinas de un pozo individual para personal Part Time.
+   * @param {object} persona - El objeto persona con sus días trabajados.
+   * @returns {number} El total de propinas.
+   */
   function calcularPozoIndividual(persona) {
     const montosPorFecha = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
     let totalPozoIndividual = 0;
@@ -1243,24 +1396,14 @@
         }
     });
     return totalPozoIndividual;
-}
-
-  function calcularYMostrarPozoIndividualEnFicha(persona, container) {
-    const totalPozoIndividual = calcularPozoIndividual(persona);
-    const diasTrabajados = persona.diasTrabajados || [];
-    
-    const pozoContainer = container.querySelector('.pozo-individual-container') || document.createElement('div');
-    pozoContainer.className = 'pozo-individual-container';
-    pozoContainer.innerHTML = `
-        <p>Días trabajados: ${diasTrabajados.length}</p>
-        <p>Total de propinas: $${formatNumberWithPoints(totalPozoIndividual)}</p>
-    `;
-    
-    if (!container.querySelector('.pozo-individual-container')) {
-        container.appendChild(pozoContainer);
-    }
   }
 
+  /**
+   * Dibuja el calendario para seleccionar los días trabajados.
+   * @param {HTMLElement} container - El contenedor para el calendario.
+   * @param {object} persona - El objeto persona.
+   * @param {number} index - El índice de la persona en el historial.
+   */
   function renderCalendar(container, persona, index) {
     const today = new Date();
     let currentMonth = today.getMonth();
@@ -1327,11 +1470,21 @@
             currentPersona.diasTrabajados.push(dateString);
           }
           localStorage.setItem('historial', JSON.stringify(historial));
+          
+          // Primero, se redibuja el calendario para reflejar el cambio.
           updateCalendar();
-          const fichaContent = document.querySelector(`.ficha[data-index="${index}"] .ficha-content`);
-          if (fichaContent) {
-              calcularYMostrarPozoIndividualEnFicha(currentPersona, fichaContent);
+          
+          // Luego, se actualiza el contenedor del "pozo" sin destruir el calendario.
+          const ficha = document.querySelector(`.ficha[data-index="${index}"]`);
+          if (ficha) {
+            const pozoContainer = ficha.querySelector('.pozo-individual-container');
+            if (pozoContainer) {
+              // 'currentPersona' en este ámbito ya tiene la lista de días actualizada.
+              calcularYMostrarPozoIndividualEnFicha(currentPersona, pozoContainer);
+            }
           }
+    
+          // Finalmente, se actualiza la lista principal de retiros.
           renderRetirosList();
         });
         grid.appendChild(dayDiv);
@@ -1359,6 +1512,11 @@
     updateCalendar();
   }
 
+  /**
+   * Maneja el modo de edición de una persona.
+   * @param {object} persona - El objeto persona a editar.
+   * @param {number} index - El índice de la persona en el historial.
+   */
   function handleEditPerson(persona, index) {
       currentEditIndex = index;
       const tipoSinEspacio = persona.tipo.replace(/\s/g, '');
@@ -1371,15 +1529,9 @@
           document.getElementById(cardId).classList.add('expanded');
           document.getElementById(cardId).classList.remove('collapsed');
 
-          const nombreInput = form.querySelector(`input#nombre${tipoSinEspacio}`);
-          if (nombreInput) nombreInput.value = persona.nombre || '';
-
-          const apellidoInput = form.querySelector(`input#apellido${tipoSinEspacio}`);
-          if (apellidoInput) apellidoInput.value = persona.apellido || '';
-
-          const areaSelect = form.querySelector(`select#area${tipoSinEspacio}`);
-          if (areaSelect) areaSelect.value = persona.area || '';
-
+          form.querySelector(`input#nombre${tipoSinEspacio}`).value = persona.nombre || '';
+          form.querySelector(`input#apellido${tipoSinEspacio}`).value = persona.apellido || '';
+          form.querySelector(`select#area${tipoSinEspacio}`).value = persona.area || '';
           const subAreaSelect = form.querySelector(`select#subArea${tipoSinEspacio}`);
           if (subAreaSelect) {
               if (areaOptions.hasOwnProperty(persona.area) && areaOptions[persona.area].length > 1) {
@@ -1397,20 +1549,17 @@
                   subAreaSelect.innerHTML = '';
               }
           }
-
-          const anioInput = form.querySelector(`input#anio${tipoSinEspacio}`);
-          if (anioInput) anioInput.value = persona.anio || '';
-
-          const puntosInput = form.querySelector(`input#puntos${tipoSinEspacio}`);
-          if (puntosInput) puntosInput.value = persona.puntos || '';
-
+          form.querySelector(`input#anio${tipoSinEspacio}`).value = persona.anio || '';
+          form.querySelector(`input#puntos${tipoSinEspacio}`).value = persona.puntos || '';
           const submitBtn = form.querySelector('button[type="submit"]');
           if (submitBtn) submitBtn.textContent = 'Guardar Cambios';
-
           form.scrollIntoView({ behavior: 'smooth' });
       }
   }
 
+  /**
+   * Carga los datos del historial y renderiza las fichas de personas.
+   */
   function cargarYMostrarFichas() {
     const historial = JSON.parse(localStorage.getItem('historial')) || [];
     const plantaContainer = document.querySelector('#plantaContainer .fichas-grid-container');
@@ -1421,7 +1570,6 @@
 
     historial.forEach((persona, index) => {
       if (!persona || !persona.tipo) {
-          console.warn('Persona sin tipo o indefinida, omitiendo:', persona);
           return;
       }
       
@@ -1442,6 +1590,7 @@
         <p><strong>Área:</strong> ${persona.area}${persona.subArea && persona.subArea !== persona.area ? ` (${persona.subArea})` : ''}</p>
         <p><strong>Año:</strong> ${persona.anio}</p>
         <p><strong>Puntos:</strong> ${persona.puntos}</p>
+        <p class="registro-user">Registrado por: ${persona.loggedBy || 'Desconocido'}</p>
         <button class="edit-button" data-index="${index}">✏️ Editar</button>
       `;
 
@@ -1450,7 +1599,10 @@
         calendarContainer.className = 'calendar-container';
         cuerpo.appendChild(calendarContainer);
         renderCalendar(calendarContainer, persona, index);
-        calcularYMostrarPozoIndividualEnFicha(persona, cuerpo);
+        const pozoContainer = document.createElement('div');
+        pozoContainer.className = 'pozo-individual-container';
+        cuerpo.appendChild(pozoContainer);
+        calcularYMostrarPozoIndividualEnFicha(persona, pozoContainer);
       }
 
       if (persona.tipo === 'Planta') {
@@ -1476,6 +1628,9 @@
     filterFichas();
   }
   
+  /**
+   * Filtra las fichas de personas según un criterio de búsqueda.
+   */
   const searchFichasInput = document.getElementById('searchFichas');
   if (searchFichasInput) {
     searchFichasInput.addEventListener('input', filterFichas);
@@ -1495,15 +1650,29 @@
     });
   }
 
+  function calcularYMostrarPozoIndividualEnFicha(persona, container) {
+      const totalPozoIndividual = calcularPozoIndividual(persona);
+      const diasTrabajados = persona.diasTrabajados || [];
+      container.innerHTML = `
+          <p>Días trabajados: ${diasTrabajados.length}</p>
+          <p>Total de propinas: $${formatNumberWithPoints(totalPozoIndividual)}</p>
+      `;
+  }
+  
+  // =======================================================
+  //                 GESTIÓN DE RETIROS DE PROPINAS
+  // =======================================================
+  
   const searchRetirosInput = document.getElementById('searchRetiros');
   const searchResultsContainer = document.getElementById('searchResultsContainer');
   const retirosListContainer = document.getElementById('retirosListContainer');
   const totalMontoPlantaDisplay = document.getElementById('totalMontoPlanta');
   const resultadoPlantaDisplay = document.getElementById('resultadoPlanta');
   const registrarValorPorPuntoBtn = document.getElementById('registrarValorPorPuntoBtn');
+  const retirosGuardadosContainer = document.getElementById('retirosGuardadosContainer');
+
 
   registrarValorPorPuntoBtn.addEventListener('click', openValorPorPuntoModal);
-
 
   function updatePlantaRetiros() {
       if (latestDivisor === 0) {
@@ -1648,7 +1817,7 @@
                 const totalAlcance = montoFinal - anticipos;
                 
                 bodyDiv.innerHTML = `
-                    <span class="person-details">Puntos: ${puntos} | Divisor: ${latestDivisor}</span>
+                    <span class="person-details">Puntos: ${puntos} | Divisor: ${formatNumberWithPoints(latestDivisor)}</span>
                     <p class="valor-por-punto">
                         Valor por punto: $${formatNumberWithPoints(latestValorPorPunto)}<br>
                         Total a recibir: $${formatNumberWithPoints(montoFinal)}
@@ -1727,6 +1896,86 @@
     }
   }
 
+  function guardarRetiros() {
+      if (retirosList.length === 0) {
+          alert('No hay retiros para guardar.');
+          return;
+      }
+      if (confirm('¿Estás seguro de que deseas guardar estos retiros? Se borrarán de la lista actual.')) {
+          const now = new Date();
+          const fechaGuardado = getTodayDateString();
+          const horaGuardado = getCurrentTimeString();
+          const id = Date.now();
+          const guardado = {
+              id: id,
+              fecha: fechaGuardado,
+              hora: horaGuardado,
+              retiros: [...retirosList],
+              totalMontoDiario: totalDiarioMonto,
+              divisorPlanta: latestDivisor,
+              valorPorPunto: latestValorPorPunto,
+              loggedBy: `${loggedInUser.nombre} ${loggedInUser.apellido}`
+          };
+          retirosGuardados.unshift(guardado);
+          localStorage.setItem('retirosGuardados', JSON.stringify(retirosGuardados));
+
+          localStorage.removeItem('retirosList');
+          retirosList = [];
+          
+          alert('Retiros guardados con éxito.');
+          renderRetirosList();
+          renderRetirosGuardados();
+      }
+  }
+
+  function renderRetirosGuardados() {
+      retirosGuardadosContainer.innerHTML = '';
+      if (retirosGuardados.length === 0) {
+          retirosGuardadosContainer.innerHTML = '<p style="text-align: center; color: #777;">No hay retiros guardados.</p>';
+          return;
+      }
+
+      retirosGuardados.forEach(guardado => {
+          const item = document.createElement('div');
+          item.className = 'retiro-guardado-item collapsed';
+          item.innerHTML = `
+              <h4>Retiros del ${formatDate(guardado.fecha)} - ${guardado.hora}</h4>
+              <div class="actions">
+                  <button class="show-details-btn">Ver Detalles</button>
+                  <button class="delete-btn delete">Eliminar</button>
+              </div>
+              <div class="retiro-guardado-content" style="margin-top: 10px;">
+                  <p><strong>Total de Monto Diario:</strong> $${formatNumberWithPoints(guardado.totalMontoDiario)}</p>
+                  <p><strong>Divisor de Planta:</strong> ${formatNumberWithPoints(guardado.divisorPlanta)}</p>
+                  <p><strong>Valor por Punto:</strong> $${formatNumberWithPoints(guardado.valorPorPunto)}</p>
+                  <h5>Detalles por Persona:</h5>
+                  <ul>
+                  ${guardado.retiros.map(retiro => `
+                      <li>
+                          <strong>${retiro.nombre} ${retiro.apellido} (${retiro.tipo})</strong>
+                          - ${retiro.tipo === 'Planta' ? `Monto a recibir: $${formatNumberWithPoints(retiro.montoRetiroFinal)}` : `Monto: $${formatNumberWithPoints(retiro.alcanceActual)}`}
+                      </li>
+                  `).join('')}
+                  </ul>
+              </div>
+          `;
+
+          retirosGuardadosContainer.appendChild(item);
+
+          item.querySelector('h4').addEventListener('click', () => {
+              item.classList.toggle('collapsed');
+          });
+
+          item.querySelector('.delete-btn').addEventListener('click', () => {
+              if (confirm('¿Estás seguro de que quieres eliminar este historial de retiros?')) {
+                  retirosGuardados = retirosGuardados.filter(r => r.id !== guardado.id);
+                  localStorage.setItem('retirosGuardados', JSON.stringify(retirosGuardados));
+                  renderRetirosGuardados();
+              }
+          });
+      });
+  }
+
   searchRetirosInput.addEventListener('input', () => {
     const query = (searchRetirosInput.value || '').toLowerCase();
     searchResultsContainer.innerHTML = '';
@@ -1757,6 +2006,7 @@
         if (personaToAdd && !retirosList.some(p => p.nombre === nombre && p.apellido === apellido)) {
           retirosList.push(personaToAdd);
           localStorage.setItem('retirosList', JSON.stringify(retirosList));
+          // CORRECCIÓN: Llamar a renderRetirosList para actualizar la vista
           renderRetirosList();
           searchRetirosInput.value = '';
           searchResultsContainer.innerHTML = '';
@@ -1767,42 +2017,28 @@
     });
   });
 
-  function guardarRetiros() {
-    retirosList = retirosList.map(persona => {
-      const personaCompleta = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === persona.nombre && p.apellido === persona.apellido) || persona;
-      
-      if (persona.tipo === 'Planta') {
-        const puntos = parseFloat(persona.puntos) || 0;
-        persona.montoRetiroFinal = latestValorPorPunto * puntos;
-        persona.anticipos = getTotalAnticipos(persona.nombre, persona.apellido);
-        persona.totalAlcance = (persona.montoRetiroFinal || 0) - (persona.anticipos || 0);
-      } else if (persona.tipo === 'Part Time') {
-        const pozoIndividual = calcularPozoIndividual(personaCompleta);
-        const divisor = parseFloat(persona.divisorRetiro) || 0;
-        const puntoActual = (pozoIndividual / divisor) || 0;
-        const puntos = parseFloat(personaCompleta.puntos) || 0;
-        const alcanceActual = puntoActual * puntos;
-        const montosPedidos = getTotalMontosPedidos(persona.nombre, persona.apellido);
-        persona.restanteAlcance = alcanceActual - montosPedidos;
-      }
-      return persona;
-    });
-
-    localStorage.setItem('retirosList', JSON.stringify(retirosList));
-    renderRetirosList();
-    alert('Los totales de retiro han sido guardados.');
-  }
-
   document.getElementById('guardarRetirosBtn').addEventListener('click', guardarRetiros);
 
   document.getElementById('resetRetirosBtn').addEventListener('click', () => {
-    if (confirm('¿Estás seguro de que deseas borrar la lista de retiros? Esta acción no se puede deshacer.')) {
+    if (confirm('¿Estás seguro de que deseas borrar la lista de retiros actual? Esta acción no se puede deshacer.')) {
       localStorage.removeItem('retirosList');
       retirosList = [];
       renderRetirosList();
     }
   });
 
+  document.getElementById('resetRetirosGuardadosBtn').addEventListener('click', () => {
+      if (confirm('¿Estás seguro de que deseas borrar todo el historial de retiros guardados?')) {
+          localStorage.removeItem('retirosGuardados');
+          retirosGuardados = [];
+          renderRetirosGuardados();
+      }
+  });
+
+
+  // =======================================================
+  //                 GESTIÓN DE MONTOS
+  // =======================================================
 
   let montosPorFecha = {};
   function cargarYMostrarMontos() {
@@ -1852,6 +2088,7 @@
       montos.forEach((m, index) => {
         htmlMontos += `<div class="monto-item">
           <span><strong>${m.area}</strong><br>Monto: $${formatNumberWithPoints(parseFloat(m.monto))}</span>
+          <span class="registro-user">Registrado por: ${m.loggedBy || 'Desconocido'}</span>
           <button class="delete-button" data-fecha="${fecha}" data-index="${index}">🗑️</button>
         </div>`;
       });
@@ -1877,8 +2114,11 @@
     e.preventDefault();
     const fecha = document.getElementById('fecha').value;
     const area = document.getElementById('areaMonto').value;
-    let montoStr = (document.getElementById('monto').value || '').trim();
-    let montoNum = parseInt(montoStr.replace(/\./g, '')) || 0;
+    // Se usa el valor limpio del atributo de datos
+    const montoInput = document.getElementById('monto');
+    const montoNum = parseFloat(montoInput.dataset.cleanValue) || 0;
+    const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
+    
     if (!fecha || !area || montoNum === 0) {
       alert('Por favor, complete todos los campos correctamente');
       return;
@@ -1886,10 +2126,13 @@
     if (!montosPorFecha[fecha]) {
       montosPorFecha[fecha] = [];
     }
-    montosPorFecha[fecha].push({ area, monto: montoNum });
+    montosPorFecha[fecha].push({ area, monto: montoNum, loggedBy });
     guardarMontos();
     mostrarMontosAgrupados();
     document.getElementById('montosForm').reset();
+    montoInput.value = '';
+    montoInput.dataset.cleanValue = '';
+    fechaMontoInput.value = getTodayDateString();
   });
   
   document.addEventListener('click', e => {
@@ -1915,6 +2158,10 @@
       cargarYMostrarMontos();
     }
   });
+
+  // =======================================================
+  //                 GESTIÓN DE MODALES
+  // =======================================================
 
   let currentAnticipoPerson = null;
   const anticipoModal = document.getElementById('anticipoModal');
@@ -1948,59 +2195,12 @@
   const cancelEditPartTimeBtn = document.getElementById('cancelEditPartTimeBtn');
   let currentPartTimePerson;
 
-  anticipoMontoInput.addEventListener('input', () => {
-    let val = (anticipoMontoInput.value || '').replace(/\D/g, '');
-    if (val !== '') {
-      anticipoMontoInput.value = formatNumberWithPoints(val);
-    } else {
-      anticipoMontoInput.value = '';
-    }
-  });
-  
-  anticipoMontoInput.addEventListener('blur', () => {
-    let val = (anticipoMontoInput.value || '').replace(/\./g, '');
-    if (val !== '') {
-      anticipoMontoInput.value = formatNumberWithPoints(parseInt(val));
-    }
-  });
-  
-  montosPedidosMontoInput.addEventListener('input', () => {
-      let val = (montosPedidosMontoInput.value || '').replace(/\D/g, '');
-      if (val !== '') {
-          montosPedidosMontoInput.value = formatNumberWithPoints(val);
-      } else {
-          montosPedidosMontoInput.value = '';
-      }
-  });
-  
-  montosPedidosMontoInput.addEventListener('blur', () => {
-      let val = (montosPedidosMontoInput.value || '').replace(/\./g, '');
-      if (val !== '') {
-          montosPedidosMontoInput.value = formatNumberWithPoints(parseInt(val));
-      }
-  });
-  
-  valorPorPuntoInput.addEventListener('input', () => {
-    let val = (valorPorPuntoInput.value || '').replace(/\D/g, '');
-    if (val !== '') {
-        valorPorPuntoInput.value = formatNumberWithPoints(val);
-    } else {
-        valorPorPuntoInput.value = '';
-    }
-  });
-  
-  valorPorPuntoInput.addEventListener('blur', () => {
-    let val = (valorPorPuntoInput.value || '').replace(/\./g, '');
-    if (val !== '') {
-      valorPorPuntoInput.value = formatNumberWithPoints(parseInt(val));
-    }
-  });
-
 
   function openAnticipoModal(nombre, apellido) {
       currentAnticipoPerson = { nombre, apellido };
       modalTitle.textContent = `Registrar Anticipo para ${nombre} ${apellido}`;
       anticipoMontoInput.value = '';
+      anticipoMontoInput.dataset.cleanValue = '';
       anticipoFechaInput.value = getTodayDateString();
       anticipoHoraInput.value = getCurrentTimeString();
       anticipoModal.style.display = 'flex';
@@ -2015,6 +2215,7 @@
       currentMontosPedidosPerson = { nombre, apellido };
       montosPedidosModalTitle.textContent = `Registrar Monto Pedido para ${nombre} ${apellido}`;
       montosPedidosMontoInput.value = '';
+      montosPedidosMontoInput.dataset.cleanValue = '';
       montosPedidosFechaInput.value = getTodayDateString();
       montosPedidosHoraInput.value = getCurrentTimeString();
       montosPedidosModal.style.display = 'flex';
@@ -2026,7 +2227,8 @@
   }
   
   function openValorPorPuntoModal() {
-      valorPorPuntoInput.value = latestDivisor || '';
+      valorPorPuntoInput.value = formatNumberWithPoints(latestDivisor) || '';
+      valorPorPuntoInput.dataset.cleanValue = latestDivisor || '';
       valorPorPuntoFechaInput.value = getTodayDateString();
       valorPorPuntoHoraInput.value = getCurrentTimeString();
       valorPorPuntoModal.style.display = 'flex';
@@ -2036,20 +2238,21 @@
       valorPorPuntoModal.style.display = 'none';
   }
 
-
   saveAnticipoBtn.addEventListener('click', () => {
       if (!currentAnticipoPerson) return;
       
-      const monto = parseFloat((anticipoMontoInput.value || '').replace(/\./g, '')) || 0;
+      const monto = parseFloat(anticipoMontoInput.dataset.cleanValue) || 0;
       const fecha = anticipoFechaInput.value;
       const hora = anticipoHoraInput.value;
+      const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
+
 
       if (monto <= 0 || !fecha || !hora) {
           alert('Por favor, ingresa un monto válido, fecha y hora.');
           return;
       }
 
-      agregarAnticipoAHistorial(currentAnticipoPerson.nombre, currentAnticipoPerson.apellido, monto, fecha, hora);
+      agregarAnticipoAHistorial(currentAnticipoPerson.nombre, currentAnticipoPerson.apellido, monto, fecha, hora, loggedBy);
       
       const personaIndex = retirosList.findIndex(p => p.nombre === currentAnticipoPerson.nombre && p.apellido === currentAnticipoPerson.apellido);
       if (personaIndex > -1) {
@@ -2067,16 +2270,17 @@
   saveMontosPedidosBtn.addEventListener('click', () => {
       if (!currentMontosPedidosPerson) return;
       
-      const monto = parseFloat((montosPedidosMontoInput.value || '').replace(/\./g, '')) || 0;
+      const monto = parseFloat(montosPedidosMontoInput.dataset.cleanValue) || 0;
       const fecha = montosPedidosFechaInput.value;
       const hora = montosPedidosHoraInput.value;
+      const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
 
       if (monto <= 0 || !fecha || !hora) {
           alert('Por favor, ingresa un monto válido, fecha y hora.');
           return;
       }
       
-      agregarMontoPedidoAHistorial(currentMontosPedidosPerson.nombre, currentMontosPedidosPerson.apellido, monto, fecha, hora);
+      agregarMontoPedidoAHistorial(currentMontosPedidosPerson.nombre, currentMontosPedidosPerson.apellido, monto, fecha, hora, loggedBy);
       
       const personaIndex = retirosList.findIndex(p => p.nombre === currentMontosPedidosPerson.nombre && p.apellido === currentMontosPedidosPerson.apellido);
       if (personaIndex > -1) {
@@ -2100,9 +2304,10 @@
   cancelMontosPedidosBtn.addEventListener('click', closeMontosPedidosModal);
   
   saveValorPorPuntoBtn.addEventListener('click', () => {
-      const divisor = parseFloat((valorPorPuntoInput.value || '').replace(/\./g, '')) || 0;
+      const divisor = parseFloat(valorPorPuntoInput.dataset.cleanValue) || 0;
       const fecha = valorPorPuntoFechaInput.value;
       const hora = valorPorPuntoHoraInput.value;
+      const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
       
       if (divisor <= 0 || !fecha || !hora) {
           alert('Por favor, ingresa un divisor válido, fecha y hora.');
@@ -2110,7 +2315,7 @@
       }
       
       let historial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
-      historial.unshift({ valor: divisor, fecha, hora, id: Date.now() });
+      historial.unshift({ valor: divisor, fecha, hora, loggedBy, id: Date.now() });
       localStorage.setItem('valorPorPuntoHistorial', JSON.stringify(historial));
       
       latestDivisor = divisor;
@@ -2126,7 +2331,8 @@
       currentPartTimePerson = persona;
       const totalPropinas = calcularPozoIndividual(persona);
       editTotalPropinasSpan.textContent = `$${formatNumberWithPoints(totalPropinas)}`;
-      editDivisorPartTimeInput.value = persona.divisorRetiro || '';
+      editDivisorPartTimeInput.value = persona.divisorRetiro ? formatNumberWithPoints(persona.divisorRetiro) : '';
+      editDivisorPartTimeInput.dataset.cleanValue = persona.divisorRetiro || '';
       editPartTimeModal.style.display = 'flex';
   }
 
@@ -2136,7 +2342,7 @@
   }
 
   saveEditPartTimeBtn.addEventListener('click', () => {
-      const divisor = parseFloat(editDivisorPartTimeInput.value);
+      const divisor = parseFloat(editDivisorPartTimeInput.dataset.cleanValue);
       if (isNaN(divisor) || divisor <= 0) {
           alert('Por favor, ingresa un divisor válido.');
           return;
@@ -2159,6 +2365,10 @@
 
   cancelEditPartTimeBtn.addEventListener('click', closeEditPartTimeModal);
   
+  // =======================================================
+  //                 HISTORIALES
+  // =======================================================
+  
   function getTotalAnticipos(nombre, apellido) {
       const historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
       return historialAnticipos.filter(ant => ant.nombre === nombre && ant.apellido === apellido).reduce((sum, ant) => sum + (parseFloat(ant.monto) || 0), 0);
@@ -2169,22 +2379,22 @@
       return historialMontosPedidos.filter(mp => mp.nombre === nombre && mp.apellido === apellido).reduce((sum, mp) => sum + (parseFloat(mp.monto) || 0), 0);
   }
 
-  function agregarAnticipoAHistorial(nombre, apellido, monto, fecha, hora) {
+  function agregarAnticipoAHistorial(nombre, apellido, monto, fecha, hora, loggedBy) {
       let historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
       const id = Date.now();
       
-      const nuevoRegistro = { nombre, apellido, monto, fecha, hora, id };
+      const nuevoRegistro = { nombre, apellido, monto, fecha, hora, loggedBy, id };
       historialAnticipos.unshift(nuevoRegistro);
       
       localStorage.setItem('anticiposHistorial', JSON.stringify(historialAnticipos));
       renderAnticiposHistorial();
   }
   
-  function agregarMontoPedidoAHistorial(nombre, apellido, monto, fecha, hora) {
+  function agregarMontoPedidoAHistorial(nombre, apellido, monto, fecha, hora, loggedBy) {
       let historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
       const id = Date.now();
       
-      const nuevoRegistro = { nombre, apellido, monto, fecha, hora, id };
+      const nuevoRegistro = { nombre, apellido, monto, fecha, hora, loggedBy, id };
       historialMontosPedidos.unshift(nuevoRegistro);
       
       localStorage.setItem('montosPedidosHistorial', JSON.stringify(historialMontosPedidos));
@@ -2286,10 +2496,10 @@
           personData.registros.forEach(registro => {
               const li = document.createElement('li');
               li.className = 'anticipo-item';
-              const signo = registro.monto >= 0 ? '' : '-';
               li.innerHTML = `
-                  <span>$${signo}${formatNumberWithPoints(registro.monto)}</span>
+                  <span>$${formatNumberWithPoints(registro.monto)}</span>
                   <span class="date-time">${formatDate(registro.fecha)} ${registro.hora}</span>
+                  <p class="registro-user">Registrado por: ${registro.loggedBy || 'Desconocido'}</p>
                   <button class="delete-button" data-id="${registro.id}" data-nombre="${registro.nombre}" data-apellido="${registro.apellido}">🗑️</button>
               `;
               ul.appendChild(li);
@@ -2340,10 +2550,10 @@
           personData.registros.forEach(registro => {
               const li = document.createElement('li');
               li.className = 'montos-pedidos-item';
-              const signo = registro.monto >= 0 ? '' : '-';
               li.innerHTML = `
-                  <span>$${signo}${formatNumberWithPoints(registro.monto)}</span>
+                  <span>$${formatNumberWithPoints(registro.monto)}</span>
                   <span class="date-time">${formatDate(registro.fecha)} ${registro.hora})</span>
+                  <p class="registro-user">Registrado por: ${registro.loggedBy || 'Desconocido'}</p>
                   <button class="delete-button" data-id="${registro.id}" data-nombre="${registro.nombre}" data-apellido="${registro.apellido}">🗑️</button>
               `;
               ul.appendChild(li);
@@ -2376,6 +2586,7 @@
                   <span><strong>Divisor:</strong> ${formatNumberWithPoints(registro.valor)}</span>
                   <span><strong>Fecha:</strong> ${formatDate(registro.fecha)}</span>
                   <span><strong>Hora:</strong> ${registro.hora}</span>
+                  <p class="registro-user">Registrado por: ${registro.loggedBy || 'Desconocido'}</p>
                   <button class="delete-button" data-id="${registro.id}">🗑️</button>
               `;
               container.appendChild(item);
@@ -2451,7 +2662,7 @@
         
         htmlContent = `
             <p><strong>Total de propinas:</strong> <span class="informe-total">$${formatNumberWithPoints(totalDiarioMonto)}</span></p>
-            <p><strong>Divisor:</strong> <span class="informe-total">${latestDivisor}</span></p>
+            <p><strong>Divisor:</strong> <span class="informe-total">${formatNumberWithPoints(latestDivisor)}</span></p>
             <p><strong>Valor por punto:</strong> <span class="informe-total">$${formatNumberWithPoints(latestValorPorPunto)}</span></p>
             <p><strong>Total a recibir:</strong> <span class="informe-total">$${formatNumberWithPoints(totalRecibir)}</span></p>
             <p><strong>Total de anticipos:</strong> <span class="informe-anticipos">$${formatNumberWithPoints(totalAnticipos)}</span></p>
@@ -2468,7 +2679,7 @@
         htmlContent = `
             <p><strong>Días trabajados:</strong> ${historialPersona.diasTrabajados.length}</p>
             <p><strong>Total de propinas del pozo:</strong> <span class="informe-total">$${formatNumberWithPoints(pozoIndividual)}</span></p>
-            <p><strong>Divisor aplicado:</strong> ${divisorActual}</p>
+            <p><strong>Divisor aplicado:</strong> ${formatNumberWithPoints(divisorActual)}</p>
             <p><strong>Punto-actual-PT:</strong> <span class="informe-total">$${formatNumberWithPoints(puntoActual)}</span></p>
             <p><strong>Alcance-Actual:</strong> <span class="informe-total">$${formatNumberWithPoints(alcanceActual)}</span></p>
             <p><strong>Montos-Pedidos:</strong> <span class="informe-total">$${formatNumberWithPoints(totalMontosPedidos)}</span></p>
@@ -2562,7 +2773,7 @@
           const totalAlcance = personaRetiro.totalAlcance || 0;
           doc.text(`Total de propinas: $${formatNumberWithPoints(totalDiarioMonto)}`, 20, y);
           y += 10;
-          doc.text(`Divisor: ${latestDivisor}`, 20, y);
+          doc.text(`Divisor: ${formatNumberWithPoints(latestDivisor)}`, 20, y);
           y += 10;
           doc.text(`Valor por punto: $${formatNumberWithPoints(latestValorPorPunto)}`, 20, y);
           y += 10;
@@ -2583,7 +2794,7 @@
           y += 10;
           doc.text(`Total de propinas del pozo: $${formatNumberWithPoints(pozoIndividual)}`, 20, y);
           y += 10;
-          doc.text(`Divisor aplicado: ${personaRetiro.divisorRetiro}`, 20, y);
+          doc.text(`Divisor aplicado: ${formatNumberWithPoints(personaRetiro.divisorRetiro)}`, 20, y);
           y += 10;
           doc.text(`Punto-actual-PT: $${formatNumberWithPoints(puntoActual)}`, 20, y);
           y += 10;
@@ -2630,6 +2841,36 @@
       doc.save(`Recibo-${historialPersona.nombre}-${historialPersona.apellido}.pdf`);
   }
 
+  // =======================================================
+  //                 CONFIGURACIÓN DE ENTRADAS NUMÉRICAS
+  // =======================================================
+  function setupCurrencyInput(inputElement) {
+    if (!inputElement) return;
+
+    inputElement.setAttribute('type', 'text');
+    inputElement.addEventListener('input', (e) => {
+      let value = e.target.value.replace(/\./g, '');
+      if (value.match(/^\d*$/)) {
+        e.target.dataset.cleanValue = value;
+        e.target.value = formatNumberWithPoints(value);
+      } else {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        e.target.dataset.cleanValue = e.target.value;
+        e.target.value = formatNumberWithPoints(e.target.value);
+      }
+    });
+    // Inicializar el valor si ya tiene contenido
+    const initialValue = inputElement.value;
+    if (initialValue) {
+        inputElement.dataset.cleanValue = initialValue.replace(/\./g, '');
+        inputElement.value = formatNumberWithPoints(initialValue);
+    }
+  }
+
+  // =======================================================
+  //                 CONFIGURACIÓN INICIAL Y EVENTOS
+  // =======================================================
+
   function setupCollapsibleSection(sectionId) {
     const section = document.getElementById(sectionId);
     if (section) {
@@ -2666,42 +2907,57 @@
   }
 
   window.onload = () => {
-    // Limpia el historial al cargar la página, eliminando registros incompletos o mal formateados.
-    const historial = JSON.parse(localStorage.getItem('historial')) || [];
-    const historialCorregido = historial.filter(persona => {
-        return persona && typeof persona === 'object' && persona.tipo;
-    }).map(persona => {
-        if (persona.tipo && persona.tipo.toLowerCase() === 'parttime') {
-            persona.tipo = 'Part Time';
+    checkLogin();
+    if (loggedInUser) {
+        const historial = JSON.parse(localStorage.getItem('historial')) || [];
+        const historialCorregido = historial.filter(persona => {
+            return persona && typeof persona === 'object' && persona.tipo;
+        }).map(persona => {
+            if (persona.tipo && persona.tipo.toLowerCase() === 'parttime') {
+                persona.tipo = 'Part Time';
+            }
+            return persona;
+        });
+        localStorage.setItem('historial', JSON.stringify(historialCorregido));
+        
+        const valorPorPuntoHistorial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
+        if (valorPorPuntoHistorial.length > 0) {
+            latestDivisor = valorPorPuntoHistorial[0].valor;
+        } else {
+            latestDivisor = 0;
         }
-        return persona;
-    });
-    localStorage.setItem('historial', JSON.stringify(historialCorregido));
-    
-    const valorPorPuntoHistorial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
-    if (valorPorPuntoHistorial.length > 0) {
-        latestDivisor = valorPorPuntoHistorial[0].valor;
-    } else {
-        latestDivisor = 0;
-    }
 
-    cargarYMostrarFichas();
-    cargarYMostrarMontos();
-    renderAnticiposHistorial();
-    renderMontosPedidosHistorial();
-    renderValorPorPuntoHistorial();
-    
-    setupCollapsibleSection('personaSection');
-    setupCollapsibleSection('fichasSection');
-    setupCollapsibleSection('retirosPropinaSection');
-    setupCollapsibleSection('montosSection');
-    setupCollapsibleSection('anticiposHistorialSection');
-    setupCollapsibleSection('montosPedidosHistorialSection');
-    setupCollapsibleSection('valorPorPuntoHistorialSection');
-    setupCollapsibleCard('plantaCard');
-    setupCollapsibleCard('partTimeCard');
-    
-    setupMainCollapsibles();
+        cargarYMostrarFichas();
+        cargarYMostrarMontos();
+        renderAnticiposHistorial();
+        renderMontosPedidosHistorial();
+        renderValorPorPuntoHistorial();
+        renderRetirosGuardados();
+
+        if (fechaMontoInput) {
+            fechaMontoInput.value = getTodayDateString();
+        }
+        
+        setupCollapsibleSection('personaSection');
+        setupCollapsibleSection('fichasSection');
+        setupCollapsibleSection('retirosPropinaSection');
+        setupCollapsibleSection('montosSection');
+        setupCollapsibleSection('anticiposHistorialSection');
+        setupCollapsibleSection('montosPedidosHistorialSection');
+        setupCollapsibleSection('valorPorPuntoHistorialSection');
+        setupCollapsibleSection('retirosGuardadosSection');
+        setupCollapsibleCard('plantaCard');
+        setupCollapsibleCard('partTimeCard');
+        
+        setupMainCollapsibles();
+
+        // Aplicar el nuevo formateo a los campos numéricos
+        setupCurrencyInput(document.getElementById('monto'));
+        setupCurrencyInput(document.getElementById('anticipoMontoInput'));
+        setupCurrencyInput(document.getElementById('montosPedidosMontoInput'));
+        setupCurrencyInput(document.getElementById('valorPorPuntoInput'));
+        setupCurrencyInput(document.getElementById('editDivisorPartTimeInput'));
+    }
   };
 </script>
 </body>
