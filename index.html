@@ -75,7 +75,7 @@
   .reset-button:hover {
     background-color: #d32f2f;
   }
-  
+
   .logout-button {
     background-color: #dc3545;
     font-weight: normal;
@@ -521,14 +521,14 @@
     cursor: pointer;
     user-select: none;
   }
-  
+
   .retiro-header .person-name {
     font-weight: bold;
     font-size: 1.1em;
     position: relative;
     padding-right: 20px;
   }
-  
+
   .retiro-header .person-name::after {
     content: '▼';
     position: absolute;
@@ -537,11 +537,11 @@
     transform: translateY(-50%);
     transition: transform 0.2s ease-in-out;
   }
-  
+
   .retiro-person-item.collapsed .person-name::after {
     transform: translateY(-50%) rotate(-90deg);
   }
-  
+
   .retiro-body {
     margin-top: 10px;
   }
@@ -619,7 +619,7 @@
     color: #007bff;
     margin-top: 10px;
   }
-  
+
   /* Estilo para el cálculo individual de part-time */
   .part-time-individual-calculation {
       margin-top: 10px;
@@ -735,7 +735,7 @@
   .anticipo-item .delete-button {
     background: none;
     border: none;
-    font-size: 1em;
+    font-size: 1 em;
     color: #dc3545;
     cursor: pointer;
     padding: 0 5px;
@@ -748,7 +748,7 @@
     color: #777;
     font-size: 0.8em;
   }
-  
+
   #montosPedidosHistorialSection h2 {
       color: #007bff;
   }
@@ -781,7 +781,7 @@
   .montos-pedidos-item:last-child {
       border-bottom: none;
   }
-  
+
   #valorPorPuntoHistorialSection h2 {
       color: #004d40;
   }
@@ -805,6 +805,29 @@
       cursor: pointer;
   }
 
+  /* Estilos para el historial de retiros guardados */
+  #retirosGuardadosSection h2 {
+    color: #17a2b8;
+  }
+  .valor-por-punto-item {
+    background-color: #e0f2f1;
+    border-left: 5px solid #009688;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+  }
+  .valor-por-punto-item .delete-button {
+      background: none;
+      border: none;
+      font-size: 1.2em;
+      color: #f44336;
+      cursor: pointer;
+  }
   /* Estilos para el historial de retiros guardados */
   #retirosGuardadosSection h2 {
     color: #17a2b8;
@@ -941,7 +964,7 @@
       justify-content: space-between;
       font-size: 0.9em;
   }
-  
+
 </style>
 </head>
 <body>
@@ -1248,7 +1271,7 @@
     const [year, month, day] = dateString.split('-');
     return `${day}/${month}/${year}`;
   }
-  
+
   /**
    * Obtiene la fecha actual en formato 'YYYY-MM-DD'.
    * @returns {string} La fecha actual.
@@ -1271,7 +1294,7 @@
     const minutes = now.getMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;
   }
-  
+
   /**
    * Valida si el usuario ha iniciado sesión y muestra el contenido principal.
    */
@@ -1282,7 +1305,7 @@
           loginContainer.style.display = 'none';
           mainContent.style.display = 'block';
           userInfoSpan.textContent = `Sesión iniciada como: ${loggedInUser.nombre} ${loggedInUser.apellido}`;
-          
+
       } else {
           loginContainer.style.display = 'block';
           mainContent.style.display = 'none';
@@ -1300,15 +1323,15 @@
       const apellido = document.getElementById('loginApellido').value;
       localStorage.setItem('loggedInUser', JSON.stringify({ nombre, apellido }));
       checkLogin();
-      location.reload(); 
+      location.reload();
   });
-  
+
   logoutBtn.addEventListener('click', () => {
       localStorage.removeItem('loggedInUser');
       checkLogin();
       location.reload();
   });
-  
+
   // =======================================================
   //                 GESTIÓN DE PERSONAL (PLANTILLA/PART-TIME)
   // =======================================================
@@ -1335,13 +1358,7 @@
     });
   });
 
-  document.getElementById('plantaForm').addEventListener('submit', (e) => handlePersonFormSubmit(e, 'Planta'));
-  document.getElementById('partTimeForm').addEventListener('submit', (e) => handlePersonFormSubmit(e, 'Part Time'));
-
-  /**
-   * Maneja el envío de formularios de agregar o editar personas.
-   */
-  function handlePersonFormSubmit(e, tipo) {
+  async function handlePersonFormSubmit(e, tipo) {
     e.preventDefault();
     const form = e.target;
     const tipoSinEspacio = tipo.replace(/\s/g, '');
@@ -1352,31 +1369,37 @@
     const subArea = subAreaSelect.style.display !== 'none' ? subAreaSelect.value || area : area;
     const anio = form.querySelector(`input#anio${tipoSinEspacio}`).value;
     const puntos = form.querySelector(`input#puntos${tipoSinEspacio}`).value;
-    
     const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
+    const action = 'addPersona'; // Define la acción para que tu script de Apps Script la identifique
 
-    const nuevaPersona = { nombre, apellido, area, subArea, anio, puntos: parseFloat(puntos), tipo, loggedBy };
-    let historial = JSON.parse(localStorage.getItem('historial')) || [];
+    const dataToSend = { action, nombre, apellido, area, subArea, anio, puntos, tipo, loggedBy };
 
-    if (currentEditIndex !== -1) {
-      historial[currentEditIndex] = { ...historial[currentEditIndex], ...nuevaPersona };
-      currentEditIndex = -1;
-      form.querySelector('button[type="submit"]').textContent = 'Agregar';
-      alert('Persona modificada con éxito.');
-    } else {
-        if (tipo === 'Part Time') {
-            nuevaPersona.diasTrabajados = [];
-        }
-        historial.push(nuevaPersona);
+    try {
+      const response = await fetch('TU_URL_DE_LA_APLICACIÓN_WEB', { // Reemplaza CON TU URL REAL
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dataToSend)
+      });
+
+      const responseData = await response.json();
+      if (responseData.status === 'success') {
         alert('Persona agregada con éxito.');
+        form.reset();
+        if (subAreaSelect) subAreaSelect.style.display = 'none';
+        // Aquí podrías decidir si quieres también actualizar tu lista local o recargarla desde la hoja de cálculo si implementas lectura
+      } else {
+        alert(`Error al agregar persona: ${responseData.message}`);
+      }
+    } catch (error) {
+      console.error('Error al enviar datos a Google Sheets:', error);
+      alert('Ocurrió un error al conectar con la base de datos.');
     }
-
-    localStorage.setItem('historial', JSON.stringify(historial));
-    cargarYMostrarFichas();
-    form.reset();
-    if (subAreaSelect) subAreaSelect.style.display = 'none';
-    renderRetirosList(); 
   }
+
+  document.getElementById('plantaForm').addEventListener('submit', (e) => handlePersonFormSubmit(e, 'Planta'));
+  document.getElementById('partTimeForm').addEventListener('submit', (e) => handlePersonFormSubmit(e, 'Part Time'));
 
   /**
    * Calcula el total de propinas de un pozo individual para personal Part Time.
@@ -1412,7 +1435,8 @@
     function updateCalendar() {
       container.innerHTML = '';
       const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-      const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+      const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sab"];
+      const dayNamesFull = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
       const header = document.createElement('div');
       header.className = 'calendar-header';
@@ -1470,10 +1494,10 @@
             currentPersona.diasTrabajados.push(dateString);
           }
           localStorage.setItem('historial', JSON.stringify(historial));
-          
+
           // Primero, se redibuja el calendario para reflejar el cambio.
           updateCalendar();
-          
+
           // Luego, se actualiza el contenedor del "pozo" sin destruir el calendario.
           const ficha = document.querySelector(`.ficha[data-index="${index}"]`);
           if (ficha) {
@@ -1483,7 +1507,7 @@
               calcularYMostrarPozoIndividualEnFicha(currentPersona, pozoContainer);
             }
           }
-    
+
           // Finalmente, se actualiza la lista principal de retiros.
           renderRetirosList();
         });
@@ -1572,7 +1596,7 @@
       if (!persona || !persona.tipo) {
           return;
       }
-      
+
       const ficha = document.createElement('div');
       ficha.className = `ficha collapsed ${persona.tipo.replace(/\s/g, '-').toLowerCase() === 'planta' ? 'ficha-planta' : 'ficha-part-time'}`;
       ficha.dataset.index = index;
@@ -1613,7 +1637,7 @@
       ficha.appendChild(titulo);
       ficha.appendChild(cuerpo);
     });
-    
+
     document.querySelectorAll('.edit-button').forEach(button => {
       button.addEventListener('click', (e) => {
         const index = parseInt(e.currentTarget.dataset.index);
@@ -1624,10 +1648,10 @@
         }
       });
     });
-    
+
     filterFichas();
   }
-  
+
   /**
    * Filtra las fichas de personas según un criterio de búsqueda.
    */
@@ -1635,11 +1659,11 @@
   if (searchFichasInput) {
     searchFichasInput.addEventListener('input', filterFichas);
   }
-  
+
   function filterFichas() {
     const query = (searchFichasInput.value || '').toLowerCase();
     const fichas = document.querySelectorAll('.fichas-grid-container .ficha');
-    
+
     fichas.forEach(ficha => {
       const nombreApellido = (ficha.querySelector('h3')?.textContent || '').toLowerCase();
       if (nombreApellido.includes(query)) {
@@ -1658,11 +1682,11 @@
           <p>Total de propinas: $${formatNumberWithPoints(totalPozoIndividual)}</p>
       `;
   }
-  
+
   // =======================================================
   //                 GESTIÓN DE RETIROS DE PROPINAS
   // =======================================================
-  
+
   const searchRetirosInput = document.getElementById('searchRetiros');
   const searchResultsContainer = document.getElementById('searchResultsContainer');
   const retirosListContainer = document.getElementById('retirosListContainer');
@@ -1696,16 +1720,16 @@
       localStorage.setItem('retirosList', JSON.stringify(retirosList));
       renderRetirosList();
   }
-  
+
   function renderRetirosList() {
     const historial = JSON.parse(localStorage.getItem('historial')) || [];
-    
+
     retirosListContainer.innerHTML = '';
-    
+
     const groupedByTipo = retirosList.reduce((acc, personaRetiro) => {
       const persona = historial.find(p => p.nombre === personaRetiro.nombre && p.apellido === personaRetiro.apellido);
       if (!persona) return acc;
-      
+
       const tipo = persona.tipo;
       const area = persona.area;
       const subArea = persona.subArea;
@@ -1722,21 +1746,21 @@
       acc[tipo][area][subArea].push(personaRetiro);
       return acc;
     }, {});
-    
+
     totalMontoPlantaDisplay.textContent = `$${formatNumberWithPoints(totalDiarioMonto)}`;
     resultadoPlantaDisplay.textContent = `$${formatNumberWithPoints(latestValorPorPunto)} por punto`;
 
     for (const tipo in groupedByTipo) {
       const tipoDiv = document.createElement('div');
       tipoDiv.className = 'retiro-tipo-container collapsed';
-      
+
       const tipoHeader = document.createElement('h3');
       tipoHeader.textContent = `Personal ${tipo === 'Planta' ? 'de Planta' : tipo}`;
 
       tipoHeader.addEventListener('click', () => {
           tipoDiv.classList.toggle('collapsed');
       });
-      
+
       const contentWrapper = document.createElement('div');
       contentWrapper.className = 'retiro-content-wrapper';
 
@@ -1755,13 +1779,13 @@
 
           const listDiv = document.createElement('div');
           groupedByArea[area][subArea].forEach((personaRetiro) => {
-            
+
             const persona = historial.find(p => p.nombre === personaRetiro.nombre && p.apellido === personaRetiro.apellido);
-            if (!persona) return; 
+            if (!persona) return;
 
             const personItem = document.createElement('div');
             personItem.className = `retiro-person-item collapsed ${persona.tipo === 'Planta' ? 'planta' : 'part-time'}`;
-            
+
             const headerDiv = document.createElement('div');
             headerDiv.className = 'retiro-header';
 
@@ -1771,7 +1795,7 @@
 
             const actionsDiv = document.createElement('div');
             actionsDiv.className = 'retiro-actions';
-            
+
             actionsDiv.innerHTML += `
                 <button class="report-button" title="Ver Informe" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}">📊</button>
                 <button class="pdf-button" title="Generar Recibo" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}">📄</button>
@@ -1787,7 +1811,7 @@
                 const divisorActual = parseFloat(personaRetiro.divisorRetiro) || 0;
                 const puntoActual = (pozoIndividual / divisorActual) || 0;
                 const alcanceActual = puntoActual * (parseFloat(persona.puntos) || 0);
-                
+
                 const montosPedidos = getTotalMontosPedidos(persona.nombre, persona.apellido);
                 const restanteAlcance = alcanceActual - montosPedidos;
 
@@ -1805,7 +1829,7 @@
                     </div>
                     <button class="registrar-monto-pedido-btn" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}" style="margin-top: 10px;">Registrar Monto Pedido</button>
                 `;
-                
+
                 bodyDiv.querySelector('.registrar-monto-pedido-btn').addEventListener('click', () => {
                     openMontosPedidosModal(persona.nombre, persona.apellido);
                 });
@@ -1815,7 +1839,7 @@
                 const montoFinal = personaRetiro.montoRetiroFinal !== undefined ? personaRetiro.montoRetiroFinal : 0;
                 const anticipos = getTotalAnticipos(persona.nombre, persona.apellido);
                 const totalAlcance = montoFinal - anticipos;
-                
+
                 bodyDiv.innerHTML = `
                     <span class="person-details">Puntos: ${puntos} | Divisor: ${formatNumberWithPoints(latestDivisor)}</span>
                     <p class="valor-por-punto">
@@ -1842,7 +1866,7 @@
             headerDiv.addEventListener('click', () => {
                 personItem.classList.toggle('collapsed');
             });
-            
+
             actionsDiv.querySelector('.report-button').addEventListener('click', (e) => {
                 e.stopPropagation();
                 const nombre = e.currentTarget.dataset.nombre;
@@ -1856,7 +1880,7 @@
                 const apellido = e.currentTarget.dataset.apellido;
                 generatePDF(nombre, apellido);
             });
-            
+
             actionsDiv.querySelector('.edit-button').addEventListener('click', (e) => {
                 e.stopPropagation();
                 const nombre = e.currentTarget.dataset.nombre;
@@ -1896,7 +1920,7 @@
     }
   }
 
-  function guardarRetiros() {
+  async function guardarRetiros() {
       if (retirosList.length === 0) {
           alert('No hay retiros para guardar.');
           return;
@@ -1906,25 +1930,37 @@
           const fechaGuardado = getTodayDateString();
           const horaGuardado = getCurrentTimeString();
           const id = Date.now();
-          const guardado = {
-              id: id,
-              fecha: fechaGuardado,
-              hora: horaGuardado,
-              retiros: [...retirosList],
-              totalMontoDiario: totalDiarioMonto,
-              divisorPlanta: latestDivisor,
-              valorPorPunto: latestValorPorPunto,
-              loggedBy: `${loggedInUser.nombre} ${loggedInUser.apellido}`
-          };
-          retirosGuardados.unshift(guardado);
-          localStorage.setItem('retirosGuardados', JSON.stringify(retirosGuardados));
+          const action = 'guardarRetiros'; // Define la acción
+          const totalMontoDiario = totalDiarioMonto; // Asegúrate de que esta variable esté actualizada
+          const divisorPlanta = latestDivisor; // Asegúrate de que esta variable esté actualizada
+          const valorPorPunto = latestValorPorPunto; // Asegúrate de que esta variable esté actualizada
+          const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
 
-          localStorage.removeItem('retirosList');
-          retirosList = [];
-          
-          alert('Retiros guardados con éxito.');
-          renderRetirosList();
-          renderRetirosGuardados();
+          const dataToSend = { action, id, fecha: fechaGuardado, hora: horaGuardado, totalMontoDiario, divisorPlanta, valorPorPunto, retiros: [...retirosList], loggedBy };
+
+          try {
+              const response = await fetch('TU_URL_DE_LA_APLICACIÓN_WEB', { // Reemplaza CON TU URL REAL
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(dataToSend)
+              });
+
+              const responseData = await response.json();
+              if (responseData.status === 'success') {
+                  alert('Retiros guardados con éxito.');
+                  localStorage.removeItem('retirosList');
+                  retirosList = [];
+                  renderRetirosList();
+                  renderRetirosGuardados(); // Si quieres recargar la lista de guardados
+              } else {
+                  alert(`Error al guardar retiros: ${responseData.message}`);
+              }
+          } catch (error) {
+              console.error('Error al enviar datos a Google Sheets:', error);
+              alert('Ocurrió un error al conectar con la base de datos.');
+          }
       }
   }
 
@@ -2110,7 +2146,7 @@
     cargarYMostrarFichas();
   }
 
-  document.getElementById('montosForm').addEventListener('submit', e => {
+  document.getElementById('montosForm').addEventListener('submit', async e => {
     e.preventDefault();
     const fecha = document.getElementById('fecha').value;
     const area = document.getElementById('areaMonto').value;
@@ -2118,29 +2154,47 @@
     const montoInput = document.getElementById('monto');
     const montoNum = parseFloat(montoInput.dataset.cleanValue) || 0;
     const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
-    
+    const action = 'addMonto'; // Define la acción
+
     if (!fecha || !area || montoNum === 0) {
       alert('Por favor, complete todos los campos correctamente');
       return;
     }
-    if (!montosPorFecha[fecha]) {
-      montosPorFecha[fecha] = [];
+
+    const dataToSend = { action, fecha, area, monto: montoNum, loggedBy };
+
+    try {
+      const response = await fetch('TU_URL_DE_LA_APLICACIÓN_WEB', { // Reemplaza CON TU URL REAL
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dataToSend)
+      });
+
+      const responseData = await response.json();
+      if (responseData.status === 'success') {
+        alert('Monto agregado correctamente.');
+        document.getElementById('montosForm').reset();
+        montoInput.value = '';
+        montoInput.dataset.cleanValue = '';
+        fechaMontoInput.value = getTodayDateString();
+        // Aquí podrías decidir si quieres recargar los montos desde la hoja de cálculo
+      } else {
+        alert(`Error al agregar monto: ${responseData.message}`);
+      }
+    } catch (error) {
+      console.error('Error al enviar datos a Google Sheets:', error);
+      alert('Ocurrió un error al conectar con la base de datos.');
     }
-    montosPorFecha[fecha].push({ area, monto: montoNum, loggedBy });
-    guardarMontos();
-    mostrarMontosAgrupados();
-    document.getElementById('montosForm').reset();
-    montoInput.value = '';
-    montoInput.dataset.cleanValue = '';
-    fechaMontoInput.value = getTodayDateString();
   });
-  
+
   document.addEventListener('click', e => {
       if (e.target.classList.contains('delete-button') && e.target.closest('.monto-item')) {
           const button = e.target;
           const fecha = button.dataset.fecha;
           const index = parseInt(button.dataset.index);
-          
+
           if (montosPorFecha[fecha] && montosPorFecha[fecha].length > index) {
               montosPorFecha[fecha].splice(index, 1);
               if (montosPorFecha[fecha].length === 0) {
@@ -2171,7 +2225,7 @@
   const anticipoHoraInput = document.getElementById('anticipoHoraInput');
   const saveAnticipoBtn = document.getElementById('saveAnticipoBtn');
   const cancelAnticipoBtn = document.getElementById('cancelAnticipoBtn');
-  
+
   let currentMontosPedidosPerson = null;
   const montosPedidosModal = document.getElementById('montosPedidosModal');
   const montosPedidosModalTitle = document.getElementById('montosPedidosModalTitle');
@@ -2180,7 +2234,7 @@
   const montosPedidosHoraInput = document.getElementById('montosPedidosHoraInput');
   const saveMontosPedidosBtn = document.getElementById('saveMontosPedidosBtn');
   const cancelMontosPedidosBtn = document.getElementById('cancelMontosPedidosBtn');
-  
+
   const valorPorPuntoModal = document.getElementById('valorPorPuntoModal');
   const valorPorPuntoInput = document.getElementById('valorPorPuntoInput');
   const valorPorPuntoFechaInput = document.getElementById('valorPorPuntoFechaInput');
@@ -2210,7 +2264,7 @@
       currentAnticipoPerson = null;
       anticipoModal.style.display = 'none';
   }
-  
+
   function openMontosPedidosModal(nombre, apellido) {
       currentMontosPedidosPerson = { nombre, apellido };
       montosPedidosModalTitle.textContent = `Registrar Monto Pedido para ${nombre} ${apellido}`;
@@ -2225,7 +2279,7 @@
       currentMontosPedidosPerson = null;
       montosPedidosModal.style.display = 'none';
   }
-  
+
   function openValorPorPuntoModal() {
       valorPorPuntoInput.value = formatNumberWithPoints(latestDivisor) || '';
       valorPorPuntoInput.dataset.cleanValue = latestDivisor || '';
@@ -2238,92 +2292,124 @@
       valorPorPuntoModal.style.display = 'none';
   }
 
-  saveAnticipoBtn.addEventListener('click', () => {
+  saveAnticipoBtn.addEventListener('click', async () => {
       if (!currentAnticipoPerson) return;
-      
+
       const monto = parseFloat(anticipoMontoInput.dataset.cleanValue) || 0;
       const fecha = anticipoFechaInput.value;
       const hora = anticipoHoraInput.value;
       const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
-
+      const action = 'addAnticipo'; // Define la acción
 
       if (monto <= 0 || !fecha || !hora) {
           alert('Por favor, ingresa un monto válido, fecha y hora.');
           return;
       }
 
-      agregarAnticipoAHistorial(currentAnticipoPerson.nombre, currentAnticipoPerson.apellido, monto, fecha, hora, loggedBy);
-      
-      const personaIndex = retirosList.findIndex(p => p.nombre === currentAnticipoPerson.nombre && p.apellido === currentAnticipoPerson.apellido);
-      if (personaIndex > -1) {
-          retirosList[personaIndex].anticipos = getTotalAnticipos(currentAnticipoPerson.nombre, currentAnticipoPerson.apellido);
-          retirosList[personaIndex].totalAlcance = (retirosList[personaIndex].montoRetiroFinal || 0) - retirosList[personaIndex].anticipos;
-          localStorage.setItem('retirosList', JSON.stringify(retirosList));
-          renderRetirosList();
-      }
+      const dataToSend = { action, nombre: currentAnticipoPerson.nombre, apellido: currentAnticipoPerson.apellido, monto, fecha, hora, loggedBy };
 
-      closeAnticipoModal();
+      try {
+          const response = await fetch('TU_URL_DE_LA_APLICACIÓN_WEB', { // Reemplaza CON TU URL REAL
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(dataToSend)
+          });
+
+          const responseData = await response.json();
+          if (responseData.status === 'success') {
+              // Si quieres, podrías recargar el historial de anticipos desde la hoja de cálculo aquí
+              closeAnticipoModal();
+          } else {
+              alert(`Error al registrar anticipo: ${responseData.message}`);
+          }
+      } catch (error) {
+          console.error('Error al enviar datos a Google Sheets:', error);
+          alert('Ocurrió un error al conectar con la base de datos.');
+      }
   });
 
   cancelAnticipoBtn.addEventListener('click', closeAnticipoModal);
-  
-  saveMontosPedidosBtn.addEventListener('click', () => {
+
+  saveMontosPedidosBtn.addEventListener('click', async () => {
       if (!currentMontosPedidosPerson) return;
-      
+
       const monto = parseFloat(montosPedidosMontoInput.dataset.cleanValue) || 0;
       const fecha = montosPedidosFechaInput.value;
       const hora = montosPedidosHoraInput.value;
       const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
+      const action = 'addMontoPedido'; // Define la acción
 
       if (monto <= 0 || !fecha || !hora) {
           alert('Por favor, ingresa un monto válido, fecha y hora.');
           return;
       }
-      
-      agregarMontoPedidoAHistorial(currentMontosPedidosPerson.nombre, currentMontosPedidosPerson.apellido, monto, fecha, hora, loggedBy);
-      
-      const personaIndex = retirosList.findIndex(p => p.nombre === currentMontosPedidosPerson.nombre && p.apellido === currentMontosPedidosPerson.apellido);
-      if (personaIndex > -1) {
-          const persona = retirosList[personaIndex];
-          const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === persona.nombre && p.apellido === persona.apellido);
-          const pozoIndividual = calcularPozoIndividual(historialPersona);
-          const divisor = parseFloat(persona.divisorRetiro) || 0;
-          const puntoActual = (pozoIndividual / divisor) || 0;
-          const puntos = parseFloat(historialPersona.puntos) || 0;
-          const alcanceActual = puntoActual * puntos;
-          
-          const totalMontosPedidos = getTotalMontosPedidos(currentMontosPedidosPerson.nombre, currentMontosPedidosPerson.apellido);
-          persona.restanteAlcance = alcanceActual - totalMontosPedidos;
-          localStorage.setItem('retirosList', JSON.stringify(retirosList));
-          renderRetirosList();
-      }
 
-      closeMontosPedidosModal();
+      const dataToSend = { action, nombre: currentMontosPedidosPerson.nombre, apellido: currentMontosPedidosPerson.apellido, monto, fecha, hora, loggedBy };
+
+      try {
+          const response = await fetch('TU_URL_DE_LA_APLICACIÓN_WEB', { // Reemplaza CON TU URL REAL
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(dataToSend)
+          });
+
+          const responseData = await response.json();
+          if (responseData.status === 'success') {
+              // Si quieres, podrías recargar el historial de montos pedidos desde la hoja de cálculo aquí
+              closeMontosPedidosModal();
+          } else {
+              alert(`Error al registrar monto pedido: ${responseData.message}`);
+          }
+      } catch (error) {
+          console.error('Error al enviar datos a Google Sheets:', error);
+          alert('Ocurrió un error al conectar con la base de datos.');
+      }
   });
-  
+
   cancelMontosPedidosBtn.addEventListener('click', closeMontosPedidosModal);
-  
-  saveValorPorPuntoBtn.addEventListener('click', () => {
+
+  saveValorPorPuntoBtn.addEventListener('click', async () => {
       const divisor = parseFloat(valorPorPuntoInput.dataset.cleanValue) || 0;
       const fecha = valorPorPuntoFechaInput.value;
       const hora = valorPorPuntoHoraInput.value;
       const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
-      
+      const action = 'addDivisor'; // Define la acción
+
       if (divisor <= 0 || !fecha || !hora) {
           alert('Por favor, ingresa un divisor válido, fecha y hora.');
           return;
       }
-      
-      let historial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
-      historial.unshift({ valor: divisor, fecha, hora, loggedBy, id: Date.now() });
-      localStorage.setItem('valorPorPuntoHistorial', JSON.stringify(historial));
-      
-      latestDivisor = divisor;
-      updatePlantaRetiros();
-      renderValorPorPuntoHistorial();
-      closeValorPorPuntoModal();
+
+      const dataToSend = { action, valor: divisor, fecha, hora, loggedBy };
+
+      try {
+          const response = await fetch('TU_URL_DE_LA_APLICACIÓN_WEB', { // Reemplaza CON TU URL REAL
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(dataToSend)
+          });
+
+          const responseData = await response.json();
+          if (responseData.status === 'success') {
+              latestDivisor = divisor;
+              updatePlantaRetiros();
+              renderValorPorPuntoHistorial();
+              closeValorPorPuntoModal();
+          } else {
+              alert(`Error al registrar divisor: ${responseData.message}`);
+          }
+      } catch (error) {
+          console.error('Error al enviar datos a Google Sheets:', error);
+          alert('Ocurrió un error al conectar con la base de datos.');
+      }
   });
-  
+
   cancelValorPorPuntoBtn.addEventListener('click', closeValorPorPuntoModal);
 
 
@@ -2364,16 +2450,16 @@
   });
 
   cancelEditPartTimeBtn.addEventListener('click', closeEditPartTimeModal);
-  
+
   // =======================================================
   //                 HISTORIALES
   // =======================================================
-  
+
   function getTotalAnticipos(nombre, apellido) {
       const historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
       return historialAnticipos.filter(ant => ant.nombre === nombre && ant.apellido === apellido).reduce((sum, ant) => sum + (parseFloat(ant.monto) || 0), 0);
   }
-  
+
   function getTotalMontosPedidos(nombre, apellido) {
       const historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
       return historialMontosPedidos.filter(mp => mp.nombre === nombre && mp.apellido === apellido).reduce((sum, mp) => sum + (parseFloat(mp.monto) || 0), 0);
@@ -2382,21 +2468,21 @@
   function agregarAnticipoAHistorial(nombre, apellido, monto, fecha, hora, loggedBy) {
       let historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
       const id = Date.now();
-      
+
       const nuevoRegistro = { nombre, apellido, monto, fecha, hora, loggedBy, id };
       historialAnticipos.unshift(nuevoRegistro);
-      
+
       localStorage.setItem('anticiposHistorial', JSON.stringify(historialAnticipos));
       renderAnticiposHistorial();
   }
-  
+
   function agregarMontoPedidoAHistorial(nombre, apellido, monto, fecha, hora, loggedBy) {
       let historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
       const id = Date.now();
-      
+
       const nuevoRegistro = { nombre, apellido, monto, fecha, hora, loggedBy, id };
       historialMontosPedidos.unshift(nuevoRegistro);
-      
+
       localStorage.setItem('montosPedidosHistorial', JSON.stringify(historialMontosPedidos));
       renderMontosPedidosHistorial();
   }
@@ -2415,12 +2501,12 @@
               personaEnRetiros.totalAlcance = (personaEnRetiros.montoRetiroFinal || 0) - personaEnRetiros.anticipos;
               localStorage.setItem('retirosList', JSON.stringify(retirosList));
           }
-          
+
           renderAnticiposHistorial();
           renderRetirosList();
       }
   }
-  
+
   function eliminarMontoPedidoDeHistorial(id, nombre, apellido) {
       let historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
       const index = historialMontosPedidos.findIndex(reg => reg.id === id);
@@ -2441,25 +2527,25 @@
               personaEnRetiros.restanteAlcance = alcanceActual - totalMontosPedidos;
               localStorage.setItem('retirosList', JSON.stringify(retirosList));
           }
-          
+
           renderMontosPedidosHistorial();
           renderRetirosList();
       }
   }
-  
+
   function eliminarValorPorPuntoDeHistorial(id) {
     let historial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
     const index = historial.findIndex(reg => reg.id === id);
     if (index !== -1) {
         historial.splice(index, 1);
         localStorage.setItem('valorPorPuntoHistorial', JSON.stringify(historial));
-        
+
         if (historial.length > 0) {
             latestDivisor = historial[0].valor;
         } else {
             latestDivisor = 0;
         }
-        
+
         renderValorPorPuntoHistorial();
         updatePlantaRetiros();
     }
@@ -2506,7 +2592,7 @@
           });
           container.appendChild(personDiv);
       }
-      
+
       document.querySelectorAll('#anticiposHistorialContainer .delete-button').forEach(btn => {
           btn.addEventListener('click', (e) => {
               const id = parseInt(e.target.dataset.id);
@@ -2518,7 +2604,7 @@
           });
       });
   }
-  
+
   function renderMontosPedidosHistorial() {
       const historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
       const container = document.getElementById('montosPedidosHistorialContainer');
@@ -2560,7 +2646,7 @@
           });
           container.appendChild(personDiv);
       }
-      
+
       document.querySelectorAll('#montosPedidosHistorialContainer .delete-button').forEach(btn => {
           btn.addEventListener('click', (e) => {
               const id = parseInt(e.target.dataset.id);
@@ -2572,12 +2658,12 @@
           });
       });
   }
-  
+
   function renderValorPorPuntoHistorial() {
       const historial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
       const container = document.getElementById('valorPorPuntoHistorialContainer');
       container.innerHTML = '';
-      
+
       if (historial.length > 0) {
           historial.forEach(registro => {
               const item = document.createElement('div');
@@ -2591,7 +2677,7 @@
               `;
               container.appendChild(item);
           });
-          
+
           document.querySelectorAll('#valorPorPuntoHistorialContainer .delete-button').forEach(btn => {
               btn.addEventListener('click', (e) => {
                   const id = parseInt(e.target.dataset.id);
@@ -2610,7 +2696,7 @@
       renderRetirosList();
     }
   });
-  
+
   document.getElementById('resetMontosPedidosBtn').addEventListener('click', () => {
       if (confirm('¿Estás seguro de que deseas borrar todo el historial de montos pedidos? Esto también reiniciará el cálculo de los montos pedidos.')) {
           localStorage.removeItem('montosPedidosHistorial');
@@ -2618,7 +2704,7 @@
           renderRetirosList();
       }
   });
-  
+
   document.getElementById('resetValorPorPuntoBtn').addEventListener('click', () => {
     if (confirm('¿Estás seguro de que deseas borrar todo el historial de divisores?')) {
       localStorage.removeItem('valorPorPuntoHistorial');
@@ -2639,27 +2725,27 @@
           alert('Persona no encontrada en la lista de retiros.');
           return;
       }
-      
+
       const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === nombre && p.apellido === apellido);
       if (!historialPersona) {
           alert('Persona no encontrada en el historial.');
           return;
       }
-      
+
       const historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
       const anticiposPersona = historialAnticipos.filter(ant => ant.nombre === nombre && ant.apellido === apellido);
-      
+
       const historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
       const montosPedidosPersona = historialMontosPedidos.filter(mp => mp.nombre === nombre && mp.apellido === apellido);
 
       informeModalTitle.textContent = `Informe de Retiro para ${nombre} ${apellido}`;
-      
+
       let htmlContent = '';
       if (historialPersona.tipo === 'Planta') {
         const totalRecibir = personaRetiro.montoRetiroFinal || 0;
         const totalAnticipos = getTotalAnticipos(nombre, apellido);
         const totalAlcance = personaRetiro.totalAlcance || 0;
-        
+
         htmlContent = `
             <p><strong>Total de propinas:</strong> <span class="informe-total">$${formatNumberWithPoints(totalDiarioMonto)}</span></p>
             <p><strong>Divisor:</strong> <span class="informe-total">${formatNumberWithPoints(latestDivisor)}</span></p>
@@ -2702,7 +2788,7 @@
       } else {
           htmlContent += `<p>No hay anticipos registrados.</p>`;
       }
-      
+
       if (montosPedidosPersona.length > 0) {
           htmlContent += `
               <div class="informe-historial">
@@ -2717,7 +2803,7 @@
       } else {
           htmlContent += `<p>No hay montos pedidos registrados.</p>`;
       }
-      
+
       informeModalBody.innerHTML = htmlContent;
       informeModal.style.display = 'flex';
   }
@@ -2725,14 +2811,14 @@
   closeInformeBtn.addEventListener('click', () => {
       informeModal.style.display = 'none';
   });
-  
+
   function generatePDF(nombre, apellido) {
       const personaRetiro = retirosList.find(p => p.nombre === nombre && p.apellido === apellido);
       if (!personaRetiro) {
           alert('Datos de la persona no encontrados para generar el PDF.');
           return;
       }
-      
+
       const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === nombre && p.apellido === apellido);
       if (!historialPersona) {
           alert('Datos de la persona no encontrados para generar el PDF.');
@@ -2743,10 +2829,10 @@
       const doc = new jsPDF();
       const today = new Date();
       const formattedDate = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
-      
+
       const historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
       const anticiposPersona = historialAnticipos.filter(ant => ant.nombre === nombre && ant.apellido === apellido);
-      
+
       const historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
       const montosPedidosPersona = historialMontosPedidos.filter(mp => mp.nombre === nombre && mp.apellido === apellido);
 
@@ -2766,7 +2852,7 @@
       y += 10;
       doc.text(`Puntos: ${historialPersona.puntos}`, 20, y);
       y += 20;
-      
+
       if (historialPersona.tipo === 'Planta') {
           const totalRecibir = personaRetiro.montoRetiroFinal || 0;
           const totalAnticipos = getTotalAnticipos(nombre, apellido);
@@ -2789,7 +2875,7 @@
           const alcanceActual = puntoActual * (parseFloat(historialPersona.puntos) || 0);
           const totalMontosPedidos = getTotalMontosPedidos(nombre, apellido);
           const restanteAlcance = alcanceActual - totalMontosPedidos;
-          
+
           doc.text(`Días trabajados: ${historialPersona.diasTrabajados.length}`, 20, y);
           y += 10;
           doc.text(`Total de propinas del pozo: $${formatNumberWithPoints(pozoIndividual)}`, 20, y);
@@ -2805,7 +2891,7 @@
           doc.text(`Restante-Alcance: $${formatNumberWithPoints(restanteAlcance)}`, 20, y);
           y += 20;
       }
-      
+
 
       if (anticiposPersona.length > 0) {
         doc.setFontSize(12);
@@ -2819,7 +2905,7 @@
         });
         y += 10;
       }
-      
+
       if (montosPedidosPersona.length > 0) {
           doc.setFontSize(12);
           doc.text("Historial de Montos Pedidos:", 20, y);
@@ -2832,7 +2918,7 @@
           });
           y += 10;
       }
-      
+
       doc.setFontSize(12);
       doc.text("________________________________", 20, y);
       y += 10;
@@ -2896,7 +2982,7 @@
       }
     }
   }
-  
+
   function setupMainCollapsibles() {
       document.getElementById('plantaSectionHeader').addEventListener('click', () => {
           document.getElementById('plantaContainer').classList.toggle('collapsed');
@@ -2919,7 +3005,7 @@
             return persona;
         });
         localStorage.setItem('historial', JSON.stringify(historialCorregido));
-        
+
         const valorPorPuntoHistorial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
         if (valorPorPuntoHistorial.length > 0) {
             latestDivisor = valorPorPuntoHistorial[0].valor;
@@ -2937,7 +3023,7 @@
         if (fechaMontoInput) {
             fechaMontoInput.value = getTodayDateString();
         }
-        
+
         setupCollapsibleSection('personaSection');
         setupCollapsibleSection('fichasSection');
         setupCollapsibleSection('retirosPropinaSection');
@@ -2948,7 +3034,7 @@
         setupCollapsibleSection('retirosGuardadosSection');
         setupCollapsibleCard('plantaCard');
         setupCollapsibleCard('partTimeCard');
-        
+
         setupMainCollapsibles();
 
         // Aplicar el nuevo formateo a los campos numéricos
