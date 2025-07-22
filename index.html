@@ -1220,7 +1220,7 @@
   const logoutBtn = document.getElementById('logoutBtn');
   let loggedInUser = null;
   const fechaMontoInput = document.getElementById('fecha');
-  const googleAppsScriptURL = "**[PEGA AQUÍ LA URL DE TU APLICACIÓN WEB DE APPS SCRIPT]**"; // Reemplaza con tu URL
+  const googleAppsScriptURL = "https://script.google.com/macros/s/AKfycbx-DMi2XJa38qkRE3rQ-k55EwGDjehB325cHRQAqhpy0eknX2HZoFAF_cszlBPOJ95a/exec"; // Reemplaza con tu URL
 
   // =======================================================
   //                 UTILIDADES
@@ -1374,7 +1374,7 @@
     };
 
     try {
-      const response = await fetch('https://script.google.com/macros/s/AKfycbx-DMi2XJa38qkRE3rQ-k55EwGDjehB325cHRQAqhpy0eknX2HZoFAF_cszlBPOJ95a/exec',{
+      const response = await fetch('https://script.google.com/macros/s/AKfycbx-DMi2XJa38qkRE3rQ-k55EwGDjehB325cHRQAqhpy0eknX2HZoFAF_cszlBPOJ95a/exec', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
