@@ -809,6 +809,30 @@
   #retirosGuardadosSection h2 {
     color: #17a2b8;
   }
+  .valor-por-punto-item {
+    background-color: #e0f2f1;
+    border-left: 5px solid #009688;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+  }
+  .valor-por-punto-item .delete-button {
+      background: none;
+      border: none;
+      font-size: 1.2em;
+      color: #f44336;
+      cursor: pointer;
+  }
+
+  /* Estilos para el historial de retiros guardados */
+  #retirosGuardadosSection h2 {
+    color: #17a2b8;
+  }
   .retiro-guardado-item {
     background-color: #f0f8ff;
     border: 1px solid #cceeff;
@@ -970,9 +994,9 @@
   <section id="personaSection" class="collapsible-section expanded">
     <h2>Agregar Persona</h2>
     <div class="collapsible-content persona-forms-container">
-      <div id="plantaCard" class="persona-form-card collapsed">
+      <div id="plantaCard" class="persona-form-card">
         <h3 style="cursor: pointer;">Planta</h3>
-        <div class="card-content" style="display: none;">
+        <div class="card-content">
           <form id="plantaForm">
             <input type="text" id="nombrePlanta" placeholder="Nombre" required />
             <input type="text" id="apellidoPlanta" placeholder="Apellido" required />
@@ -991,9 +1015,9 @@
           </form>
         </div>
       </div>
-      <div id="partTimeCard" class="persona-form-card collapsed">
+      <div id="partTimeCard" class="persona-form-card">
         <h3 style="cursor: pointer;">Part Time</h3>
-        <div class="card-content" style="display: none;">
+        <div class="card-content">
           <form id="partTimeForm">
             <input type="text" id="nombrePartTime" placeholder="Nombre" required />
             <input type="text" id="apellidoPartTime" placeholder="Apellido" required />
@@ -1015,7 +1039,7 @@
     </div>
   </section>
 
-  <section id="fichasSection" class="collapsible-section collapsed">
+  <section id="fichasSection" class="collapsible-section">
     <h2>Fichas de Personas</h2>
     <div class="collapsible-content">
       <input type="text" id="searchFichas" placeholder="Buscar persona por nombre o apellido..." style="width: 100%; margin-bottom: 15px;" />
@@ -1031,7 +1055,7 @@
     </div>
   </section>
 
-  <section id="montosSection" class="collapsible-section collapsed">
+  <section id="montosSection" class="collapsible-section">
     <h2>Registrar Montos por Noche</h2>
     <div class="collapsible-content">
       <div id="totalDiario">Total diario: $0</div>
@@ -1054,7 +1078,7 @@
     </div>
   </section>
 
-  <section id="retirosPropinaSection" class="collapsible-section collapsed">
+  <section id="retirosPropinaSection" class="collapsible-section">
       <h2>Retiros de Propina</h2>
       <div class="collapsible-content">
           <input type="text" id="searchRetiros" placeholder="Buscar persona por nombre o apellido..." />
@@ -1076,7 +1100,7 @@
       </div>
   </section>
 
-  <section id="retirosGuardadosSection" class="collapsible-section collapsed">
+  <section id="retirosGuardadosSection" class="collapsible-section">
     <h2>Historial de Retiros Guardados</h2>
     <div class="collapsible-content">
       <button id="resetRetirosGuardadosBtn" class="reset-button">Reiniciar Historial</button>
@@ -1084,7 +1108,7 @@
     </div>
   </section>
 
-  <section id="anticiposHistorialSection" class="collapsible-section collapsed">
+  <section id="anticiposHistorialSection" class="collapsible-section">
       <h2>Historial de Anticipos</h2>
       <div class="collapsible-content">
         <button id="resetAnticiposBtn" class="reset-button">Reiniciar Historial</button>
@@ -1092,7 +1116,7 @@
       </div>
   </section>
 
-  <section id="montosPedidosHistorialSection" class="collapsible-section collapsed">
+  <section id="montosPedidosHistorialSection" class="collapsible-section">
       <h2>Historial de Montos Pedidos</h2>
       <div class="collapsible-content">
         <button id="resetMontosPedidosBtn" class="reset-button">Reiniciar Historial</button>
@@ -1100,7 +1124,7 @@
       </div>
   </section>
 
-  <section id="valorPorPuntoHistorialSection" class="collapsible-section collapsed">
+  <section id="valorPorPuntoHistorialSection" class="collapsible-section">
       <h2>Historial de Divisores</h2>
       <div class="collapsible-content">
         <button id="resetValorPorPuntoBtn" class="reset-button">Reiniciar Historial</button>
@@ -1351,7 +1375,7 @@
     };
 
     try {
-      const response = await fetch('https://script.google.com/macros/s/AKfycbx-DMi2XJa38qkRE3rQ-k55EwGDjehB325cHRQAqhpy0eknX2HZoFAF_cszlBPOJ95a/exec', {
+      const response = await fetch(googleAppsScriptURL + '?action=agregarPersona', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1374,11 +1398,6 @@
     }
   }
 
-  /**
-   * Calcula el total de propinas de un pozo individual para personal Part Time.
-   * @param {object} persona - El objeto persona con sus días trabajados.
-   * @returns {number} El total de propinas.
-   */
   function calcularPozoIndividual(persona) {
     const montosPorFecha = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
     let totalPozoIndividual = 0;
@@ -1394,21 +1413,107 @@
     return totalPozoIndividual;
   }
 
-  /**
-   * Dibuja el calendario para seleccionar los días trabajados.
-   * @param {HTMLElement} container - El contenedor para el calendario.
-   * @param {object} persona - El objeto persona.
-   * @param {number} index - El índice de la persona en el historial.
-   */
   function renderCalendar(container, persona, index) {
-    // ... (El código del calendario se mantiene igual)
+    const today = new Date();
+    let currentMonth = today.getMonth();
+    let currentYear = today.getFullYear();
+
+    function updateCalendar() {
+      container.innerHTML = '';
+      const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+      const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sab"]; // Cambié "Sáb" a "Sab"
+
+      const header = document.createElement('div');
+      header.className = 'calendar-header';
+      header.innerHTML = `
+        <button class="prev-month">‹</button>
+        <span>${monthNames[currentMonth]} ${currentYear}</span>
+        <button class="next-month">›</button>
+      `;
+      container.appendChild(header);
+
+      const grid = document.createElement('div');
+      grid.className = 'calendar-grid';
+
+      dayNames.forEach(day => {
+        const dayName = document.createElement('div');
+        dayName.className = 'day-name';
+        dayName.textContent = day;
+        grid.appendChild(dayName);
+      });
+
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        const emptyDay = document.createElement('div');
+        emptyDay.className = 'day empty';
+        grid.appendChild(emptyDay);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(currentYear, currentMonth, day);
+        const dateString = date.toISOString().split('T')[0];
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'day';
+        dayDiv.textContent = day;
+        dayDiv.dataset.date = dateString;
+
+        const historial = JSON.parse(localStorage.getItem('historial')) || [];
+        const currentPersona = historial[index];
+        if (currentPersona && currentPersona.diasTrabajados && currentPersona.diasTrabajados.includes(dateString)) {
+          dayDiv.classList.add('marked');
+        }
+
+        dayDiv.addEventListener('click', () => {
+          const historial = JSON.parse(localStorage.getItem('historial')) || [];
+          const currentPersona = historial[index];
+          if (!currentPersona) return;
+          if (!currentPersona.diasTrabajados) {
+              currentPersona.diasTrabajados = [];
+          }
+          const dateIndex = currentPersona.diasTrabajados.indexOf(dateString);
+          if (dateIndex > -1) {
+            currentPersona.diasTrabajados.splice(dateIndex, 1);
+          } else {
+            currentPersona.diasTrabajados.push(dateString);
+          }
+          localStorage.setItem('historial', JSON.stringify(historial));
+          updateCalendar();
+          const ficha = document.querySelector(`.ficha[data-index="${index}"]`);
+          if (ficha) {
+            const pozoContainer = ficha.querySelector('.pozo-individual-container');
+            if (pozoContainer) {
+              calcularYMostrarPozoIndividualEnFicha(currentPersona, pozoContainer);
+            }
+          }
+          renderRetirosList();
+        });
+        grid.appendChild(dayDiv);
+      }
+      container.appendChild(grid);
+
+      header.querySelector('.prev-month').addEventListener('click', () => {
+        currentMonth--;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+        updateCalendar();
+      });
+
+      header.querySelector('.next-month').addEventListener('click', () => {
+        currentMonth++;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+        updateCalendar();
+      });
+    }
+    updateCalendar();
   }
 
-  /**
-   * Maneja el modo de edición de una persona.
-   * @param {object} persona - El objeto persona a editar.
-   * @param {number} index - El índice de la persona en el historial.
-   */
   function handleEditPerson(persona, index) {
       currentEditIndex = index;
       const tipoSinEspacio = persona.tipo.replace(/\s/g, '');
@@ -1417,9 +1522,13 @@
 
       if (form) {
           document.getElementById('personaSection').classList.remove('collapsed');
+          document.getElementById('personaSection').classList.add('expanded');
           const cardId = `${tipoSinEspacio.toLowerCase()}Card`;
-          document.getElementById(cardId).classList.add('expanded');
-          document.getElementById(cardId).classList.remove('collapsed');
+          const card = document.getElementById(cardId);
+          if (card) {
+              card.classList.add('expanded');
+              card.classList.remove('collapsed');
+          }
 
           form.querySelector(`input#nombre${tipoSinEspacio}`).value = persona.nombre || '';
           form.querySelector(`input#apellido${tipoSinEspacio}`).value = persona.apellido || '';
@@ -1449,27 +1558,100 @@
       }
   }
 
-  /**
-   * Carga los datos del historial y renderiza las fichas de personas.
-   */
   function cargarYMostrarFichas() {
-    // ... (Se mantiene igual)
+    const historial = JSON.parse(localStorage.getItem('historial')) || [];
+    const plantaContainer = document.querySelector('#plantaContainer .fichas-grid-container');
+    const partTimeContainer = document.querySelector('#partTimeContainer .fichas-grid-container');
+
+    plantaContainer.innerHTML = '';
+    partTimeContainer.innerHTML = '';
+
+    historial.forEach((persona, index) => {
+      if (!persona || !persona.tipo) {
+          return;
+      }
+
+      const ficha = document.createElement('div');
+      ficha.className = `ficha collapsed ${persona.tipo.replace(/\s/g, '-').toLowerCase() === 'planta' ? 'ficha-planta' : 'ficha-part-time'}`;
+      ficha.dataset.index = index;
+
+      const titulo = document.createElement('h3');
+      titulo.textContent = `${persona.nombre} ${persona.apellido} (${persona.tipo})`;
+
+      titulo.addEventListener('click', () => {
+        ficha.classList.toggle('collapsed');
+      });
+
+      const cuerpo = document.createElement('div');
+      cuerpo.className = 'ficha-content';
+      cuerpo.innerHTML = `
+        <p><strong>Área:</strong> ${persona.area}${persona.subArea && persona.subArea !== persona.area ? ` (${persona.subArea})` : ''}</p>
+        <p><strong>Año:</strong> ${persona.anio}</p>
+        <p><strong>Puntos:</strong> ${persona.puntos}</p>
+        <p class="registro-user">Registrado por: ${persona.loggedBy || 'Desconocido'}</p>
+        <button class="edit-button" data-index="${index}">✏️ Editar</button>
+      `;
+
+      if (persona.tipo === 'Part Time') {
+        const calendarContainer = document.createElement('div');
+        calendarContainer.className = 'calendar-container';
+        cuerpo.appendChild(calendarContainer);
+        renderCalendar(calendarContainer, persona, index);
+        const pozoContainer = document.createElement('div');
+        pozoContainer.className = 'pozo-individual-container';
+        cuerpo.appendChild(pozoContainer);
+        calcularYMostrarPozoIndividualEnFicha(persona, pozoContainer);
+      }
+
+      if (persona.tipo === 'Planta') {
+        plantaContainer.appendChild(ficha);
+      } else if (persona.tipo === 'Part Time') {
+        partTimeContainer.appendChild(ficha);
+      }
+      ficha.appendChild(titulo);
+      ficha.appendChild(cuerpo);
+    });
+
+    document.querySelectorAll('.edit-button').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const index = parseInt(e.currentTarget.dataset.index);
+        const historial = JSON.parse(localStorage.getItem('historial')) || [];
+        const persona = historial[index];
+        if (persona) {
+            handleEditPerson(persona, index);
+        }
+      });
+    });
+
+    filterFichas();
   }
 
-  /**
-   * Filtra las fichas de personas según un criterio de búsqueda.
-   */
   const searchFichasInput = document.getElementById('searchFichas');
   if (searchFichasInput) {
     searchFichasInput.addEventListener('input', filterFichas);
   }
 
   function filterFichas() {
-    // ... (Se mantiene igual)
+    const query = (searchFichasInput.value || '').toLowerCase();
+    const fichas = document.querySelectorAll('.fichas-grid-container .ficha');
+
+    fichas.forEach(ficha => {
+      const nombreApellido = (ficha.querySelector('h3')?.textContent || '').toLowerCase();
+      if (nombreApellido.includes(query)) {
+        ficha.style.display = '';
+      } else {
+        ficha.style.display = 'none';
+      }
+    });
   }
 
   function calcularYMostrarPozoIndividualEnFicha(persona, container) {
-      // ... (Se mantiene igual)
+      const totalPozoIndividual = calcularPozoIndividual(persona);
+      const diasTrabajados = persona.diasTrabajados || [];
+      container.innerHTML = `
+          <p>Días trabajados: ${diasTrabajados.length}</p>
+          <p>Total de propinas: $${formatNumberWithPoints(totalPozoIndividual)}</p>
+      `;
   }
 
   // =======================================================
@@ -1488,11 +1670,225 @@
   registrarValorPorPuntoBtn.addEventListener('click', openValorPorPuntoModal);
 
   function updatePlantaRetiros() {
-    // ... (Se mantiene igual)
+      if (latestDivisor === 0) {
+          latestValorPorPunto = 0;
+      } else {
+          latestValorPorPunto = totalDiarioMonto / latestDivisor;
+      }
+
+      retirosList = retirosList.map(personaRetiro => {
+        const historial = JSON.parse(localStorage.getItem('historial')) || [];
+        const persona = historial.find(p => p.nombre === personaRetiro.nombre && p.apellido === personaRetiro.apellido);
+        if (persona && persona.tipo === 'Planta') {
+            const puntos = parseFloat(persona.puntos) || 0;
+            personaRetiro.montoRetiroFinal = latestValorPorPunto * puntos;
+            personaRetiro.anticipos = getTotalAnticipos(personaRetiro.nombre, personaRetiro.apellido);
+            personaRetiro.totalAlcance = (personaRetiro.montoRetiroFinal || 0) - (personaRetiro.anticipos || 0);
+        }
+        return personaRetiro;
+      });
+
+      localStorage.setItem('retirosList', JSON.stringify(retirosList));
+      renderRetirosList();
   }
 
   function renderRetirosList() {
-    // ... (Se mantiene igual)
+    retirosListContainer.innerHTML = '';
+    const historial = JSON.parse(localStorage.getItem('historial')) || [];
+
+    const groupedByTipo = retirosList.reduce((acc, personaRetiro) => {
+      const persona = historial.find(p => p.nombre === personaRetiro.nombre && p.apellido === personaRetiro.apellido);
+      if (!persona) return acc;
+
+      const tipo = persona.tipo;
+      const area = persona.area;
+      const subArea = persona.subArea;
+
+      if (!acc[tipo]) {
+        acc[tipo] = {};
+      }
+      if (!acc[tipo][area]) {
+        acc[tipo][area] = {};
+      }
+      if (!acc[tipo][area][subArea]) {
+        acc[tipo][area][subArea] = [];
+      }
+      acc[tipo][area][subArea].push(personaRetiro);
+      return acc;
+    }, {});
+
+    totalMontoPlantaDisplay.textContent = `$${formatNumberWithPoints(totalDiarioMonto)}`;
+    resultadoPlantaDisplay.textContent = `$${formatNumberWithPoints(latestValorPorPunto)} por punto`;
+
+    for (const tipo in groupedByTipo) {
+      const tipoDiv = document.createElement('div');
+      tipoDiv.className = 'retiro-tipo-container collapsed';
+
+      const tipoHeader = document.createElement('h3');
+      tipoHeader.textContent = `Personal ${tipo === 'Planta' ? 'de Planta' : tipo}`;
+      tipoHeader.style.cursor = 'pointer';
+      tipoHeader.addEventListener('click', () => {
+          tipoDiv.classList.toggle('collapsed');
+      });
+
+      const contentWrapper = document.createElement('div');
+      contentWrapper.className = 'retiro-content-wrapper';
+
+      const groupedByArea = groupedByTipo[tipo];
+      for (const area in groupedByArea) {
+        const areaDiv = document.createElement('div');
+        areaDiv.className = 'retiro-area-container';
+        areaDiv.innerHTML = `<h4>${area}</h4>`;
+
+        for (const subArea in groupedByArea[area]) {
+          const subAreaDiv = document.createElement('div');
+          subAreaDiv.className = 'retiro-sub-area-container';
+          if (subArea !== area) {
+              subAreaDiv.innerHTML = `<h5>${subArea}</h5>`;
+          }
+
+          const listDiv = document.createElement('div');
+          groupedByArea[area][subArea].forEach((personaRetiro) => {
+
+            const persona = historial.find(p => p.nombre === personaRetiro.nombre && p.apellido === personaRetiro.apellido);
+            if (!persona) return;
+
+            const personItem = document.createElement('div');
+            personItem.className = `retiro-person-item collapsed ${persona.tipo === 'Planta' ? 'planta' : 'part-time'}`;
+
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'retiro-header';
+            headerDiv.style.cursor = 'pointer';
+
+            const personNameSpan = document.createElement('span');
+            personNameSpan.className = 'person-name';
+            personNameSpan.textContent = `${persona.nombre} ${persona.apellido}`;
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'retiro-actions';
+
+            actionsDiv.innerHTML += `
+                <button class="report-button" title="Ver Informe" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}">📊</button>
+                <button class="pdf-button" title="Generar Recibo" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}">📄</button>
+                <button class="edit-button" title="Editar" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}">✏️</button>
+                <button class="delete-button" title="Eliminar" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}">🗑️</button>
+            `;
+
+            const bodyDiv = document.createElement('div');
+            bodyDiv.className = 'retiro-body';
+
+            if (persona.tipo === 'Part Time') {
+                const pozoIndividual = calcularPozoIndividual(persona);
+                const divisorActual = parseFloat(personaRetiro.divisorRetiro) || 0;
+                const puntoActual = (pozoIndividual / divisorActual) || 0;
+                const alcanceActual = puntoActual * (parseFloat(persona.puntos) || 0);
+
+                const montosPedidos = getTotalMontosPedidos(persona.nombre, persona.apellido);
+                const restanteAlcance = alcanceActual - montosPedidos;
+
+                bodyDiv.innerHTML = `
+                    <span class="person-details">Días trabajados: ${persona.diasTrabajados.length} | Puntos: ${persona.puntos}</span>
+                    <div class="part-time-individual-calculation">
+                        <p>Total de propinas: <span class="total-tips">$${formatNumberWithPoints(pozoIndividual)}</span></p>
+                        <p>Divisor: ${divisorActual || 'Sin especificar'}</p>
+                        <p>Punto-actual-PT: <span class="total-result">$${formatNumberWithPoints(puntoActual)}</span></p>
+                    </div>
+                    <div class="part-time-details-container">
+                        <span class="alcance-data">Alcance-Actual: $${formatNumberWithPoints(alcanceActual)}</span>
+                        <span class="montos-pedidos-data">Montos-Pedidos: $${formatNumberWithPoints(montosPedidos)}</span>
+                        <span class="restante-alcance-data">Restante-Alcance: $${formatNumberWithPoints(restanteAlcance)}</span>
+                    </div>
+                    <button class="registrar-monto-pedido-btn" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}" style="margin-top: 10px;">Registrar Monto Pedido</button>
+                `;
+
+                bodyDiv.querySelector('.registrar-monto-pedido-btn').addEventListener('click', () => {
+                    openMontosPedidosModal(persona.nombre, persona.apellido);
+                });
+
+            } else { // Planta
+                const puntos = parseFloat(persona.puntos) || 0;
+                const montoFinal = personaRetiro.montoRetiroFinal !== undefined ? personaRetiro.montoRetiroFinal : 0;
+                const anticipos = getTotalAnticipos(persona.nombre, persona.apellido);
+                const totalAlcance = montoFinal - anticipos;
+
+                bodyDiv.innerHTML = `
+                    <span class="person-details">Puntos: ${puntos} | Divisor: ${formatNumberWithPoints(latestDivisor)}</span>
+                    <p class="valor-por-punto">
+                        Valor por punto: $${formatNumberWithPoints(latestValorPorPunto)}<br>
+                        Total a recibir: $${formatNumberWithPoints(montoFinal)}
+                    </p>
+                    <div class="planta-details-container">
+                        <span class="alcance-data">Total Alcance: $${formatNumberWithPoints(totalAlcance)}</span>
+                        <span class="anticipos-data">Anticipos Totales: $${formatNumberWithPoints(anticipos)}</span>
+                    </div>
+                    <button class="registrar-anticipo-btn" data-nombre="${persona.nombre}" data-apellido="${persona.apellido}" style="margin-top: 10px;">Registrar Anticipo</button>
+                `;
+
+                bodyDiv.querySelector('.registrar-anticipo-btn').addEventListener('click', () => {
+                    openAnticipoModal(persona.nombre, persona.apellido);
+                });
+            }
+
+            headerDiv.addEventListener('click', () => {
+                personItem.classList.toggle('collapsed');
+            });
+
+            headerDiv.appendChild(personNameSpan);
+            headerDiv.appendChild(actionsDiv);
+            personItem.appendChild(headerDiv);
+            personItem.appendChild(bodyDiv);
+
+            actionsDiv.querySelector('.report-button').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const nombre = e.currentTarget.dataset.nombre;
+                const apellido = e.currentTarget.dataset.apellido;
+                showInforme(nombre, apellido);
+            });
+
+            actionsDiv.querySelector('.pdf-button').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const nombre = e.currentTarget.dataset.nombre;
+                const apellido = e.currentTarget.dataset.apellido;
+                generatePDF(nombre, apellido);
+            });
+
+            actionsDiv.querySelector('.edit-button').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const nombre = e.currentTarget.dataset.nombre;
+                const apellido = e.currentTarget.dataset.apellido;
+                const persona = historial.find(p => p.nombre === nombre && p.apellido === apellido);
+                const index = historial.findIndex(p => p.nombre === nombre && p.apellido === apellido);
+                if (persona.tipo === 'Part Time') {
+                    openEditPartTimeModal(persona);
+                } else {
+                    handleEditPerson(persona, index);
+                }
+            });
+
+
+            actionsDiv.querySelector('.delete-button').addEventListener('click', (e) => {
+              e.stopPropagation();
+              const nombre = e.currentTarget.dataset.nombre;
+              const apellido = e.currentTarget.dataset.apellido;
+              const personaIndex = retirosList.findIndex(p => p.nombre === nombre && p.apellido === apellido);
+              if (personaIndex > -1) {
+                retirosList.splice(personaIndex, 1);
+                localStorage.setItem('retirosList', JSON.stringify(retirosList));
+                renderRetirosList();
+              }
+            });
+
+            listDiv.appendChild(personItem);
+          });
+          subAreaDiv.appendChild(listDiv);
+          areaDiv.appendChild(subAreaDiv);
+        }
+        contentWrapper.appendChild(areaDiv);
+      }
+      tipoDiv.appendChild(tipoHeader);
+      tipoDiv.appendChild(contentWrapper);
+      retirosListContainer.appendChild(tipoDiv);
+    }
   }
 
   async function guardarRetiros() {
@@ -1517,7 +1913,7 @@
           };
 
           try {
-              const response = await fetch('https://script.google.com/macros/s/AKfycbx-DMi2XJa38qkRE3rQ-k55EwGDjehB325cHRQAqhpy0eknX2HZoFAF_cszlBPOJ95a/exec', {
+              const response = await fetch(googleAppsScriptURL + '?action=guardarRetiros', {
                   method: 'POST',
                   headers: {
                       'Content-Type': 'application/json'
@@ -1542,26 +1938,105 @@
   }
 
   function renderRetirosGuardados() {
-    // ... (Se mantiene igual)
-  }
+    retirosGuardadosContainer.innerHTML = '';
+    const guardados = JSON.parse(localStorage.getItem('retirosGuardados')) || [];
+    guardados.forEach(guardado => {
+        const item = document.createElement('div');
+        item.className = 'retiro-guardado-item collapsed';
+        item.innerHTML = `
+            <h4>Retiros del ${formatDate(guardado.fecha)} - ${guardado.hora}</h4>
+            <div class="actions">
+                <button class="show-details-btn">Ver Detalles</button>
+                <button class="delete-btn delete">Eliminar</button>
+            </div>
+            <div class="retiro-guardado-content" style="margin-top: 10px;">
+                <p><strong>Total de Monto Diario:</strong> $${formatNumberWithPoints(guardado.totalMontoDiario)}</p>
+                <p><strong>Divisor de Planta:</strong> ${formatNumberWithPoints(guardado.divisorPlanta)}</p>
+                <p><strong>Valor por Punto:</strong> $${formatNumberWithPoints(guardado.valorPorPunto)}</p>
+                <h5>Detalles por Persona:</h5>
+                <ul>
+                ${guardado.retiros.map(retiro => `
+                    <li>
+                        <strong>${retiro.nombre} ${retiro.apellido} (${retiro.tipo})</strong>
+                        - ${retiro.tipo === 'Planta' ? `Monto a recibir: $${formatNumberWithPoints(retiro.montoRetiroFinal)}` : `Monto: $${formatNumberWithPoints(retiro.alcanceActual)}`}
+                    </li>
+                `).join('')}
+                </ul>
+            </div>
+        `;
+        retirosGuardadosContainer.appendChild(item);
+        item.querySelector('h4').addEventListener('click', () => item.classList.toggle('collapsed'));
+        item.querySelector('.delete-btn').addEventListener('click', () => {
+            if (confirm('¿Estás seguro de que quieres eliminar este historial de retiros?')) {
+                const index = guardados.indexOf(guardado);
+                if (index > -1) {
+                    guardados.splice(index, 1);
+                    localStorage.setItem('retirosGuardados', JSON.stringify(guardados));
+                    renderRetirosGuardados();
+                }
+            }
+        });
+    });
+}
 
   searchRetirosInput.addEventListener('input', () => {
-    // ... (Se mantiene igual)
+    const query = (searchRetirosInput.value || '').toLowerCase();
+    searchResultsContainer.innerHTML = '';
+    if (query.length < 2) return;
+
+    const historial = JSON.parse(localStorage.getItem('historial')) || [];
+    const filtered = historial.filter(persona =>
+      persona.nombre.toLowerCase().includes(query) || persona.apellido.toLowerCase().includes(query)
+    );
+
+    filtered.forEach(persona => {
+      const resultItem = document.createElement('div');
+      resultItem.className = 'search-result-item';
+      resultItem.innerHTML = `
+        <span>${persona.nombre} ${persona.apellido} (${persona.tipo})</span>
+        <button data-nombre="${persona.nombre}" data-apellido="${persona.apellido}">Agregar</button>
+      `;
+      searchResultsContainer.appendChild(resultItem);
+    });
+
+    document.querySelectorAll('#searchResultsContainer button').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const nombre = e.currentTarget.dataset.nombre;
+        const apellido = e.currentTarget.dataset.apellido;
+        const historial = JSON.parse(localStorage.getItem('historial')) || [];
+        const personaToAdd = historial.find(p => p.nombre === nombre && p.apellido === apellido);
+
+        if (personaToAdd && !retirosList.some(p => p.nombre === nombre && p.apellido === apellido)) {
+          retirosList.push(personaToAdd);
+          localStorage.setItem('retirosList', JSON.stringify(retirosList));
+          renderRetirosList();
+          searchRetirosInput.value = '';
+          searchResultsContainer.innerHTML = '';
+        } else if (retirosList.some(p => p.nombre === nombre && p.apellido === apellido)) {
+          alert('Esta persona ya ha sido agregada.');
+        }
+      });
+    });
   });
 
   document.getElementById('guardarRetirosBtn').addEventListener('click', guardarRetiros);
 
   document.getElementById('resetRetirosBtn').addEventListener('click', () => {
-    // ... (Se mantiene igual)
+    if (confirm('¿Estás seguro de que deseas borrar la lista de retiros actual? Esta acción no se puede deshacer.')) {
+      localStorage.removeItem('retirosList');
+      retirosList = [];
+      renderRetirosList();
+    }
   });
 
   document.getElementById('resetRetirosGuardadosBtn').addEventListener('click', () => {
-    // ... (Se mantiene igual)
+      if (confirm('¿Estás seguro de que deseas borrar todo el historial de retiros guardados?')) {
+          localStorage.removeItem('retirosGuardados');
+          retirosGuardados = [];
+          renderRetirosGuardados();
+      }
   });
 
-  // =======================================================
-  //                 GESTIÓN DE MONTOS
-  // =======================================================
 
   let montosPorFecha = {};
   function cargarYMostrarMontos() {
@@ -1574,7 +2049,63 @@
   }
 
   function mostrarMontosAgrupados() {
-    // ... (Se mantiene igual)
+    const contenedor = document.getElementById('tarjetasMontos');
+    contenedor.innerHTML = '';
+
+    const fechasOrdenadas = Object.keys(montosPorFecha);
+    fechasOrdenadas.sort((a, b) => b.localeCompare(a));
+
+    let totalSum = 0;
+    fechasOrdenadas.forEach(fecha => {
+      const montos = montosPorFecha[fecha];
+      let totalFecha = 0;
+      montos.forEach(m => {
+        totalFecha += parseFloat(m.monto);
+      });
+      totalSum += totalFecha;
+
+      const div = document.createElement('div');
+      div.className = 'tarjeta collapsed';
+
+      const titulo = document.createElement('h3');
+      const fechaTexto = document.createTextNode(`Fecha: ${formatDate(fecha)}`);
+
+      const totalSpan = document.createElement('span');
+      totalSpan.className = 'total-in-header';
+      totalSpan.textContent = `$${formatNumberWithPoints(totalFecha)}`;
+
+      titulo.appendChild(fechaTexto);
+      titulo.appendChild(totalSpan);
+
+      titulo.addEventListener('click', () => {
+        div.classList.toggle('collapsed');
+      });
+
+      const cuerpo = document.createElement('div');
+      let htmlMontos = `<div class="montos-list">`;
+      montos.forEach((m, index) => {
+        htmlMontos += `<div class="monto-item">
+          <span><strong>${m.area}</strong><br>Monto: $${formatNumberWithPoints(parseFloat(m.monto))}</span>
+          <span class="registro-user">Registrado por: ${m.loggedBy || 'Desconocido'}</span>
+          <button class="delete-button" data-fecha="${fecha}" data-index="${index}">🗑️</button>
+        </div>`;
+      });
+      htmlMontos += `</div>`;
+
+      const totalHtml = `<div class="total-por-fecha">Total: $${formatNumberWithPoints(totalFecha)}</div>`;
+
+      cuerpo.innerHTML = htmlMontos + totalHtml;
+
+      div.appendChild(titulo);
+      div.appendChild(cuerpo);
+      contenedor.appendChild(div);
+    });
+
+    totalDiarioMonto = totalSum;
+    document.getElementById('totalDiario').textContent = `Total diario: $${formatNumberWithPoints(totalSum)}`;
+    updatePlantaRetiros();
+    renderRetirosList();
+    cargarYMostrarFichas();
   }
 
   document.getElementById('montosForm').addEventListener('submit', async e => {
@@ -1592,7 +2123,7 @@
     };
 
     try {
-      const response = await fetch('https://script.google.com/macros/s/AKfycbx-DMi2XJa38qkRE3rQ-k55EwGDjehB325cHRQAqhpy0eknX2HZoFAF_cszlBPOJ95a/exec', {
+      const response = await fetch(googleAppsScriptURL + '?action=registrarMonto', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -1616,16 +2147,28 @@
   });
 
   document.addEventListener('click', e => {
-    // ... (Se mantiene igual)
+      if (e.target.classList.contains('delete-button') && e.target.closest('.monto-item')) {
+          const button = e.target;
+          const fecha = button.dataset.fecha;
+          const index = parseInt(button.dataset.index);
+
+          if (montosPorFecha[fecha] && montosPorFecha[fecha].length > index) {
+              montosPorFecha[fecha].splice(index, 1);
+              if (montosPorFecha[fecha].length === 0) {
+                  delete montosPorFecha[fecha];
+              }
+              guardarMontos();
+              mostrarMontosAgrupados();
+          }
+      }
   });
 
   document.getElementById('resetMontosBtn').addEventListener('click', () => {
-    // ... (Se mantiene igual)
+    if (confirm('¿Estás seguro de que deseas borrar todos los registros de montos? Esta acción no se puede deshacer.')) {
+      localStorage.removeItem('montosPorFecha');
+      cargarYMostrarMontos();
+    }
   });
-
-  // =======================================================
-  //                 GESTIÓN DE MODALES
-  // =======================================================
 
   let currentAnticipoPerson = null;
   const anticipoModal = document.getElementById('anticipoModal');
@@ -2404,15 +2947,6 @@
         setupCurrencyInput(document.getElementById('montosPedidosMontoInput'));
         setupCurrencyInput(document.getElementById('valorPorPuntoInput'));
         setupCurrencyInput(document.getElementById('editDivisorPartTimeInput'));
-
-        setupCollapsibleSection('personaSection');
-        setupCollapsibleSection('fichasSection');
-        setupCollapsibleSection('montosSection');
-        setupCollapsibleSection('retirosPropinaSection');
-        setupCollapsibleSection('retirosGuardadosSection');
-        setupCollapsibleSection('anticiposHistorialSection');
-        setupCollapsibleSection('montosPedidosHistorialSection');
-        setupCollapsibleSection('valorPorPuntoHistorialSection');
     }
   };
 </script>
