@@ -949,14 +949,12 @@
 </head>
 <body>
 
-<!-- BOTONES DE EXPORTAR/IMPORTAR -->
 <div style="margin-bottom:20px; display:flex; gap:10px;">
   <button id="exportBtn">Exportar Datos</button>
   <button id="importBtn">Importar Datos</button>
   <input type="file" id="importFile" accept="application/json" style="display:none;">
 </div>
 
-<!-- AQUÍ VA TODO TU CONTENIDO HTML, tal como lo enviaste -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <div id="login-container">
@@ -1209,24 +1207,14 @@
     </div>
 </div>
 
-<!-- ... -->
 <div id="login-container">
-  <!-- ... -->
-</div>
+  </div>
 
 <div id="main-content" style="display: none;">
-  <!-- ... TODO TU CONTENIDO ... -->
-</div>
+  </div>
 
-<!-- MODALES Y DEMÁS ELEMENTOS HTML -->
-<!-- ... -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-/* 
-  === TU JS COMPLETO AQUÍ ===
-  Pega aquí todo el JS que tenías en las partes 3 y 4, sin cambiar nada.
-  Solo asegúrate de que esté antes del código de exportar/importar para asegurar el orden.
-*/
  // =======================================================
   //                 VARIABLES GLOBALES Y CONSTANTES
   // =======================================================
@@ -1425,6 +1413,7 @@
     } else {
         if (tipo === 'Part Time') {
             nuevaPersona.diasTrabajados = [];
+            nuevaPersona.divisorRetiro = 1; // Default divisor for Part Time
         }
         historial.push(nuevaPersona);
         alert('Persona agregada con éxito.');
@@ -1544,6 +1533,18 @@
           }
 
           // Finalmente, se actualiza la lista principal de retiros.
+          const personaInRetirosList = retirosList.find(p => p.nombre === currentPersona.nombre && p.apellido === currentPersona.apellido);
+          if (personaInRetirosList) {
+              personaInRetirosList.diasTrabajados = currentPersona.diasTrabajados;
+              const pozoIndividual = calcularPozoIndividual(personaInRetirosList);
+              const divisor = parseFloat(personaInRetirosList.divisorRetiro) || 1;
+              const puntoActual = (pozoIndividual / divisor) || 0;
+              const puntos = parseFloat(personaInRetirosList.puntos) || 0;
+              personaInRetirosList.montoRetiroFinal = puntoActual * puntos;
+              personaInRetirosList.totalAlcance = personaInRetirosList.montoRetiroFinal;
+              personaInRetirosList.restanteAlcance = personaInRetirosList.montoRetiroFinal - getTotalMontosPedidos(personaInRetirosList.nombre, personaInRetirosList.apellido);
+          }
+          localStorage.setItem('retirosList', JSON.stringify(retirosList));
           renderRetirosList();
         });
         grid.appendChild(dayDiv);
@@ -1579,18 +1580,31 @@
   function handleEditPerson(persona, index) {
       currentEditIndex = index;
       const tipoSinEspacio = persona.tipo.replace(/\s/g, '');
-      const formId = `${tipoSinEspacio.toLowerCase()}Form`;
+      
+      // CORRECCIÓN: Se crean los IDs correctamente para ambos casos
+      let formId;
+      let cardId;
+      if (persona.tipo === 'Part Time') {
+        // Para Part Time, el ID usa mayúsculas: "partTimeForm"
+        formId = 'partTimeForm';
+        cardId = 'partTimeCard';
+      } else {
+        // Para Planta, el ID usa minúsculas: "plantaForm"
+        formId = 'plantaForm';
+        cardId = 'plantaCard';
+      }
+      
       const form = document.getElementById(formId);
 
       if (form) {
           document.getElementById('personaSection').classList.remove('collapsed');
-          const cardId = `${tipoSinEspacio.toLowerCase()}Card`;
           document.getElementById(cardId).classList.add('expanded');
           document.getElementById(cardId).classList.remove('collapsed');
 
           form.querySelector(`input#nombre${tipoSinEspacio}`).value = persona.nombre || '';
           form.querySelector(`input#apellido${tipoSinEspacio}`).value = persona.apellido || '';
           form.querySelector(`select#area${tipoSinEspacio}`).value = persona.area || '';
+          
           const subAreaSelect = form.querySelector(`select#subArea${tipoSinEspacio}`);
           if (subAreaSelect) {
               if (areaOptions.hasOwnProperty(persona.area) && areaOptions[persona.area].length > 1) {
@@ -1610,6 +1624,7 @@
           }
           form.querySelector(`input#anio${tipoSinEspacio}`).value = persona.anio || '';
           form.querySelector(`input#puntos${tipoSinEspacio}`).value = persona.puntos || '';
+          
           const submitBtn = form.querySelector('button[type="submit"]');
           if (submitBtn) submitBtn.textContent = 'Guardar Cambios';
           form.scrollIntoView({ behavior: 'smooth' });
@@ -1743,11 +1758,22 @@
       retirosList = retirosList.map(personaRetiro => {
         const historial = JSON.parse(localStorage.getItem('historial')) || [];
         const persona = historial.find(p => p.nombre === personaRetiro.nombre && p.apellido === personaRetiro.apellido);
-        if (persona && persona.tipo === 'Planta') {
+
+        if (!persona) return personaRetiro;
+
+        if (persona.tipo === 'Planta') {
             const puntos = parseFloat(persona.puntos) || 0;
             personaRetiro.montoRetiroFinal = latestValorPorPunto * puntos;
             personaRetiro.anticipos = getTotalAnticipos(personaRetiro.nombre, personaRetiro.apellido);
             personaRetiro.totalAlcance = (personaRetiro.montoRetiroFinal || 0) - (personaRetiro.anticipos || 0);
+        } else if (persona.tipo === 'Part Time') {
+            const pozoIndividual = calcularPozoIndividual(persona);
+            const divisor = parseFloat(personaRetiro.divisorRetiro) || 1;
+            const puntoActual = (pozoIndividual / divisor) || 0;
+            const puntos = parseFloat(persona.puntos) || 0;
+            personaRetiro.montoRetiroFinal = puntoActual * puntos;
+            personaRetiro.totalAlcance = personaRetiro.montoRetiroFinal;
+            personaRetiro.restanteAlcance = personaRetiro.totalAlcance - getTotalMontosPedidos(personaRetiro.nombre, personaRetiro.apellido);
         }
         return personaRetiro;
       });
@@ -1843,12 +1869,16 @@
 
             if (persona.tipo === 'Part Time') {
                 const pozoIndividual = calcularPozoIndividual(persona);
-                const divisorActual = parseFloat(personaRetiro.divisorRetiro) || 0;
+                const divisorActual = parseFloat(personaRetiro.divisorRetiro) || 1;
                 const puntoActual = (pozoIndividual / divisorActual) || 0;
                 const alcanceActual = puntoActual * (parseFloat(persona.puntos) || 0);
-
                 const montosPedidos = getTotalMontosPedidos(persona.nombre, persona.apellido);
                 const restanteAlcance = alcanceActual - montosPedidos;
+
+                personaRetiro.montoRetiroFinal = alcanceActual;
+                personaRetiro.totalAlcance = alcanceActual;
+                personaRetiro.restanteAlcance = restanteAlcance;
+                localStorage.setItem('retirosList', JSON.stringify(retirosList));
 
                 bodyDiv.innerHTML = `
                     <span class="person-details">Días trabajados: ${persona.diasTrabajados.length} | Puntos: ${persona.puntos}</span>
@@ -1923,7 +1953,8 @@
                 const persona = historial.find(p => p.nombre === nombre && p.apellido === apellido);
                 const index = historial.findIndex(p => p.nombre === nombre && p.apellido === apellido);
                 if (persona.tipo === 'Part Time') {
-                    openEditPartTimeModal(persona);
+                    const personaRetiroFromList = retirosList.find(p => p.nombre === nombre && p.apellido === apellido);
+                    openEditPartTimeModal(personaRetiroFromList);
                 } else {
                     handleEditPerson(persona, index);
                 }
@@ -2012,7 +2043,7 @@
                   ${guardado.retiros.map(retiro => `
                       <li>
                           <strong>${retiro.nombre} ${retiro.apellido} (${retiro.tipo})</strong>
-                          - ${retiro.tipo === 'Planta' ? `Monto a recibir: $${formatNumberWithPoints(retiro.montoRetiroFinal)}` : `Monto: $${formatNumberWithPoints(retiro.alcanceActual)}`}
+                          - ${retiro.tipo === 'Planta' ? `Monto a recibir: $${formatNumberWithPoints(retiro.montoRetiroFinal)}` : `Monto: $${formatNumberWithPoints(retiro.montoRetiroFinal)}`}
                       </li>
                   `).join('')}
                   </ul>
@@ -2063,9 +2094,22 @@
         const personaToAdd = historial.find(p => p.nombre === nombre && p.apellido === apellido);
 
         if (personaToAdd && !retirosList.some(p => p.nombre === nombre && p.apellido === apellido)) {
-          retirosList.push(personaToAdd);
+          const newRetiroPerson = { ...personaToAdd };
+          if (newRetiroPerson.tipo === 'Part Time') {
+              newRetiroPerson.divisorRetiro = newRetiroPerson.divisorRetiro || 1;
+              const pozoIndividual = calcularPozoIndividual(newRetiroPerson);
+              const puntoActual = (pozoIndividual / newRetiroPerson.divisorRetiro) || 0;
+              const puntos = parseFloat(newRetiroPerson.puntos) || 0;
+              newRetiroPerson.montoRetiroFinal = puntoActual * puntos;
+              newRetiroPerson.totalAlcance = newRetiroPerson.montoRetiroFinal;
+              newRetiroPerson.restanteAlcance = newRetiroPerson.totalAlcance - getTotalMontosPedidos(newRetiroPerson.nombre, newRetiroPerson.apellido);
+          } else if (newRetiroPerson.tipo === 'Planta') {
+              newRetiroPerson.montoRetiroFinal = 0;
+              newRetiroPerson.totalAlcance = 0;
+          }
+
+          retirosList.push(newRetiroPerson);
           localStorage.setItem('retirosList', JSON.stringify(retirosList));
-          // CORRECCIÓN: Llamar a renderRetirosList para actualizar la vista
           renderRetirosList();
           searchRetirosInput.value = '';
           searchResultsContainer.innerHTML = '';
@@ -2087,7 +2131,7 @@
   });
 
   document.getElementById('resetRetirosGuardadosBtn').addEventListener('click', () => {
-      if (confirm('¿Estás seguro de que deseas borrar todo el historial de retiros guardados?')) {
+      if (confirm('¿Estás seguro de que quieres borrar todo el historial de retiros guardados?')) {
           localStorage.removeItem('retirosGuardados');
           retirosGuardados = [];
           renderRetirosGuardados();
@@ -2173,7 +2217,6 @@
     e.preventDefault();
     const fecha = document.getElementById('fecha').value;
     const area = document.getElementById('areaMonto').value;
-    // Se usa el valor limpio del atributo de datos
     const montoInput = document.getElementById('monto');
     const montoNum = parseFloat(montoInput.dataset.cleanValue) || 0;
     const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
@@ -2252,7 +2295,7 @@
   const editDivisorPartTimeInput = document.getElementById('editDivisorPartTimeInput');
   const saveEditPartTimeBtn = document.getElementById('saveEditPartTimeBtn');
   const cancelEditPartTimeBtn = document.getElementById('cancelEditPartTimeBtn');
-  let currentPartTimePerson;
+  let currentPartTimePersonInRetirosList;
 
 
   function openAnticipoModal(nombre, apellido) {
@@ -2312,15 +2355,7 @@
       }
 
       agregarAnticipoAHistorial(currentAnticipoPerson.nombre, currentAnticipoPerson.apellido, monto, fecha, hora, loggedBy);
-
-      const personaIndex = retirosList.findIndex(p => p.nombre === currentAnticipoPerson.nombre && p.apellido === currentAnticipoPerson.apellido);
-      if (personaIndex > -1) {
-          retirosList[personaIndex].anticipos = getTotalAnticipos(currentAnticipoPerson.nombre, currentAnticipoPerson.apellido);
-          retirosList[personaIndex].totalAlcance = (retirosList[personaIndex].montoRetiroFinal || 0) - retirosList[personaIndex].anticipos;
-          localStorage.setItem('retirosList', JSON.stringify(retirosList));
-          renderRetirosList();
-      }
-
+      renderRetirosList();
       closeAnticipoModal();
   });
 
@@ -2343,19 +2378,22 @@
 
       const personaIndex = retirosList.findIndex(p => p.nombre === currentMontosPedidosPerson.nombre && p.apellido === currentMontosPedidosPerson.apellido);
       if (personaIndex > -1) {
-          const persona = retirosList[personaIndex];
-          const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === persona.nombre && p.apellido === persona.apellido);
-          const pozoIndividual = calcularPozoIndividual(historialPersona);
-          const divisor = parseFloat(persona.divisorRetiro) || 0;
-          const puntoActual = (pozoIndividual / divisor) || 0;
-          const puntos = parseFloat(historialPersona.puntos) || 0;
-          const alcanceActual = puntoActual * puntos;
+          const personaRetiro = retirosList[personaIndex];
+          const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === personaRetiro.nombre && p.apellido === personaRetiro.apellido);
+          
+          if (historialPersona && historialPersona.tipo === 'Part Time') {
+              const pozoIndividual = calcularPozoIndividual(historialPersona);
+              const divisor = parseFloat(personaRetiro.divisorRetiro) || 1;
+              const puntoActual = (pozoIndividual / divisor) || 0;
+              const puntos = parseFloat(historialPersona.puntos) || 0;
+              const alcanceActual = puntoActual * puntos;
 
-          const totalMontosPedidos = getTotalMontosPedidos(currentMontosPedidosPerson.nombre, currentMontosPedidosPerson.apellido);
-          persona.restanteAlcance = alcanceActual - totalMontosPedidos;
-          localStorage.setItem('retirosList', JSON.stringify(retirosList));
-          renderRetirosList();
+              const totalMontosPedidos = getTotalMontosPedidos(currentMontosPedidosPerson.nombre, currentMontosPedidosPerson.apellido);
+              personaRetiro.restanteAlcance = alcanceActual - totalMontosPedidos;
+              localStorage.setItem('retirosList', JSON.stringify(retirosList));
+          }
       }
+      renderRetirosList();
 
       closeMontosPedidosModal();
   });
@@ -2386,17 +2424,18 @@
   cancelValorPorPuntoBtn.addEventListener('click', closeValorPorPuntoModal);
 
 
-  function openEditPartTimeModal(persona) {
-      currentPartTimePerson = persona;
-      const totalPropinas = calcularPozoIndividual(persona);
+  function openEditPartTimeModal(personaRetiro) {
+      currentPartTimePersonInRetirosList = personaRetiro;
+      const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === personaRetiro.nombre && p.apellido === personaRetiro.apellido);
+      const totalPropinas = calcularPozoIndividual(historialPersona);
       editTotalPropinasSpan.textContent = `$${formatNumberWithPoints(totalPropinas)}`;
-      editDivisorPartTimeInput.value = persona.divisorRetiro ? formatNumberWithPoints(persona.divisorRetiro) : '';
-      editDivisorPartTimeInput.dataset.cleanValue = persona.divisorRetiro || '';
+      editDivisorPartTimeInput.value = personaRetiro.divisorRetiro ? formatNumberWithPoints(personaRetiro.divisorRetiro) : '';
+      editDivisorPartTimeInput.dataset.cleanValue = personaRetiro.divisorRetiro || '';
       editPartTimeModal.style.display = 'flex';
   }
 
   function closeEditPartTimeModal() {
-      currentPartTimePerson = null;
+      currentPartTimePersonInRetirosList = null;
       editPartTimeModal.style.display = 'none';
   }
 
@@ -2407,15 +2446,23 @@
           return;
       }
 
-      const personaIndex = retirosList.findIndex(p => p.nombre === currentPartTimePerson.nombre && p.apellido === currentPartTimePerson.apellido);
+      const personaIndex = retirosList.findIndex(p => p.nombre === currentPartTimePersonInRetirosList.nombre && p.apellido === currentPartTimePersonInRetirosList.apellido);
       if (personaIndex > -1) {
-          retirosList[personaIndex].divisorRetiro = divisor;
-          const pozoIndividual = calcularPozoIndividual(currentPartTimePerson);
+          const personaRetiro = retirosList[personaIndex];
+          personaRetiro.divisorRetiro = divisor;
+
+          const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === personaRetiro.nombre && p.apellido === personaRetiro.apellido);
+          const pozoIndividual = calcularPozoIndividual(historialPersona);
           const puntoActual = (pozoIndividual / divisor) || 0;
-          const puntos = parseFloat(currentPartTimePerson.puntos) || 0;
+          const puntos = parseFloat(historialPersona.puntos) || 0;
           const alcanceActual = puntoActual * puntos;
-          const totalMontosPedidos = getTotalMontosPedidos(currentPartTimePerson.nombre, currentPartTimePerson.apellido);
-          retirosList[personaIndex].restanteAlcance = alcanceActual - totalMontosPedidos;
+
+          const totalMontosPedidos = getTotalMontosPedidos(personaRetiro.nombre, personaRetiro.apellido);
+
+          personaRetiro.montoRetiroFinal = alcanceActual;
+          personaRetiro.totalAlcance = alcanceActual;
+          personaRetiro.restanteAlcance = alcanceActual - totalMontosPedidos;
+
           localStorage.setItem('retirosList', JSON.stringify(retirosList));
           renderRetirosList();
       }
@@ -2469,7 +2516,7 @@
           localStorage.setItem('anticiposHistorial', JSON.stringify(historialAnticipos));
 
           const personaEnRetiros = retirosList.find(p => p.nombre === nombre && p.apellido === apellido);
-          if (personaEnRetiros) {
+          if (personaEnRetiros && personaEnRetiros.tipo === 'Planta') {
               personaEnRetiros.anticipos = getTotalAnticipos(nombre, apellido);
               personaEnRetiros.totalAlcance = (personaEnRetiros.montoRetiroFinal || 0) - personaEnRetiros.anticipos;
               localStorage.setItem('retirosList', JSON.stringify(retirosList));
@@ -2489,10 +2536,10 @@
           localStorage.setItem('montosPedidosHistorial', JSON.stringify(historialMontosPedidos));
 
           const personaEnRetiros = retirosList.find(p => p.nombre === nombre && p.apellido === apellido);
-          if (personaEnRetiros) {
+          if (personaEnRetiros && personaEnRetiros.tipo === 'Part Time') {
               const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === personaEnRetiros.nombre && p.apellido === personaEnRetiros.apellido);
               const pozoIndividual = calcularPozoIndividual(historialPersona);
-              const divisor = parseFloat(personaEnRetiros.divisorRetiro) || 0;
+              const divisor = parseFloat(personaEnRetiros.divisorRetiro) || 1;
               const puntoActual = (pozoIndividual / divisor) || 0;
               const puntos = parseFloat(historialPersona.puntos) || 0;
               const alcanceActual = puntoActual * puntos;
@@ -2729,14 +2776,14 @@
         `;
       } else {
         const pozoIndividual = calcularPozoIndividual(historialPersona);
-        const divisorActual = personaRetiro.divisorRetiro || 'N/A';
+        const divisorActual = parseFloat(personaRetiro.divisorRetiro) || 1;
         const puntoActual = (pozoIndividual / divisorActual) || 0;
         const alcanceActual = puntoActual * (parseFloat(historialPersona.puntos) || 0);
         const totalMontosPedidos = getTotalMontosPedidos(nombre, apellido);
         const restanteAlcance = alcanceActual - totalMontosPedidos;
 
         htmlContent = `
-            <p><strong>Días trabajados:</strong> ${historialPersona.diasTrabajados.length}</p>
+            <p><strong>Días trabajados:</strong> ${historialPersona.diasTrabajados ? historialPersona.diasTrabajados.length : 0}</p>
             <p><strong>Total de propinas del pozo:</strong> <span class="informe-total">$${formatNumberWithPoints(pozoIndividual)}</span></p>
             <p><strong>Divisor aplicado:</strong> ${formatNumberWithPoints(divisorActual)}</p>
             <p><strong>Punto-actual-PT:</strong> <span class="informe-total">$${formatNumberWithPoints(puntoActual)}</span></p>
@@ -2844,16 +2891,17 @@
           y += 20;
       } else {
           const pozoIndividual = calcularPozoIndividual(historialPersona);
-          const puntoActual = (pozoIndividual / (personaRetiro.divisorRetiro || 1)) || 0;
+          const divisorActual = parseFloat(personaRetiro.divisorRetiro) || 1;
+          const puntoActual = (pozoIndividual / divisorActual) || 0;
           const alcanceActual = puntoActual * (parseFloat(historialPersona.puntos) || 0);
           const totalMontosPedidos = getTotalMontosPedidos(nombre, apellido);
           const restanteAlcance = alcanceActual - totalMontosPedidos;
 
-          doc.text(`Días trabajados: ${historialPersona.diasTrabajados.length}`, 20, y);
+          doc.text(`Días trabajados: ${historialPersona.diasTrabajados ? historialPersona.diasTrabajados.length : 0}`, 20, y);
           y += 10;
           doc.text(`Total de propinas del pozo: $${formatNumberWithPoints(pozoIndividual)}`, 20, y);
           y += 10;
-          doc.text(`Divisor aplicado: ${formatNumberWithPoints(personaRetiro.divisorRetiro)}`, 20, y);
+          doc.text(`Divisor aplicado: ${formatNumberWithPoints(divisorActual)}`, 20, y);
           y += 10;
           doc.text(`Punto-actual-PT: $${formatNumberWithPoints(puntoActual)}`, 20, y);
           y += 10;
@@ -2918,7 +2966,7 @@
         e.target.value = formatNumberWithPoints(e.target.value);
       }
     });
-    // Inicializar el valor si ya tiene contenido
+    
     const initialValue = inputElement.value;
     if (initialValue) {
         inputElement.dataset.cleanValue = initialValue.replace(/\./g, '');
@@ -2975,6 +3023,9 @@
             if (persona.tipo && persona.tipo.toLowerCase() === 'parttime') {
                 persona.tipo = 'Part Time';
             }
+            if (persona.tipo === 'Part Time' && persona.divisorRetiro === undefined) {
+                persona.divisorRetiro = 1; 
+            }
             return persona;
         });
         localStorage.setItem('historial', JSON.stringify(historialCorregido));
@@ -3010,20 +3061,19 @@
 
         setupMainCollapsibles();
 
-        // Aplicar el nuevo formateo a los campos numéricos
         setupCurrencyInput(document.getElementById('monto'));
         setupCurrencyInput(document.getElementById('anticipoMontoInput'));
         setupCurrencyInput(document.getElementById('montosPedidosMontoInput'));
         setupCurrencyInput(document.getElementById('valorPorPuntoInput'));
         setupCurrencyInput(document.getElementById('editDivisorPartTimeInput'));
     } else {
-        // Si no hay usuario logueado, inicializa el almacenamiento de usuarios si no existe
         if (!localStorage.getItem('usuarios')) {
             localStorage.setItem('usuarios', JSON.stringify({}));
         }
     }
   };
-// === EXPORTAR/IMPORTAR DATOS (esto va al final del script) ===
+
+// === EXPORTAR/IMPORTAR DATOS ===
 document.getElementById('exportBtn').addEventListener('click', () => {
   const keysToExport = [
     'usuarios',
@@ -3073,6 +3123,7 @@ document.getElementById('importFile').addEventListener('change', function(event)
         }
       });
       alert("Datos importados con éxito. Recarga la página para ver los cambios.");
+      location.reload();
     } catch (err) {
       alert("Error al importar los datos: " + err.message);
     }
@@ -3080,5 +3131,6 @@ document.getElementById('importFile').addEventListener('change', function(event)
   reader.readAsText(file);
 });
 </script>
+
 </body>
 </html>
