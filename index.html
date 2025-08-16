@@ -4,947 +4,927 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registro de Personas y Montos</title>
+  
   <style>
-    /* ... TU CSS AQUÍ ... */
-    /* Puedes pegar aquí todo tu CSS anterior sin cambios */
     body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #f0f2f5; }
-    /* ... El resto de tu CSS va aquí ... */body {
+    body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background-color: #f0f2f5;
     margin: 0;
     padding: 20px;
     color: #333;
-  }
-  h1 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 2em;
-    color: #222;
-  }
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2em;
+      color: #222;
+    }
 
-  section {
-    margin-bottom: 30px;
-    background: #fff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  h2 {
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 1.5em;
-    color: #555;
-  }
-
-  #totalDiario {
-    font-weight: bold;
-    font-size: 1.5em;
-    margin: 10px 0;
-    color: #007bff;
-    text-align: center;
-  }
-
-  form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  input, select, button {
-    flex: 1 1 45%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 1em;
-  }
-  input:focus {
-    border-color: #4CAF50;
-    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
-    outline: none;
-  }
-  button {
-    background-color: #4CAF50;
-    color: #fff;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  button:hover {
-    background-color: #388E3C;
-  }
-
-  .reset-button {
-    background-color: #f44336;
-  }
-  .reset-button:hover {
-    background-color: #d32f2f;
-  }
-
-  .logout-button {
-    background-color: #dc3545;
-    font-weight: normal;
-    padding: 5px 10px;
-    font-size: 0.9em;
-  }
-  .logout-button:hover {
-    background-color: #c82333;
-  }
-
-  /* NUEVOS CAMBIOS PARA COLAPSAR Y BUSCAR */
-  .fichas-type-container {
-    margin-top: 15px;
-  }
-  .fichas-type-container h3 {
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-    padding-right: 25px;
-  }
-  .fichas-type-container h3::after {
-    content: '▼';
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: transform 0.2s ease-in-out;
-  }
-  .fichas-type-container.collapsed h3::after {
-    transform: translateY(-50%) rotate(-90deg);
-  }
-  .fichas-type-container.collapsed .fichas-grid-container {
-    display: none;
-  }
-  /* FIN DE NUEVOS CAMBIOS */
-
-  .fichas-grid-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 10px;
-  }
-  .ficha {
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    padding: 10px;
-    position: relative;
-    border-left: 5px solid;
-  }
-  .ficha.ficha-planta {
-    border-color: #007bff;
-  }
-  .ficha.ficha-planta h3 {
-    color: #007bff;
-  }
-  .ficha.ficha-part-time {
-    border-color: #28a745;
-  }
-  .ficha.ficha-part-time h3 {
-    color: #28a745;
-  }
-  .ficha .edit-button {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8em;
-  }
-  .ficha .edit-button:hover {
-    background-color: #0056b3;
-  }
-
-  .ficha h3 {
-    margin-top: 0;
-    margin-bottom: 8px;
-    font-size: 1.1em;
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-    padding-right: 25px;
-  }
-
-  .ficha h3::after {
-    content: '▼';
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: transform 0.2s ease-in-out;
-  }
-
-  .ficha.collapsed h3::after {
-    transform: translateY(-50%) rotate(-90deg);
-  }
-
-  .ficha.collapsed .ficha-content {
-    display: none;
-  }
-
-  .ficha p {
-    margin: 2px 0;
-    font-size: 0.9em;
-    color: #555;
-  }
-
-  /* Estilos para el calendario */
-  .calendar-container {
-    margin-top: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 10px;
-    font-size: 0.9em;
-    background-color: #f9f9f9;
-  }
-  .calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    font-weight: bold;
-  }
-  .calendar-header button {
-    padding: 5px 10px;
-    background-color: #eee;
-    color: #333;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  .calendar-header button:hover {
-    background-color: #ddd;
-  }
-  .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    text-align: center;
-  }
-  .day-name {
-    font-weight: bold;
-    color: #777;
-    padding-bottom: 5px;
-  }
-  .day {
-    padding: 8px;
-    border-radius: 4px;
-    background-color: #fff;
-    cursor: pointer;
-    border: 1px solid #eee;
-  }
-  .day:hover {
-    background-color: #e0e0e0;
-  }
-  .day.marked {
-    background-color: #28a745;
-    color: #fff;
-    font-weight: bold;
-  }
-  .day.marked:hover {
-    background-color: #218838;
-  }
-  .day.empty {
-    background-color: transparent;
-    border: none;
-    cursor: default;
-  }
-
-  .pozo-individual-container {
-    background-color: #e6ffec;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #b3ffc6;
-    margin-top: 10px;
-    text-align: center;
-  }
-
-  #tarjetasMontos {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .tarjeta {
-    background-color: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    padding: 10px;
-  }
-
-  .tarjeta h3 {
-    margin-top: 0;
-    margin-bottom: 8px;
-    font-size: 1.1em;
-    color: #222;
-    cursor: pointer;
-    user-select: none;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .tarjeta h3 .total-in-header {
-    font-size: 1em;
-    font-weight: bold;
-    color: #007bff;
-    margin-left: auto;
-    padding-right: 20px;
-  }
-
-  .tarjeta h3::after {
-    content: '▼';
-    transition: transform 0.2s ease-in-out;
-  }
-
-  .tarjeta.collapsed h3::after {
-    transform: rotate(-90deg);
-  }
-
-  .tarjeta.collapsed .montos-list,
-  .tarjeta.collapsed .total-por-fecha {
-    display: none;
-  }
-
-  .total-por-fecha {
-    margin-top: 8px;
-    font-weight: bold;
-    font-size: 1.3em;
-    color: #007bff;
-    text-align: right;
-  }
-  .montos-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  /* Estilo corregido para el item de monto para que el ícono quede en línea */
-  .monto-item {
-    flex: 1 1 30%;
-    background-color: #f9f9f9;
-    padding: 6px;
-    border-radius: 6px;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
-    font-size: 0.9em;
-    display: flex;
-    justify-content: space-between; /* Alinea los elementos al final */
-    align-items: center;
-  }
-  .delete-button {
-    background: none;
-    border: none;
-    font-size: 1.2em;
-    color: #f44336;
-    cursor: pointer;
-    padding: 2px;
-    line-height: 1;
-  }
-
-  .collapsible-section h2 {
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-    padding-right: 25px;
-  }
-
-  .collapsible-section h2::after {
-    content: '▶';
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: transform 0.2s ease-in-out;
-  }
-
-  .collapsible-section.expanded h2::after {
-    content: '▼';
-  }
-
-  .collapsible-section.collapsed .collapsible-content {
-    display: none;
-  }
-
-  .persona-forms-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  .persona-form-card {
-    flex: 1 1 45%;
-    background: #f9f9f9;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-    position: relative;
-  }
-  /* Colores para los títulos de los formularios de agregar persona */
-  #plantaCard h3 {
-    color: #007bff;
-  }
-  #partTimeCard h3 {
-    color: #dc3545;
-  }
-  .persona-form-card h3 {
-    margin-top: 0;
-    font-size: 1.2em;
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-    padding-right: 25px;
-  }
-  .persona-form-card h3::after {
-    content: '▶';
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: transform 0.2s ease-in-out;
-  }
-  .persona-form-card.expanded h3::after {
-    content: '▼';
-  }
-  .persona-form-card.collapsed .card-content {
-    display: none;
-  }
-  .edit-mode-btn {
-    background-color: #ff9800;
-  }
-  .edit-mode-btn:hover {
-    background-color: #e68a00;
-  }
-
-  /* Nueva Sección de Retiros de Propina */
-  #retirosPropinaSection {
-    background-color: #e9ecef;
-  }
-  #retirosPropinaSection h2 {
-    color: #17a2b8;
-  }
-  #searchRetiros {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  #searchResultsContainer {
-    max-height: 200px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    background-color: #fff;
-  }
-  .search-result-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    border-bottom: 1px solid #eee;
-  }
-  .search-result-item:last-child {
-    border-bottom: none;
-  }
-  .search-result-item button {
-    background-color: #28a745;
-    color: #fff;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 0.9em;
-  }
-  .search-result-item button:hover {
-    background-color: #218838;
-  }
-  .retiro-tipo-container {
-    margin-bottom: 20px;
-  }
-  /* ESTILO PARA COLAPSAR LOS TÍTULOS DE TIPO DE PERSONAL EN LA SECCIÓN DE RETIROS */
-  .retiro-tipo-container h3 {
-    color: #333;
-    font-size: 1.3em;
-    border-bottom: 2px solid #ccc;
-    padding-bottom: 5px;
-    cursor: pointer;
-    user-select: none;
-    position: relative;
-    padding-right: 25px;
-  }
-  .retiro-tipo-container h3::after {
-    content: '▼';
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: transform 0.2s ease-in-out;
-  }
-  .retiro-tipo-container.collapsed h3::after {
-    transform: translateY(-50%) rotate(-90deg);
-  }
-  .retiro-tipo-container.collapsed .retiro-content-wrapper {
-    display: none;
-  }
-  /* FIN DE ESTILOS PARA COLAPSAR */
-  .retiro-area-container {
-    margin-bottom: 20px;
-  }
-  .retiro-area-container h4 {
-    color: #555;
-    font-size: 1.1em;
-    border-bottom: 1px dashed #ccc;
-    padding-bottom: 5px;
-    margin-top: 10px;
-    margin-bottom: 5px;
-  }
-  .retiro-sub-area-container {
-    padding-left: 15px;
-  }
-  .retiro-sub-area-container h5 {
-    color: #666;
-    margin-top: 10px;
-    margin-bottom: 5px;
-  }
-
-  /* ESTILOS NUEVOS PARA LAS TARJETAS DE RETIRO COLAPSABLES */
-  .retiro-person-item {
-    background-color: #f8f9fa;
-    padding: 8px 12px;
-    border-radius: 6px;
-    margin-bottom: 5px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    border-left: 5px solid transparent;
-  }
-  .retiro-person-item.planta { border-color: #007bff; }
-  .retiro-person-item.part-time { border-color: #28a745; }
-
-  .retiro-person-item.collapsed .retiro-body {
-    display: none;
-  }
-
-  .retiro-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .retiro-header .person-name {
-    font-weight: bold;
-    font-size: 1.1em;
-    position: relative;
-    padding-right: 20px;
-  }
-
-  .retiro-header .person-name::after {
-    content: '▼';
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: transform 0.2s ease-in-out;
-  }
-
-  .retiro-person-item.collapsed .person-name::after {
-    transform: translateY(-50%) rotate(-90deg);
-  }
-
-  .retiro-body {
-    margin-top: 10px;
-  }
-
-  .retiro-actions {
-    display: flex;
-    gap: 5px;
-    margin-left: 10px;
-  }
-  .retiro-actions button {
-    background: none;
-    border: none;
-    font-size: 1.4em;
-    cursor: pointer;
-    padding: 0;
-  }
-  /* Estilos para los nuevos iconos */
-  .retiro-actions .report-button,
-  .retiro-actions .pdf-button {
-    font-size: 1.1em;
-    color: #4CAF50;
-  }
-  .retiro-actions .pdf-button {
-      color: #dc3545;
-  }
-  .retiro-actions .edit-button {
-    color: #ff9800;
-  }
-  .retiro-actions .edit-button:hover {
-    color: #e68a00;
-  }
-  /* Estilo para el icono de eliminar */
-  .retiro-actions .delete-button {
-    color: #dc3545;
-    font-size: 1.5em; /* Ajusté el tamaño del emoji */
-    cursor: pointer;
-  }
-  .retiro-actions .delete-button:hover {
-    color: #c82333;
-  }
-  .valor-por-punto {
-    font-size: 0.9em;
-    font-style: italic;
-    color: #666;
-  }
-  .person-details {
-    font-size: 0.9em;
-    color: #555;
-    margin-top: 2px;
-  }
-  .registro-user {
-    font-size: 0.8em;
-    color: #888;
-    text-align: right;
-    margin-top: 5px;
-  }
-
-  /* Nuevo estilo para el calculo de división de planta */
-  .planta-calculation-container {
-    background-color: #e6f3ff;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #b3d9ff;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-  .planta-calculation-container p {
-    font-size: 0.9em;
-    color: #004085;
-    margin: 0 0 5px 0;
-  }
-  .planta-calculation-container .total-result {
-    font-size: 1.8em;
-    font-weight: bold;
-    color: #007bff;
-    margin-top: 10px;
-  }
-
-  /* Estilo para el cálculo individual de part-time */
-  .part-time-individual-calculation {
-      margin-top: 10px;
-      padding: 10px;
-      border: 1px solid #b3ffc6;
+    section {
+      margin-bottom: 30px;
+      background: #fff;
+      padding: 15px;
       border-radius: 8px;
-      background-color: #e6ffec;
-      text-align: center;
-  }
-  .part-time-individual-calculation input {
-      flex: none;
-      width: 100px;
-      font-size: 1em;
-      text-align: center;
-      margin-bottom: 5px;
-  }
-  .part-time-individual-calculation .total-tips {
-      font-weight: bold;
-      color: #006400;
-      font-size: 1.1em;
-  }
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 1.5em;
+      color: #555;
+    }
 
-  /* ESTILOS NUEVOS PARA MOSTRAR ANTICIPOS */
-  .planta-details-container,
-  .part-time-details-container {
+    #totalDiario {
+      font-weight: bold;
+      font-size: 1.5em;
+      margin: 10px 0;
+      color: #007bff;
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    input, select, button {
+      flex: 1 1 45%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+    input:focus {
+      border-color: #4CAF50;
+      box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+      outline: none;
+    }
+    button {
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #388E3C;
+    }
+
+    .reset-button {
+      background-color: #f44336;
+    }
+    .reset-button:hover {
+      background-color: #d32f2f;
+    }
+
+    .logout-button {
+      background-color: #dc3545;
+      font-weight: normal;
+      padding: 5px 10px;
+      font-size: 0.9em;
+    }
+    .logout-button:hover {
+      background-color: #c82333;
+    }
+
+    .fichas-type-container {
+      margin-top: 15px;
+    }
+    .fichas-type-container h3 {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      padding-right: 25px;
+    }
+    .fichas-type-container h3::after {
+      content: '▼';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: transform 0.2s ease-in-out;
+    }
+    .fichas-type-container.collapsed h3::after {
+      transform: translateY(-50%) rotate(-90deg);
+    }
+    .fichas-type-container.collapsed .fichas-grid-container {
+      display: none;
+    }
+
+    .fichas-grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .ficha {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 10px;
+      position: relative;
+      border-left: 5px solid;
+    }
+    .ficha.ficha-planta {
+      border-color: #007bff;
+    }
+    .ficha.ficha-planta h3 {
+      color: #007bff;
+    }
+    .ficha.ficha-part-time {
+      border-color: #28a745;
+    }
+    .ficha.ficha-part-time h3 {
+      color: #28a745;
+    }
+    .ficha .edit-button {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8em;
+    }
+    .ficha .edit-button:hover {
+      background-color: #0056b3;
+    }
+
+    .ficha h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 1.1em;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      padding-right: 25px;
+    }
+
+    .ficha h3::after {
+      content: '▼';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .ficha.collapsed h3::after {
+      transform: translateY(-50%) rotate(-90deg);
+    }
+
+    .ficha.collapsed .ficha-content {
+      display: none;
+    }
+
+    .ficha p {
+      margin: 2px 0;
+      font-size: 0.9em;
+      color: #555;
+    }
+
+    .calendar-container {
+      margin-top: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.9em;
+      background-color: #f9f9f9;
+    }
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    .calendar-header button {
+      padding: 5px 10px;
+      background-color: #eee;
+      color: #333;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .calendar-header button:hover {
+      background-color: #ddd;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      text-align: center;
+    }
+    .day-name {
+      font-weight: bold;
+      color: #777;
+      padding-bottom: 5px;
+    }
+    .day {
+      padding: 8px;
+      border-radius: 4px;
+      background-color: #fff;
+      cursor: pointer;
+      border: 1px solid #eee;
+    }
+    .day:hover {
+      background-color: #e0e0e0;
+    }
+    .day.marked {
+      background-color: #28a745;
+      color: #fff;
+      font-weight: bold;
+    }
+    .day.marked:hover {
+      background-color: #218838;
+    }
+    .day.empty {
+      background-color: transparent;
+      border: none;
+      cursor: default;
+    }
+
+    .pozo-individual-container {
+      background-color: #e6ffec;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #b3ffc6;
       margin-top: 10px;
+      text-align: center;
+    }
+
+    #tarjetasMontos {
       display: flex;
       flex-direction: column;
-      gap: 5px;
-  }
-  .alcance-data, .anticipos-data, .montos-pedidos-data, .restante-alcance-data {
+      gap: 10px;
+    }
+    .tarjeta {
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      padding: 10px;
+    }
+
+    .tarjeta h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
       font-size: 1.1em;
+      color: #222;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tarjeta h3 .total-in-header {
+      font-size: 1em;
       font-weight: bold;
-      padding: 5px 0;
-  }
-  .alcance-data {
-      color: #006400; /* Verde oscuro para el alcance */
-  }
-  .anticipos-data {
-      color: #e68a00; /* Naranja para los anticipos */
-  }
-  .montos-pedidos-data {
-      color: #007bff; /* Azul para montos pedidos */
-  }
-  .restante-alcance-data {
-      color: #dc3545; /* Rojo para restante alcance */
-  }
-  /* FIN ESTILOS NUEVOS */
-
-  .divisor-message {
-    font-size: 0.8em;
-    color: #777;
-    margin-top: 4px;
-    min-height: 1.2em; /* Para evitar saltos de diseño */
-  }
-
-  #calculationContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    flex-wrap: wrap;
-  }
-  #calculationContainer > div {
-    flex: 1;
-    min-width: 250px;
-  }
-  #retiroActionsContainer {
-    margin-top: 10px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  #guardarRetirosBtn {
-    background-color: #17a2b8;
-  }
-  #guardarRetirosBtn:hover {
-    background-color: #138496;
-  }
-
-  #anticiposHistorialSection h2 {
-    color: #ff9800;
-  }
-  .anticipo-person-item {
-    background-color: #fff8e1;
-    border-left: 5px solid #ffc107;
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-  .anticipo-person-item h4 {
-    margin-top: 0;
-    margin-bottom: 5px;
-    color: #e68a00;
-  }
-  .anticipo-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  .anticipo-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 5px 0;
-    border-bottom: 1px dashed #ccc;
-    font-size: 0.9em;
-  }
-  .anticipo-item:last-child {
-    border-bottom: none;
-  }
-  .anticipo-item .delete-button {
-    background: none;
-    border: none;
-    font-size: 1em;
-    color: #dc3545;
-    cursor: pointer;
-    padding: 0 5px;
-  }
-  .anticipo-item span {
-    display: block;
-  }
-  .anticipo-item .date-time {
-    font-style: italic;
-    color: #777;
-    font-size: 0.8em;
-  }
-
-  #montosPedidosHistorialSection h2 {
       color: #007bff;
-  }
-  .montos-pedidos-person-item {
+      margin-left: auto;
+      padding-right: 20px;
+    }
+
+    .tarjeta h3::after {
+      content: '▼';
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .tarjeta.collapsed h3::after {
+      transform: rotate(-90deg);
+    }
+
+    .tarjeta.collapsed .montos-list,
+    .tarjeta.collapsed .total-por-fecha {
+      display: none;
+    }
+
+    .total-por-fecha {
+      margin-top: 8px;
+      font-weight: bold;
+      font-size: 1.3em;
+      color: #007bff;
+      text-align: right;
+    }
+    .montos-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .monto-item {
+      flex: 1 1 30%;
+      background-color: #f9f9f9;
+      padding: 6px;
+      border-radius: 6px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+      font-size: 0.9em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .delete-button {
+      background: none;
+      border: none;
+      font-size: 1.2em;
+      color: #f44336;
+      cursor: pointer;
+      padding: 2px;
+      line-height: 1;
+    }
+
+    .collapsible-section h2 {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      padding-right: 25px;
+    }
+
+    .collapsible-section h2::after {
+      content: '▶';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .collapsible-section.expanded h2::after {
+      content: '▼';
+    }
+
+    .collapsible-section.collapsed .collapsible-content {
+      display: none;
+    }
+
+    .persona-forms-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .persona-form-card {
+      flex: 1 1 45%;
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+      position: relative;
+    }
+    #plantaCard h3 {
+      color: #007bff;
+    }
+    #partTimeCard h3 {
+      color: #dc3545;
+    }
+    .persona-form-card h3 {
+      margin-top: 0;
+      font-size: 1.2em;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      padding-right: 25px;
+    }
+    .persona-form-card h3::after {
+      content: '▶';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: transform 0.2s ease-in-out;
+    }
+    .persona-form-card.expanded h3::after {
+      content: '▼';
+    }
+    .persona-form-card.collapsed .card-content {
+      display: none;
+    }
+    .edit-mode-btn {
+      background-color: #ff9800;
+    }
+    .edit-mode-btn:hover {
+      background-color: #e68a00;
+    }
+
+    #retirosPropinaSection {
+      background-color: #e9ecef;
+    }
+    #retirosPropinaSection h2 {
+      color: #17a2b8;
+    }
+    #searchRetiros {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    #searchResultsContainer {
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      background-color: #fff;
+    }
+    .search-result-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid #eee;
+    }
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+    .search-result-item button {
+      background-color: #28a745;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+    .search-result-item button:hover {
+      background-color: #218838;
+    }
+    .retiro-tipo-container {
+      margin-bottom: 20px;
+    }
+    .retiro-tipo-container h3 {
+      color: #333;
+      font-size: 1.3em;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 5px;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      padding-right: 25px;
+    }
+    .retiro-tipo-container h3::after {
+      content: '▼';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: transform 0.2s ease-in-out;
+    }
+    .retiro-tipo-container.collapsed h3::after {
+      transform: translateY(-50%) rotate(-90deg);
+    }
+    .retiro-tipo-container.collapsed .retiro-content-wrapper {
+      display: none;
+    }
+    .retiro-area-container {
+      margin-bottom: 20px;
+    }
+    .retiro-area-container h4 {
+      color: #555;
+      font-size: 1.1em;
+      border-bottom: 1px dashed #ccc;
+      padding-bottom: 5px;
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+    .retiro-sub-area-container {
+      padding-left: 15px;
+    }
+    .retiro-sub-area-container h5 {
+      color: #666;
+      margin-top: 10px;
+      margin-bottom: 5px;
+    }
+
+    .retiro-person-item {
+      background-color: #f8f9fa;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-bottom: 5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border-left: 5px solid transparent;
+    }
+    .retiro-person-item.planta { border-color: #007bff; }
+    .retiro-person-item.part-time { border-color: #28a745; }
+
+    .retiro-person-item.collapsed .retiro-body {
+      display: none;
+    }
+
+    .retiro-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .retiro-header .person-name {
+      font-weight: bold;
+      font-size: 1.1em;
+      position: relative;
+      padding-right: 20px;
+    }
+
+    .retiro-header .person-name::after {
+      content: '▼';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .retiro-person-item.collapsed .person-name::after {
+      transform: translateY(-50%) rotate(-90deg);
+    }
+
+    .retiro-body {
+      margin-top: 10px;
+    }
+
+    .retiro-actions {
+      display: flex;
+      gap: 5px;
+      margin-left: 10px;
+    }
+    .retiro-actions button {
+      background: none;
+      border: none;
+      font-size: 1.4em;
+      cursor: pointer;
+      padding: 0;
+    }
+    .retiro-actions .report-button,
+    .retiro-actions .pdf-button {
+      font-size: 1.1em;
+      color: #4CAF50;
+    }
+    .retiro-actions .pdf-button {
+        color: #dc3545;
+    }
+    .retiro-actions .edit-button {
+      color: #ff9800;
+    }
+    .retiro-actions .edit-button:hover {
+      color: #e68a00;
+    }
+    .retiro-actions .delete-button {
+      color: #dc3545;
+      font-size: 1.5em;
+      cursor: pointer;
+    }
+    .retiro-actions .delete-button:hover {
+      color: #c82333;
+    }
+    .valor-por-punto {
+      font-size: 0.9em;
+      font-style: italic;
+      color: #666;
+    }
+    .person-details {
+      font-size: 0.9em;
+      color: #555;
+      margin-top: 2px;
+    }
+    .registro-user {
+      font-size: 0.8em;
+      color: #888;
+      text-align: right;
+      margin-top: 5px;
+    }
+
+    .planta-calculation-container {
       background-color: #e6f3ff;
-      border-left: 5px solid #007bff;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #b3d9ff;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .planta-calculation-container p {
+      font-size: 0.9em;
+      color: #004085;
+      margin: 0 0 5px 0;
+    }
+    .planta-calculation-container .total-result {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #007bff;
+      margin-top: 10px;
+    }
+
+    .part-time-individual-calculation {
+        margin-top: 10px;
+        padding: 10px;
+        border: 1px solid #b3ffc6;
+        border-radius: 8px;
+        background-color: #e6ffec;
+        text-align: center;
+    }
+    .part-time-individual-calculation input {
+        flex: none;
+        width: 100px;
+        font-size: 1em;
+        text-align: center;
+        margin-bottom: 5px;
+    }
+    .part-time-individual-calculation .total-tips {
+        font-weight: bold;
+        color: #006400;
+        font-size: 1.1em;
+    }
+
+    .planta-details-container,
+    .part-time-details-container {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    .alcance-data, .anticipos-data, .montos-pedidos-data, .restante-alcance-data {
+        font-size: 1.1em;
+        font-weight: bold;
+        padding: 5px 0;
+    }
+    .alcance-data {
+        color: #006400;
+    }
+    .anticipos-data {
+        color: #e68a00;
+    }
+    .montos-pedidos-data {
+        color: #007bff;
+    }
+    .restante-alcance-data {
+        color: #dc3545;
+    }
+
+    .divisor-message {
+      font-size: 0.8em;
+      color: #777;
+      margin-top: 4px;
+      min-height: 1.2em;
+    }
+
+    #calculationContainer {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    #calculationContainer > div {
+      flex: 1;
+      min-width: 250px;
+    }
+    #retiroActionsContainer {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #guardarRetirosBtn {
+      background-color: #17a2b8;
+    }
+    #guardarRetirosBtn:hover {
+      background-color: #138496;
+    }
+
+    #anticiposHistorialSection h2 {
+      color: #ff9800;
+    }
+    .anticipo-person-item {
+      background-color: #fff8e1;
+      border-left: 5px solid #ffc107;
       padding: 10px;
       border-radius: 6px;
       margin-bottom: 10px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  }
-  .montos-pedidos-person-item h4 {
+    }
+    .anticipo-person-item h4 {
       margin-top: 0;
       margin-bottom: 5px;
-      color: #007bff;
-  }
-  .montos-pedidos-list {
+      color: #e68a00;
+    }
+    .anticipo-list {
       list-style: none;
       padding: 0;
       margin: 0;
-  }
-  .montos-pedidos-item {
+    }
+    .anticipo-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 5px 0;
       border-bottom: 1px dashed #ccc;
       font-size: 0.9em;
-  }
-  .montos-pedidos-item:last-child {
+    }
+    .anticipo-item:last-child {
       border-bottom: none;
-  }
-
-  #valorPorPuntoHistorialSection h2 {
-      color: #004d40;
-  }
-  .valor-por-punto-item {
-    background-color: #e0f2f1;
-    border-left: 5px solid #009688;
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9em;
-  }
-  .valor-por-punto-item .delete-button {
+    }
+    .anticipo-item .delete-button {
       background: none;
       border: none;
-      font-size: 1.2em;
-      color: #f44336;
-      cursor: pointer;
-  }
-
-  /* Estilos para el historial de retiros guardados */
-  #retirosGuardadosSection h2 {
-    color: #17a2b8;
-  }
-  .retiro-guardado-item {
-    background-color: #f0f8ff;
-    border: 1px solid #cceeff;
-    border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .retiro-guardado-item h4 {
-    margin: 0;
-    font-size: 1em;
-    cursor: pointer;
-  }
-  .retiro-guardado-item .actions {
-    display: flex;
-    gap: 5px;
-  }
-  .retiro-guardado-item .actions button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8em;
-  }
-  .retiro-guardado-item .actions button.delete {
-    background-color: #dc3545;
-  }
-  .retiro-guardado-item.collapsed .retiro-guardado-content {
-    display: none;
-  }
-
-  @media(max-width: 600px) {
-    form {
-      flex-direction: column;
-    }
-    input, select, button {
-      flex: 1 1 100%;
-    }
-    .persona-forms-container, #calculationContainer {
-      flex-direction: column;
-    }
-    .persona-form-card, #calculationContainer > div {
-      flex: 1 1 100%;
-    }
-  }
-
-  /* ESTILOS PARA EL MODAL */
-  .modal-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      overflow-y: auto; /* Permite scroll en el modal si el contenido es largo */
-  }
-  .modal-content {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      width: 90%;
-      max-width: 400px;
-  }
-  .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 15px;
-  }
-  .modal-header h4 {
-      margin: 0;
-  }
-  .modal-body label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-  }
-  .modal-body input {
-      width: 100%;
-      box-sizing: border-box;
-      margin-bottom: 10px;
-  }
-  .modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 15px;
-  }
-  /* Estilo específico para el informe en el modal */
-  #informeModalBody p {
-      font-size: 1.1em;
-      margin: 5px 0;
-  }
-  #informeModalBody .informe-total {
-      font-weight: bold;
-      color: #006400;
-      font-size: 1.2em;
-  }
-  #informeModalBody .informe-anticipos {
-      color: #e68a00;
-  }
-  #informeModalBody .informe-historial {
-      margin-top: 20px;
-      border-top: 1px solid #ccc;
-      padding-top: 10px;
-  }
-  #informeModalBody .informe-historial h5 {
-      margin-top: 0;
       font-size: 1em;
-  }
-  #informeModalBody .informe-historial ul {
-      list-style: none;
-      padding: 0;
-  }
-  #informeModalBody .informe-historial li {
-      background-color: #f9f9f9;
-      padding: 8px;
-      border-radius: 4px;
-      margin-bottom: 5px;
+      color: #dc3545;
+      cursor: pointer;
+      padding: 0 5px;
+    }
+    .anticipo-item span {
+      display: block;
+    }
+    .anticipo-item .date-time {
+      font-style: italic;
+      color: #777;
+      font-size: 0.8em;
+    }
+
+    #montosPedidosHistorialSection h2 {
+        color: #007bff;
+    }
+    .montos-pedidos-person-item {
+        background-color: #e6f3ff;
+        border-left: 5px solid #007bff;
+        padding: 10px;
+        border-radius: 6px;
+        margin-bottom: 10px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .montos-pedidos-person-item h4 {
+        margin-top: 0;
+        margin-bottom: 5px;
+        color: #007bff;
+    }
+    .montos-pedidos-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .montos-pedidos-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 0;
+        border-bottom: 1px dashed #ccc;
+        font-size: 0.9em;
+    }
+    .montos-pedidos-item:last-child {
+        border-bottom: none;
+    }
+
+    #valorPorPuntoHistorialSection h2 {
+        color: #004d40;
+    }
+    .valor-por-punto-item {
+      background-color: #e0f2f1;
+      border-left: 5px solid #009688;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
       display: flex;
       justify-content: space-between;
+      align-items: center;
       font-size: 0.9em;
-  }
+    }
+    .valor-por-punto-item .delete-button {
+        background: none;
+        border: none;
+        font-size: 1.2em;
+        color: #f44336;
+        cursor: pointer;
+    }
 
+    #retirosGuardadosSection h2 {
+      color: #17a2b8;
+    }
+    .retiro-guardado-item {
+      background-color: #f0f8ff;
+      border: 1px solid #cceeff;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .retiro-guardado-item h4 {
+      margin: 0;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    .retiro-guardado-item .actions {
+      display: flex;
+      gap: 5px;
+    }
+    .retiro-guardado-item .actions button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8em;
+    }
+    .retiro-guardado-item .actions button.delete {
+      background-color: #dc3545;
+    }
+    .retiro-guardado-item.collapsed .retiro-guardado-content {
+      display: none;
+    }
+
+    @media(max-width: 600px) {
+      form {
+        flex-direction: column;
+      }
+      input, select, button {
+        flex: 1 1 100%;
+      }
+      .persona-forms-container, #calculationContainer {
+        flex-direction: column;
+      }
+      .persona-form-card, #calculationContainer > div {
+        flex: 1 1 100%;
+      }
+    }
+
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        overflow-y: auto;
+    }
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        width: 90%;
+        max-width: 400px;
+    }
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+    .modal-header h4 {
+        margin: 0;
+    }
+    .modal-body label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .modal-body input {
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+    }
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    #informeModalBody p {
+        font-size: 1.1em;
+        margin: 5px 0;
+    }
+    #informeModalBody .informe-total {
+        font-weight: bold;
+        color: #006400;
+        font-size: 1.2em;
+    }
+    #informeModalBody .informe-anticipos {
+        color: #e68a00;
+    }
+    #informeModalBody .informe-historial {
+        margin-top: 20px;
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+    }
+    #informeModalBody .informe-historial h5 {
+        margin-top: 0;
+        font-size: 1em;
+    }
+    #informeModalBody .informe-historial ul {
+        list-style: none;
+        padding: 0;
+    }
+    #informeModalBody .informe-historial li {
+        background-color: #f9f9f9;
+        padding: 8px;
+        border-radius: 4px;
+        margin-bottom: 5px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9em;
+    }
   </style>
 </head>
 <body>
@@ -954,8 +934,6 @@
   <button id="importBtn">Importar Datos</button>
   <input type="file" id="importFile" accept="application/json" style="display:none;">
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <div id="login-container">
   <section id="loginSection">
@@ -1057,9 +1035,6 @@
         <input type="text" id="monto" placeholder="Monto" inputmode="numeric" required />
         <button type="submit">Agregar Monto</button>
       </form>
-      <div>
-          <button id="resetMontosBtn" class="reset-button">Reiniciar Montos</button> <span>(Borra todos los montos)</span>
-      </div>
       <div id="tarjetasMontos"></div>
     </div>
   </section>
@@ -1080,7 +1055,7 @@
           </div>
           <div id="retiroActionsContainer">
               <button id="guardarRetirosBtn">Guardar Retiros</button>
-              <button id="resetRetirosBtn" class="reset-button">Reiniciar Retiros</button>
+              <button id="resetRetirosBtn" class="reset-button">Reiniciar Mes (Borra Montos y Retiros)</button>
           </div>
           <div id="retirosListContainer"></div>
       </div>
@@ -1089,7 +1064,7 @@
   <section id="retirosGuardadosSection" class="collapsible-section collapsed">
     <h2>Historial de Retiros Guardados</h2>
     <div class="collapsible-content">
-      <button id="resetRetirosGuardadosBtn" class="reset-button">Reiniciar Historial</button>
+      <button id="resetRetirosGuardadosBtn" class="reset-button">Borrar Historial de Retiros Guardados</button>
       <div id="retirosGuardadosContainer"></div>
     </div>
   </section>
@@ -1097,7 +1072,6 @@
   <section id="anticiposHistorialSection" class="collapsible-section collapsed">
       <h2>Historial de Anticipos</h2>
       <div class="collapsible-content">
-        <button id="resetAnticiposBtn" class="reset-button">Reiniciar Historial</button>
         <div id="anticiposHistorialContainer"></div>
       </div>
   </section>
@@ -1105,7 +1079,6 @@
   <section id="montosPedidosHistorialSection" class="collapsible-section collapsed">
       <h2>Historial de Montos Pedidos</h2>
       <div class="collapsible-content">
-        <button id="resetMontosPedidosBtn" class="reset-button">Reiniciar Historial</button>
         <div id="montosPedidosHistorialContainer"></div>
       </div>
   </section>
@@ -1113,7 +1086,6 @@
   <section id="valorPorPuntoHistorialSection" class="collapsible-section collapsed">
       <h2>Historial de Divisores</h2>
       <div class="collapsible-content">
-        <button id="resetValorPorPuntoBtn" class="reset-button">Reiniciar Historial</button>
         <div id="valorPorPuntoHistorialContainer"></div>
       </div>
   </section>
@@ -1207,15 +1179,12 @@
     </div>
 </div>
 
-<div id="login-container">
-  </div>
-
-<div id="main-content" style="display: none;">
-  </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
- // =======================================================
+document.addEventListener('DOMContentLoaded', () => {
+
+  // =======================================================
   //                 VARIABLES GLOBALES Y CONSTANTES
   // =======================================================
   let currentEditIndex = -1;
@@ -1243,11 +1212,6 @@
   //                 UTILIDADES
   // =======================================================
 
-  /**
-   * Formatea un número con puntos como separador de miles.
-   * @param {number} value - El número a formatear.
-   * @returns {string} El número formateado como cadena.
-   */
   function formatNumberWithPoints(value) {
     if (value === null || value === undefined || isNaN(value)) {
         return "0";
@@ -1256,21 +1220,12 @@
     return num.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
 
-  /**
-   * Formatea una cadena de fecha de 'YYYY-MM-DD' a 'DD/MM/YYYY'.
-   * @param {string} dateString - La fecha en formato 'YYYY-MM-DD'.
-   * @returns {string} La fecha en formato 'DD/MM/YYYY'.
-   */
   function formatDate(dateString) {
     if (!dateString) return '';
     const [year, month, day] = dateString.split('-');
     return `${day}/${month}/${year}`;
   }
 
-  /**
-   * Obtiene la fecha actual en formato 'YYYY-MM-DD'.
-   * @returns {string} La fecha actual.
-   */
   function getTodayDateString() {
     const today = new Date();
     const year = today.getFullYear();
@@ -1279,10 +1234,6 @@
     return `${year}-${month}-${day}`;
   }
 
-  /**
-   * Obtiene la hora actual en formato 'HH:mm'.
-   * @returns {string} La hora actual.
-   */
   function getCurrentTimeString() {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
@@ -1290,22 +1241,17 @@
     return `${hours}:${minutes}`;
   }
 
-  // Función para verificar si un usuario existe
   function usuarioExiste(nombre, apellido) {
     const usuarios = JSON.parse(localStorage.getItem('usuarios')) || {};
     return usuarios.hasOwnProperty(`${nombre}-${apellido}`);
   }
 
-  // Función para guardar la información del usuario (incluyendo la contraseña)
   function guardarUsuario(nombre, apellido, password) {
     const usuarios = JSON.parse(localStorage.getItem('usuarios')) || {};
     usuarios[`${nombre}-${apellido}`] = { password };
     localStorage.setItem('usuarios', JSON.stringify(usuarios));
   }
 
-  /**
-   * Valida si el usuario ha iniciado sesión y muestra el contenido principal.
-   */
   function checkLogin() {
     const user = JSON.parse(localStorage.getItem('loggedInUser'));
     if (user && user.nombre && user.apellido) {
@@ -1332,13 +1278,11 @@
     const password = document.getElementById('loginPassword').value;
 
     if (!usuarioExiste(nombre, apellido)) {
-      // Si el usuario no existe, lo guardamos (esto sería como un "registro" implícito)
       guardarUsuario(nombre, apellido, password);
       localStorage.setItem('loggedInUser', JSON.stringify({ nombre, apellido }));
       checkLogin();
       location.reload();
     } else {
-      // Si el usuario existe, verificamos la contraseña
       const usuarios = JSON.parse(localStorage.getItem('usuarios'));
       if (usuarios[`${nombre}-${apellido}`].password === password) {
         localStorage.setItem('loggedInUser', JSON.stringify({ nombre, apellido }));
@@ -1360,7 +1304,7 @@
   //                 GESTIÓN DE PERSONAL (PLANTILLA/PART-TIME)
   // =======================================================
 
-  document.querySelectorAll('select').forEach(select => {
+  document.querySelectorAll('select[id^="area"]').forEach(select => {
     select.addEventListener('change', (e) => {
       const subAreaSelect = e.target.closest('form')?.querySelector('select[id^="subArea"]');
       if (subAreaSelect) {
@@ -1385,9 +1329,6 @@
   document.getElementById('plantaForm').addEventListener('submit', (e) => handlePersonFormSubmit(e, 'Planta'));
   document.getElementById('partTimeForm').addEventListener('submit', (e) => handlePersonFormSubmit(e, 'Part Time'));
 
-  /**
-   * Maneja el envío de formularios de agregar o editar personas.
-   */
   function handlePersonFormSubmit(e, tipo) {
     e.preventDefault();
     const form = e.target;
@@ -1413,7 +1354,7 @@
     } else {
         if (tipo === 'Part Time') {
             nuevaPersona.diasTrabajados = [];
-            nuevaPersona.divisorRetiro = 1; // Default divisor for Part Time
+            nuevaPersona.divisorRetiro = 1;
         }
         historial.push(nuevaPersona);
         alert('Persona agregada con éxito.');
@@ -1426,11 +1367,6 @@
     renderRetirosList();
   }
 
-  /**
-   * Calcula el total de propinas de un pozo individual para personal Part Time.
-   * @param {object} persona - El objeto persona con sus días trabajados.
-   * @returns {number} El total de propinas.
-   */
   function calcularPozoIndividual(persona) {
     const montosPorFecha = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
     let totalPozoIndividual = 0;
@@ -1446,12 +1382,6 @@
     return totalPozoIndividual;
   }
 
-  /**
-   * Dibuja el calendario para seleccionar los días trabajados.
-   * @param {HTMLElement} container - El contenedor para el calendario.
-   * @param {object} persona - El objeto persona.
-   * @param {number} index - El índice de la persona en el historial.
-   */
   function renderCalendar(container, persona, index) {
     const today = new Date();
     let currentMonth = today.getMonth();
@@ -1519,20 +1449,16 @@
           }
           localStorage.setItem('historial', JSON.stringify(historial));
 
-          // Primero, se redibuja el calendario para reflejar el cambio.
           updateCalendar();
 
-          // Luego, se actualiza el contenedor del "pozo" sin destruir el calendario.
           const ficha = document.querySelector(`.ficha[data-index="${index}"]`);
           if (ficha) {
             const pozoContainer = ficha.querySelector('.pozo-individual-container');
             if (pozoContainer) {
-              // 'currentPersona' en este ámbito ya tiene la lista de días actualizada.
               calcularYMostrarPozoIndividualEnFicha(currentPersona, pozoContainer);
             }
           }
 
-          // Finalmente, se actualiza la lista principal de retiros.
           const personaInRetirosList = retirosList.find(p => p.nombre === currentPersona.nombre && p.apellido === currentPersona.apellido);
           if (personaInRetirosList) {
               personaInRetirosList.diasTrabajados = currentPersona.diasTrabajados;
@@ -1572,24 +1498,16 @@
     updateCalendar();
   }
 
-  /**
-   * Maneja el modo de edición de una persona.
-   * @param {object} persona - El objeto persona a editar.
-   * @param {number} index - El índice de la persona en el historial.
-   */
   function handleEditPerson(persona, index) {
       currentEditIndex = index;
       const tipoSinEspacio = persona.tipo.replace(/\s/g, '');
       
-      // CORRECCIÓN: Se crean los IDs correctamente para ambos casos
       let formId;
       let cardId;
       if (persona.tipo === 'Part Time') {
-        // Para Part Time, el ID usa mayúsculas: "partTimeForm"
         formId = 'partTimeForm';
         cardId = 'partTimeCard';
       } else {
-        // Para Planta, el ID usa minúsculas: "plantaForm"
         formId = 'plantaForm';
         cardId = 'plantaCard';
       }
@@ -1631,9 +1549,6 @@
       }
   }
 
-  /**
-   * Carga los datos del historial y renderiza las fichas de personas.
-   */
   function cargarYMostrarFichas() {
     const historial = JSON.parse(localStorage.getItem('historial')) || [];
     const plantaContainer = document.querySelector('#plantaContainer .fichas-grid-container');
@@ -1702,9 +1617,6 @@
     filterFichas();
   }
 
-  /**
-   * Filtra las fichas de personas según un criterio de búsqueda.
-   */
   const searchFichasInput = document.getElementById('searchFichas');
   if (searchFichasInput) {
     searchFichasInput.addEventListener('input', filterFichas);
@@ -1744,7 +1656,6 @@
   const resultadoPlantaDisplay = document.getElementById('resultadoPlanta');
   const registrarValorPorPuntoBtn = document.getElementById('registrarValorPorPuntoBtn');
   const retirosGuardadosContainer = document.getElementById('retirosGuardadosContainer');
-
 
   registrarValorPorPuntoBtn.addEventListener('click', openValorPorPuntoModal);
 
@@ -2121,17 +2032,32 @@
   });
 
   document.getElementById('guardarRetirosBtn').addEventListener('click', guardarRetiros);
-
+  
+  // =======================================================
+  //      >>> CORRECCIÓN DEL BOTÓN REINICIAR <<<
+  // =======================================================
   document.getElementById('resetRetirosBtn').addEventListener('click', () => {
-    if (confirm('¿Estás seguro de que deseas borrar la lista de retiros actual? Esta acción no se puede deshacer.')) {
+    if (confirm('¿Estás SEGURO de reiniciar el mes? Esto borrará TODOS los montos registrados, la lista de retiros actual y los historiales de anticipos y montos pedidos. Esta acción no se puede deshacer.')) {
+      // Borrar lista de retiros actual
       localStorage.removeItem('retirosList');
       retirosList = [];
-      renderRetirosList();
+      
+      // Borrar todos los montos registrados
+      localStorage.removeItem('montosPorFecha');
+      
+      // Borrar historiales de deudas
+      localStorage.removeItem('anticiposHistorial');
+      localStorage.removeItem('montosPedidosHistorial');
+      localStorage.removeItem('valorPorPuntoHistorial');
+      
+      // Actualizar la interfaz gráfica
+      alert('Se han reiniciado todos los datos del período.');
+      location.reload(); // Recargar la página para que todos los cambios se hagan efectivos
     }
   });
 
   document.getElementById('resetRetirosGuardadosBtn').addEventListener('click', () => {
-      if (confirm('¿Estás seguro de que quieres borrar todo el historial de retiros guardados?')) {
+      if (confirm('¿Estás seguro de que quieres borrar TODO el historial de retiros GUARDADOS? Esta acción es independiente del reinicio de mes.')) {
           localStorage.removeItem('retirosGuardados');
           retirosGuardados = [];
           renderRetirosGuardados();
@@ -2252,13 +2178,6 @@
               mostrarMontosAgrupados();
           }
       }
-  });
-
-  document.getElementById('resetMontosBtn').addEventListener('click', () => {
-    if (confirm('¿Estás seguro de que deseas borrar todos los registros de montos? Esta acción no se puede deshacer.')) {
-      localStorage.removeItem('montosPorFecha');
-      cargarYMostrarMontos();
-    }
   });
 
   // =======================================================
@@ -2422,7 +2341,6 @@
   });
 
   cancelValorPorPuntoBtn.addEventListener('click', closeValorPorPuntoModal);
-
 
   function openEditPartTimeModal(personaRetiro) {
       currentPartTimePersonInRetirosList = personaRetiro;
@@ -2709,31 +2627,6 @@
       }
   }
 
-  document.getElementById('resetAnticiposBtn').addEventListener('click', () => {
-    if (confirm('¿Estás seguro de que deseas borrar todo el historial de anticipos? Esto también reiniciará el cálculo de los anticipos actuales.')) {
-      localStorage.removeItem('anticiposHistorial');
-      renderAnticiposHistorial();
-      renderRetirosList();
-    }
-  });
-
-  document.getElementById('resetMontosPedidosBtn').addEventListener('click', () => {
-      if (confirm('¿Estás seguro de que deseas borrar todo el historial de montos pedidos? Esto también reiniciará el cálculo de los montos pedidos.')) {
-          localStorage.removeItem('montosPedidosHistorial');
-          renderMontosPedidosHistorial();
-          renderRetirosList();
-      }
-  });
-
-  document.getElementById('resetValorPorPuntoBtn').addEventListener('click', () => {
-    if (confirm('¿Estás seguro de que deseas borrar todo el historial de divisores?')) {
-      localStorage.removeItem('valorPorPuntoHistorial');
-      latestDivisor = 0;
-      renderValorPorPuntoHistorial();
-      updatePlantaRetiros();
-    }
-  });
-
   const informeModal = document.getElementById('informeModal');
   const informeModalTitle = document.getElementById('informeModalTitle');
   const informeModalBody = document.getElementById('informeModalBody');
@@ -2792,7 +2685,6 @@
             <p><strong>Restante-Alcance:</strong> <span class="informe-total">$${formatNumberWithPoints(restanteAlcance)}</span></p>
         `;
       }
-
 
       if (anticiposPersona.length > 0) {
           htmlContent += `
@@ -2913,7 +2805,6 @@
           y += 20;
       }
 
-
       if (anticiposPersona.length > 0) {
         doc.setFontSize(12);
         doc.text("Historial de Anticipos:", 20, y);
@@ -3013,7 +2904,8 @@
       });
   }
 
-  window.onload = () => {
+  // === INICIALIZACIÓN DE LA APLICACIÓN ===
+  function initApp() {
     checkLogin();
     if (loggedInUser) {
         const historial = JSON.parse(localStorage.getItem('historial')) || [];
@@ -3071,64 +2963,69 @@
             localStorage.setItem('usuarios', JSON.stringify({}));
         }
     }
-  };
+  }
 
-// === EXPORTAR/IMPORTAR DATOS ===
-document.getElementById('exportBtn').addEventListener('click', () => {
-  const keysToExport = [
-    'usuarios',
-    'loggedInUser',
-    'historial',
-    'retirosList',
-    'retirosGuardados',
-    'montosPorFecha',
-    'anticiposHistorial',
-    'montosPedidosHistorial',
-    'valorPorPuntoHistorial'
-  ];
-  const exportData = {};
-  keysToExport.forEach(key => {
-    exportData[key] = localStorage.getItem(key);
+  // === EXPORTAR/IMPORTAR DATOS ===
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const keysToExport = [
+      'usuarios',
+      'loggedInUser',
+      'historial',
+      'retirosList',
+      'retirosGuardados',
+      'montosPorFecha',
+      'anticiposHistorial',
+      'montosPedidosHistorial',
+      'valorPorPuntoHistorial'
+    ];
+    const exportData = {};
+    keysToExport.forEach(key => {
+      exportData[key] = localStorage.getItem(key);
+    });
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup_propinas_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   });
-  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `backup_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-});
 
-document.getElementById('importBtn').addEventListener('click', () => {
-  document.getElementById('importFile').click();
-});
+  document.getElementById('importBtn').addEventListener('click', () => {
+    document.getElementById('importFile').click();
+  });
 
-document.getElementById('importFile').addEventListener('change', function(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const importedData = JSON.parse(e.target.result);
-      if (typeof importedData !== 'object' || !importedData) {
-        alert("El archivo no tiene el formato esperado.");
-        return;
-      }
-      if (!confirm('¿Estás seguro de que deseas importar estos datos? Esto sobrescribirá los datos actuales.')) return;
-      Object.keys(importedData).forEach(key => {
-        if (importedData[key] !== undefined && importedData[key] !== null) {
-          localStorage.setItem(key, importedData[key]);
+  document.getElementById('importFile').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const importedData = JSON.parse(e.target.result);
+        if (typeof importedData !== 'object' || !importedData) {
+          alert("El archivo no tiene el formato esperado.");
+          return;
         }
-      });
-      alert("Datos importados con éxito. Recarga la página para ver los cambios.");
-      location.reload();
-    } catch (err) {
-      alert("Error al importar los datos: " + err.message);
-    }
-  };
-  reader.readAsText(file);
+        if (!confirm('¿Estás seguro de que deseas importar estos datos? Esto sobrescribirá los datos actuales.')) return;
+        Object.keys(importedData).forEach(key => {
+          if (importedData[key] !== undefined && importedData[key] !== null) {
+            localStorage.setItem(key, importedData[key]);
+          }
+        });
+        alert("Datos importados con éxito. La página se recargará para ver los cambios.");
+        location.reload();
+      } catch (err) {
+        alert("Error al importar los datos: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  // Arrancar la aplicación
+  initApp();
+
 });
 </script>
 
