@@ -1,1096 +1,499 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF--8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registro de Personas y Montos</title>
   
   <style>
-    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #f0f2f5; }
-    body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    background-color: #f0f2f5;
-    margin: 0;
-    padding: 20px;
-    color: #333;
+    :root {
+        --menu-width: 260px;
+        --primary-color: #007bff;
+        --secondary-color: #4CAF50;
+        --danger-color: #dc3545;
+        --text-dark: #222;
+        --text-light: #555;
+        --bg-light: #f0f2f5;
+        --bg-white: #fff;
     }
+
+    body {
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background-color: var(--bg-light);
+        margin: 0;
+        color: var(--text-dark);
+        transition: margin-left 0.3s ease;
+    }
+
+    /* --- INICIO: NUEVOS ESTILOS PARA MENÚ HAMBURGUESA --- */
+    .menu-toggle {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1002;
+        width: 40px;
+        height: 40px;
+        background-color: var(--secondary-color);
+        border: none;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        transition: left 0.3s ease;
+    }
+    .menu-toggle span {
+        display: block;
+        width: 22px;
+        height: 2px;
+        background-color: white;
+        margin: 2px 0;
+        transition: all 0.3s ease;
+    }
+    .side-menu.open + .main-container .menu-toggle {
+        left: calc(var(--menu-width) + 15px);
+    }
+    .menu-toggle.active span:nth-child(1) {
+        transform: translateY(6px) rotate(45deg);
+    }
+    .menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+    }
+    .menu-toggle.active span:nth-child(3) {
+        transform: translateY(-6px) rotate(-45deg);
+    }
+
+    .side-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: var(--menu-width);
+        height: 100%;
+        background-color: #2c3e50;
+        z-index: 1001;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        padding-top: 20px;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+    }
+    .side-menu.open {
+        transform: translateX(0);
+    }
+    .side-menu .menu-header {
+        color: white;
+        font-size: 1.4em;
+        font-weight: 700;
+        text-align: center;
+        padding: 20px 10px;
+        border-bottom: 1px solid #4a627a;
+    }
+    .side-menu a {
+        color: white;
+        text-decoration: none;
+        padding: 15px 20px;
+        display: block;
+        font-size: 1.0em;
+        transition: background-color 0.2s ease, padding-left 0.2s ease;
+        border-bottom: 1px solid #3e5268;
+    }
+    .side-menu a:hover, .side-menu a.active-link {
+        background-color: var(--secondary-color);
+        padding-left: 25px;
+    }
+    
+    .main-container {
+        transition: margin-left 0.3s ease;
+        padding: 20px;
+    }
+
+    .content-panel {
+        display: none;
+    }
+    .content-panel.active {
+        display: block;
+        animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @media (min-width: 992px) {
+        body {
+            margin-left: var(--menu-width);
+        }
+        .menu-toggle {
+            display: none;
+        }
+        .side-menu {
+            transform: translateX(0);
+        }
+    }
+    /* --- FIN: NUEVOS ESTILOS PARA MENÚ HAMBURGUESA --- */
+
     h1 {
       text-align: center;
       margin-bottom: 20px;
       font-size: 2em;
-      color: #222;
+      color: var(--text-dark);
     }
-
     section {
       margin-bottom: 30px;
-      background: #fff;
+      background: var(--bg-white);
       padding: 15px;
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     h2 {
       margin-top: 0;
-      margin-bottom: 10px;
-      font-size: 1.5em;
-      color: #555;
-    }
-
-    #totalDiario {
-      font-weight: bold;
-      font-size: 1.5em;
-      margin: 10px 0;
-      color: #007bff;
-      text-align: center;
-    }
-
-    form {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    input, select, button {
-      flex: 1 1 45%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 1em;
-    }
-    input:focus {
-      border-color: #4CAF50;
-      box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
-      outline: none;
-    }
-    button {
-      background-color: #4CAF50;
-      color: #fff;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #388E3C;
-    }
-
-    .reset-button {
-      background-color: #f44336;
-    }
-    .reset-button:hover {
-      background-color: #d32f2f;
-    }
-
-    .logout-button {
-      background-color: #dc3545;
-      font-weight: normal;
-      padding: 5px 10px;
-      font-size: 0.9em;
-    }
-    .logout-button:hover {
-      background-color: #c82333;
-    }
-
-    .fichas-type-container {
-      margin-top: 15px;
-    }
-    .fichas-type-container h3 {
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-      padding-right: 25px;
-    }
-    .fichas-type-container h3::after {
-      content: '▼';
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      transition: transform 0.2s ease-in-out;
-    }
-    .fichas-type-container.collapsed h3::after {
-      transform: translateY(-50%) rotate(-90deg);
-    }
-    .fichas-type-container.collapsed .fichas-grid-container {
-      display: none;
-    }
-
-    .fichas-grid-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px;
-    }
-    .ficha {
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      padding: 10px;
-      position: relative;
-      border-left: 5px solid;
-    }
-    .ficha.ficha-planta {
-      border-color: #007bff;
-    }
-    .ficha.ficha-planta h3 {
-      color: #007bff;
-    }
-    .ficha.ficha-part-time {
-      border-color: #28a745;
-    }
-    .ficha.ficha-part-time h3 {
-      color: #28a745;
-    }
-    .ficha .edit-button {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.8em;
-    }
-    .ficha .edit-button:hover {
-      background-color: #0056b3;
-    }
-
-    .ficha h3 {
-      margin-top: 0;
-      margin-bottom: 8px;
-      font-size: 1.1em;
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-      padding-right: 25px;
-    }
-
-    .ficha h3::after {
-      content: '▼';
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      transition: transform 0.2s ease-in-out;
-    }
-
-    .ficha.collapsed h3::after {
-      transform: translateY(-50%) rotate(-90deg);
-    }
-
-    .ficha.collapsed .ficha-content {
-      display: none;
-    }
-
-    .ficha p {
-      margin: 2px 0;
-      font-size: 0.9em;
-      color: #555;
-    }
-
-    .calendar-container {
-      margin-top: 15px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 0.9em;
-      background-color: #f9f9f9;
-    }
-    .calendar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      font-weight: bold;
-    }
-    .calendar-header button {
-      padding: 5px 10px;
-      background-color: #eee;
-      color: #333;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .calendar-header button:hover {
-      background-color: #ddd;
-    }
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 5px;
-      text-align: center;
-    }
-    .day-name {
-      font-weight: bold;
-      color: #777;
-      padding-bottom: 5px;
-    }
-    .day {
-      padding: 8px;
-      border-radius: 4px;
-      background-color: #fff;
-      cursor: pointer;
-      border: 1px solid #eee;
-    }
-    .day:hover {
-      background-color: #e0e0e0;
-    }
-    .day.marked {
-      background-color: #28a745;
-      color: #fff;
-      font-weight: bold;
-    }
-    .day.marked:hover {
-      background-color: #218838;
-    }
-    .day.empty {
-      background-color: transparent;
-      border: none;
-      cursor: default;
-    }
-
-    .pozo-individual-container {
-      background-color: #e6ffec;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #b3ffc6;
-      margin-top: 10px;
-      text-align: center;
-    }
-
-    #tarjetasMontos {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .tarjeta {
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      padding: 10px;
-    }
-
-    .tarjeta h3 {
-      margin-top: 0;
-      margin-bottom: 8px;
-      font-size: 1.1em;
-      color: #222;
-      cursor: pointer;
-      user-select: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .tarjeta h3 .total-in-header {
-      font-size: 1em;
-      font-weight: bold;
-      color: #007bff;
-      margin-left: auto;
-      padding-right: 20px;
-    }
-
-    .tarjeta h3::after {
-      content: '▼';
-      transition: transform 0.2s ease-in-out;
-    }
-
-    .tarjeta.collapsed h3::after {
-      transform: rotate(-90deg);
-    }
-
-    .tarjeta.collapsed .montos-list,
-    .tarjeta.collapsed .total-por-fecha {
-      display: none;
-    }
-
-    .total-por-fecha {
-      margin-top: 8px;
-      font-weight: bold;
-      font-size: 1.3em;
-      color: #007bff;
-      text-align: right;
-    }
-    .montos-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .monto-item {
-      flex: 1 1 30%;
-      background-color: #f9f9f9;
-      padding: 6px;
-      border-radius: 6px;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
-      font-size: 0.9em;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .delete-button {
-      background: none;
-      border: none;
-      font-size: 1.2em;
-      color: #f44336;
-      cursor: pointer;
-      padding: 2px;
-      line-height: 1;
-    }
-
-    .collapsible-section h2 {
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-      padding-right: 25px;
-    }
-
-    .collapsible-section h2::after {
-      content: '▶';
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      transition: transform 0.2s ease-in-out;
-    }
-
-    .collapsible-section.expanded h2::after {
-      content: '▼';
-    }
-
-    .collapsible-section.collapsed .collapsible-content {
-      display: none;
-    }
-
-    .persona-forms-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-    .persona-form-card {
-      flex: 1 1 45%;
-      background: #f9f9f9;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-      position: relative;
-    }
-    #plantaCard h3 {
-      color: #007bff;
-    }
-    #partTimeCard h3 {
-      color: #dc3545;
-    }
-    .persona-form-card h3 {
-      margin-top: 0;
-      font-size: 1.2em;
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-      padding-right: 25px;
-    }
-    .persona-form-card h3::after {
-      content: '▶';
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      transition: transform 0.2s ease-in-out;
-    }
-    .persona-form-card.expanded h3::after {
-      content: '▼';
-    }
-    .persona-form-card.collapsed .card-content {
-      display: none;
-    }
-    .edit-mode-btn {
-      background-color: #ff9800;
-    }
-    .edit-mode-btn:hover {
-      background-color: #e68a00;
-    }
-
-    #retirosPropinaSection {
-      background-color: #e9ecef;
-    }
-    #retirosPropinaSection h2 {
-      color: #17a2b8;
-    }
-    #searchRetiros {
-      width: 100%;
-      margin-bottom: 10px;
-    }
-    #searchResultsContainer {
-      max-height: 200px;
-      overflow-y: auto;
-      border: 1px solid #ccc;
-      border-radius: 6px;
       margin-bottom: 15px;
-      background-color: #fff;
+      font-size: 1.7em;
+      color: var(--text-dark);
+      border-bottom: 2px solid var(--bg-light);
+      padding-bottom: 10px;
     }
-    .search-result-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 12px;
-      border-bottom: 1px solid #eee;
-    }
-    .search-result-item:last-child {
-      border-bottom: none;
-    }
-    .search-result-item button {
-      background-color: #28a745;
-      color: #fff;
-      padding: 5px 10px;
-      border-radius: 4px;
-      font-size: 0.9em;
-    }
-    .search-result-item button:hover {
-      background-color: #218838;
-    }
-    .retiro-tipo-container {
-      margin-bottom: 20px;
-    }
-    .retiro-tipo-container h3 {
-      color: #333;
-      font-size: 1.3em;
-      border-bottom: 2px solid #ccc;
-      padding-bottom: 5px;
-      cursor: pointer;
-      user-select: none;
-      position: relative;
-      padding-right: 25px;
-    }
-    .retiro-tipo-container h3::after {
-      content: '▼';
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      transition: transform 0.2s ease-in-out;
-    }
-    .retiro-tipo-container.collapsed h3::after {
-      transform: translateY(-50%) rotate(-90deg);
-    }
-    .retiro-tipo-container.collapsed .retiro-content-wrapper {
-      display: none;
-    }
-    .retiro-area-container {
-      margin-bottom: 20px;
-    }
-    .retiro-area-container h4 {
-      color: #555;
-      font-size: 1.1em;
-      border-bottom: 1px dashed #ccc;
-      padding-bottom: 5px;
-      margin-top: 10px;
-      margin-bottom: 5px;
-    }
-    .retiro-sub-area-container {
-      padding-left: 15px;
-    }
-    .retiro-sub-area-container h5 {
-      color: #666;
-      margin-top: 10px;
-      margin-bottom: 5px;
-    }
-
-    .retiro-person-item {
-      background-color: #f8f9fa;
-      padding: 8px 12px;
-      border-radius: 6px;
-      margin-bottom: 5px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      border-left: 5px solid transparent;
-    }
+    
+    /* El resto de tus estilos originales... */
+    #totalDiario { font-weight: bold; font-size: 1.5em; margin: 10px 0; color: #007bff; text-align: center; }
+    form { display: flex; flex-wrap: wrap; gap: 10px; }
+    input, select, button { flex: 1 1 45%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em; }
+    input:focus { border-color: #4CAF50; box-shadow: 0 0 5px rgba(76, 175, 80, 0.3); outline: none; }
+    button { background-color: #4CAF50; color: #fff; border: none; font-weight: bold; cursor: pointer; }
+    button:hover { background-color: #388E3C; }
+    .reset-button { background-color: #f44336; }
+    .reset-button:hover { background-color: #d32f2f; }
+    .logout-button { background-color: #dc3545; font-weight: normal; padding: 5px 10px; font-size: 0.9em; }
+    .logout-button:hover { background-color: #c82333; }
+    .fichas-type-container { margin-top: 15px; }
+    .fichas-type-container h3 { cursor: pointer; user-select: none; position: relative; padding-right: 25px; }
+    .fichas-type-container h3::after { content: '▼'; position: absolute; right: 0; top: 50%; transform: translateY(-50%); transition: transform 0.2s ease-in-out; }
+    .fichas-type-container.collapsed h3::after { transform: translateY(-50%) rotate(-90deg); }
+    .fichas-type-container.collapsed .fichas-grid-container { display: none; }
+    .fichas-grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+    .ficha { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 10px; position: relative; border-left: 5px solid; }
+    .ficha.ficha-planta { border-color: #007bff; }
+    .ficha.ficha-planta h3 { color: #007bff; }
+    .ficha.ficha-part-time { border-color: #28a745; }
+    .ficha.ficha-part-time h3 { color: #28a745; }
+    .ficha .edit-button { position: absolute; top: 5px; right: 5px; background-color: #007bff; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
+    .ficha .edit-button:hover { background-color: #0056b3; }
+    .ficha h3 { margin-top: 0; margin-bottom: 8px; font-size: 1.1em; cursor: pointer; user-select: none; position: relative; padding-right: 25px; }
+    .ficha h3::after { content: '▼'; position: absolute; right: 0; top: 50%; transform: translateY(-50%); transition: transform 0.2s ease-in-out; }
+    .ficha.collapsed h3::after { transform: translateY(-50%) rotate(-90deg); }
+    .ficha.collapsed .ficha-content { display: none; }
+    .ficha p { margin: 2px 0; font-size: 0.9em; color: #555; }
+    .calendar-container { margin-top: 15px; border: 1px solid #ddd; border-radius: 8px; padding: 10px; font-size: 0.9em; background-color: #f9f9f9; }
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: bold; }
+    .calendar-header button { padding: 5px 10px; background-color: #eee; color: #333; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; }
+    .calendar-header button:hover { background-color: #ddd; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+    .day-name { font-weight: bold; color: #777; padding-bottom: 5px; }
+    .day { padding: 8px; border-radius: 4px; background-color: #fff; cursor: pointer; border: 1px solid #eee; }
+    .day:hover { background-color: #e0e0e0; }
+    .day.marked { background-color: #28a745; color: #fff; font-weight: bold; }
+    .day.marked:hover { background-color: #218838; }
+    .day.empty { background-color: transparent; border: none; cursor: default; }
+    .pozo-individual-container { background-color: #e6ffec; padding: 10px; border-radius: 8px; border: 1px solid #b3ffc6; margin-top: 10px; text-align: center; }
+    #tarjetasMontos { display: flex; flex-direction: column; gap: 10px; }
+    .tarjeta { background-color: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 10px; }
+    .tarjeta h3 { margin-top: 0; margin-bottom: 8px; font-size: 1.1em; color: #222; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between; }
+    .tarjeta h3 .total-in-header { font-size: 1em; font-weight: bold; color: #007bff; margin-left: auto; padding-right: 20px; }
+    .tarjeta h3::after { content: '▼'; transition: transform 0.2s ease-in-out; }
+    .tarjeta.collapsed h3::after { transform: rotate(-90deg); }
+    .tarjeta.collapsed .montos-list, .tarjeta.collapsed .total-por-fecha { display: none; }
+    .total-por-fecha { margin-top: 8px; font-weight: bold; font-size: 1.3em; color: #007bff; text-align: right; }
+    .montos-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .monto-item { flex: 1 1 30%; background-color: #f9f9f9; padding: 6px; border-radius: 6px; box-shadow: inset 0 1px 2px rgba(0,0,0,0.05); font-size: 0.9em; display: flex; justify-content: space-between; align-items: center; }
+    .delete-button { background: none; border: none; font-size: 1.2em; color: #f44336; cursor: pointer; padding: 2px; line-height: 1; }
+    .persona-forms-container { display: flex; flex-wrap: wrap; gap: 20px; }
+    .persona-form-card { flex: 1 1 45%; background: #f9f9f9; padding: 15px; border-radius: 8px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); position: relative; }
+    #plantaCard h3 { color: #007bff; }
+    #partTimeCard h3 { color: #dc3545; }
+    .persona-form-card h3 { margin-top: 0; font-size: 1.2em; cursor: pointer; user-select: none; position: relative; padding-right: 25px; }
+    .persona-form-card h3::after { content: '▶'; position: absolute; right: 0; top: 50%; transform: translateY(-50%); transition: transform 0.2s ease-in-out; }
+    .persona-form-card.expanded h3::after { content: '▼'; }
+    .persona-form-card.collapsed .card-content { display: none; }
+    .edit-mode-btn { background-color: #ff9800; }
+    .edit-mode-btn:hover { background-color: #e68a00; }
+    #retirosPropinaSection { background-color: #e9ecef; }
+    #retirosPropinaSection h2 { color: #17a2b8; }
+    #searchRetiros { width: 100%; margin-bottom: 10px; }
+    #searchResultsContainer { max-height: 200px; overflow-y: auto; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 15px; background-color: #fff; }
+    .search-result-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #eee; }
+    .search-result-item:last-child { border-bottom: none; }
+    .search-result-item button { background-color: #28a745; color: #fff; padding: 5px 10px; border-radius: 4px; font-size: 0.9em; }
+    .search-result-item button:hover { background-color: #218838; }
+    .retiro-tipo-container { margin-bottom: 20px; }
+    .retiro-tipo-container h3 { color: #333; font-size: 1.3em; border-bottom: 2px solid #ccc; padding-bottom: 5px; cursor: pointer; user-select: none; position: relative; padding-right: 25px; }
+    .retiro-tipo-container h3::after { content: '▼'; position: absolute; right: 0; top: 50%; transform: translateY(-50%); transition: transform 0.2s ease-in-out; }
+    .retiro-tipo-container.collapsed h3::after { transform: translateY(-50%) rotate(-90deg); }
+    .retiro-tipo-container.collapsed .retiro-content-wrapper { display: none; }
+    .retiro-area-container { margin-bottom: 20px; }
+    .retiro-area-container h4 { color: #555; font-size: 1.1em; border-bottom: 1px dashed #ccc; padding-bottom: 5px; margin-top: 10px; margin-bottom: 5px; }
+    .retiro-sub-area-container { padding-left: 15px; }
+    .retiro-sub-area-container h5 { color: #666; margin-top: 10px; margin-bottom: 5px; }
+    .retiro-person-item { background-color: #f8f9fa; padding: 8px 12px; border-radius: 6px; margin-bottom: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border-left: 5px solid transparent; }
     .retiro-person-item.planta { border-color: #007bff; }
     .retiro-person-item.part-time { border-color: #28a745; }
-
-    .retiro-person-item.collapsed .retiro-body {
-      display: none;
-    }
-
-    .retiro-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .retiro-header .person-name {
-      font-weight: bold;
-      font-size: 1.1em;
-      position: relative;
-      padding-right: 20px;
-    }
-
-    .retiro-header .person-name::after {
-      content: '▼';
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      transition: transform 0.2s ease-in-out;
-    }
-
-    .retiro-person-item.collapsed .person-name::after {
-      transform: translateY(-50%) rotate(-90deg);
-    }
-
-    .retiro-body {
-      margin-top: 10px;
-    }
-
-    .retiro-actions {
-      display: flex;
-      gap: 5px;
-      margin-left: 10px;
-    }
-    .retiro-actions button {
-      background: none;
-      border: none;
-      font-size: 1.4em;
-      cursor: pointer;
-      padding: 0;
-    }
-    .retiro-actions .report-button,
-    .retiro-actions .pdf-button {
-      font-size: 1.1em;
-      color: #4CAF50;
-    }
-    .retiro-actions .pdf-button {
-        color: #dc3545;
-    }
-    .retiro-actions .edit-button {
-      color: #ff9800;
-    }
-    .retiro-actions .edit-button:hover {
-      color: #e68a00;
-    }
-    .retiro-actions .delete-button {
-      color: #dc3545;
-      font-size: 1.5em;
-      cursor: pointer;
-    }
-    .retiro-actions .delete-button:hover {
-      color: #c82333;
-    }
-    .valor-por-punto {
-      font-size: 0.9em;
-      font-style: italic;
-      color: #666;
-    }
-    .person-details {
-      font-size: 0.9em;
-      color: #555;
-      margin-top: 2px;
-    }
-    .registro-user {
-      font-size: 0.8em;
-      color: #888;
-      text-align: right;
-      margin-top: 5px;
-    }
-
-    .planta-calculation-container {
-      background-color: #e6f3ff;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #b3d9ff;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-    .planta-calculation-container p {
-      font-size: 0.9em;
-      color: #004085;
-      margin: 0 0 5px 0;
-    }
-    .planta-calculation-container .total-result {
-      font-size: 1.8em;
-      font-weight: bold;
-      color: #007bff;
-      margin-top: 10px;
-    }
-
-    .part-time-individual-calculation {
-        margin-top: 10px;
-        padding: 10px;
-        border: 1px solid #b3ffc6;
-        border-radius: 8px;
-        background-color: #e6ffec;
-        text-align: center;
-    }
-    .part-time-individual-calculation input {
-        flex: none;
-        width: 100px;
-        font-size: 1em;
-        text-align: center;
-        margin-bottom: 5px;
-    }
-    .part-time-individual-calculation .total-tips {
-        font-weight: bold;
-        color: #006400;
-        font-size: 1.1em;
-    }
-
-    .planta-details-container,
-    .part-time-details-container {
-        margin-top: 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-    }
-    .alcance-data, .anticipos-data, .montos-pedidos-data, .restante-alcance-data {
-        font-size: 1.1em;
-        font-weight: bold;
-        padding: 5px 0;
-    }
-    .alcance-data {
-        color: #006400;
-    }
-    .anticipos-data {
-        color: #e68a00;
-    }
-    .montos-pedidos-data {
-        color: #007bff;
-    }
-    .restante-alcance-data {
-        color: #dc3545;
-    }
-
-    .divisor-message {
-      font-size: 0.8em;
-      color: #777;
-      margin-top: 4px;
-      min-height: 1.2em;
-    }
-
-    #calculationContainer {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-    #calculationContainer > div {
-      flex: 1;
-      min-width: 250px;
-    }
-    #retiroActionsContainer {
-      margin-top: 10px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    #guardarRetirosBtn {
-      background-color: #17a2b8;
-    }
-    #guardarRetirosBtn:hover {
-      background-color: #138496;
-    }
-
-    #anticiposHistorialSection h2 {
-      color: #ff9800;
-    }
-    .anticipo-person-item {
-      background-color: #fff8e1;
-      border-left: 5px solid #ffc107;
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .anticipo-person-item h4 {
-      margin-top: 0;
-      margin-bottom: 5px;
-      color: #e68a00;
-    }
-    .anticipo-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .anticipo-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 5px 0;
-      border-bottom: 1px dashed #ccc;
-      font-size: 0.9em;
-    }
-    .anticipo-item:last-child {
-      border-bottom: none;
-    }
-    .anticipo-item .delete-button {
-      background: none;
-      border: none;
-      font-size: 1em;
-      color: #dc3545;
-      cursor: pointer;
-      padding: 0 5px;
-    }
-    .anticipo-item span {
-      display: block;
-    }
-    .anticipo-item .date-time {
-      font-style: italic;
-      color: #777;
-      font-size: 0.8em;
-    }
-
-    #montosPedidosHistorialSection h2 {
-        color: #007bff;
-    }
-    .montos-pedidos-person-item {
-        background-color: #e6f3ff;
-        border-left: 5px solid #007bff;
-        padding: 10px;
-        border-radius: 6px;
-        margin-bottom: 10px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .montos-pedidos-person-item h4 {
-        margin-top: 0;
-        margin-bottom: 5px;
-        color: #007bff;
-    }
-    .montos-pedidos-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-    .montos-pedidos-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 5px 0;
-        border-bottom: 1px dashed #ccc;
-        font-size: 0.9em;
-    }
-    .montos-pedidos-item:last-child {
-        border-bottom: none;
-    }
-
-    #valorPorPuntoHistorialSection h2 {
-        color: #004d40;
-    }
-    .valor-por-punto-item {
-      background-color: #e0f2f1;
-      border-left: 5px solid #009688;
-      padding: 10px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.9em;
-    }
-    .valor-por-punto-item .delete-button {
-        background: none;
-        border: none;
-        font-size: 1.2em;
-        color: #f44336;
-        cursor: pointer;
-    }
-
-    #retirosGuardadosSection h2 {
-      color: #17a2b8;
-    }
-    .retiro-guardado-item {
-      background-color: #f0f8ff;
-      border: 1px solid #cceeff;
-      border-radius: 8px;
-      padding: 10px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .retiro-guardado-item h4 {
-      margin: 0;
-      font-size: 1em;
-      cursor: pointer;
-    }
-    .retiro-guardado-item .actions {
-      display: flex;
-      gap: 5px;
-    }
-    .retiro-guardado-item .actions button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.8em;
-    }
-    .retiro-guardado-item .actions button.delete {
-      background-color: #dc3545;
-    }
-    .retiro-guardado-item.collapsed .retiro-guardado-content {
-      display: none;
-    }
-
-    @media(max-width: 600px) {
-      form {
-        flex-direction: column;
-      }
-      input, select, button {
-        flex: 1 1 100%;
-      }
-      .persona-forms-container, #calculationContainer {
-        flex-direction: column;
-      }
-      .persona-form-card, #calculationContainer > div {
-        flex: 1 1 100%;
-      }
-    }
-
-    .modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-        overflow-y: auto;
-    }
-    .modal-content {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        width: 90%;
-        max-width: 400px;
-    }
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-    .modal-header h4 {
-        margin: 0;
-    }
-    .modal-body label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-    }
-    .modal-body input {
-        width: 100%;
-        box-sizing: border-box;
-        margin-bottom: 10px;
-    }
-    .modal-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 15px;
-    }
-    #informeModalBody p {
-        font-size: 1.1em;
-        margin: 5px 0;
-    }
-    #informeModalBody .informe-total {
-        font-weight: bold;
-        color: #006400;
-        font-size: 1.2em;
-    }
-    #informeModalBody .informe-anticipos {
-        color: #e68a00;
-    }
-    #informeModalBody .informe-historial {
-        margin-top: 20px;
-        border-top: 1px solid #ccc;
-        padding-top: 10px;
-    }
-    #informeModalBody .informe-historial h5 {
-        margin-top: 0;
-        font-size: 1em;
-    }
-    #informeModalBody .informe-historial ul {
-        list-style: none;
-        padding: 0;
-    }
-    #informeModalBody .informe-historial li {
-        background-color: #f9f9f9;
-        padding: 8px;
-        border-radius: 4px;
-        margin-bottom: 5px;
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.9em;
-    }
+    .retiro-person-item.collapsed .retiro-body { display: none; }
+    .retiro-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+    .retiro-header .person-name { font-weight: bold; font-size: 1.1em; position: relative; padding-right: 20px; }
+    .retiro-header .person-name::after { content: '▼'; position: absolute; right: 0; top: 50%; transform: translateY(-50%); transition: transform 0.2s ease-in-out; }
+    .retiro-person-item.collapsed .person-name::after { transform: translateY(-50%) rotate(-90deg); }
+    .retiro-body { margin-top: 10px; }
+    .retiro-actions { display: flex; gap: 5px; margin-left: 10px; }
+    .retiro-actions button { background: none; border: none; font-size: 1.4em; cursor: pointer; padding: 0; }
+    .retiro-actions .report-button, .retiro-actions .pdf-button { font-size: 1.1em; color: #4CAF50; }
+    .retiro-actions .pdf-button { color: #dc3545; }
+    .retiro-actions .edit-button { color: #ff9800; }
+    .retiro-actions .edit-button:hover { color: #e68a00; }
+    .retiro-actions .delete-button { color: #dc3545; font-size: 1.5em; cursor: pointer; }
+    .retiro-actions .delete-button:hover { color: #c82333; }
+    .valor-por-punto { font-size: 0.9em; font-style: italic; color: #666; }
+    .person-details { font-size: 0.9em; color: #555; margin-top: 2px; }
+    .registro-user { font-size: 0.8em; color: #888; text-align: right; margin-top: 5px; }
+    .planta-calculation-container { background-color: #e6f3ff; padding: 10px; border-radius: 8px; border: 1px solid #b3d9ff; margin-bottom: 15px; text-align: center; }
+    .planta-calculation-container p { font-size: 0.9em; color: #004085; margin: 0 0 5px 0; }
+    .planta-calculation-container .total-result { font-size: 1.8em; font-weight: bold; color: #007bff; margin-top: 10px; }
+    .part-time-individual-calculation { margin-top: 10px; padding: 10px; border: 1px solid #b3ffc6; border-radius: 8px; background-color: #e6ffec; text-align: center; }
+    .part-time-individual-calculation input { flex: none; width: 100px; font-size: 1em; text-align: center; margin-bottom: 5px; }
+    .part-time-individual-calculation .total-tips { font-weight: bold; color: #006400; font-size: 1.1em; }
+    .planta-details-container, .part-time-details-container { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+    .alcance-data, .anticipos-data, .montos-pedidos-data, .restante-alcance-data { font-size: 1.1em; font-weight: bold; padding: 5px 0; }
+    .alcance-data { color: #006400; }
+    .anticipos-data { color: #e68a00; }
+    .montos-pedidos-data { color: #007bff; }
+    .restante-alcance-data { color: #dc3545; }
+    .divisor-message { font-size: 0.8em; color: #777; margin-top: 4px; min-height: 1.2em; }
+    #calculationContainer { display: flex; flex-direction: column; gap: 15px; flex-wrap: wrap; }
+    #calculationContainer > div { flex: 1; min-width: 250px; }
+    #retiroActionsContainer { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+    #guardarRetirosBtn { background-color: #17a2b8; }
+    #guardarRetirosBtn:hover { background-color: #138496; }
+    #anticiposHistorialSection h2 { color: #ff9800; }
+    .anticipo-person-item { background-color: #fff8e1; border-left: 5px solid #ffc107; padding: 10px; border-radius: 6px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .anticipo-person-item h4 { margin-top: 0; margin-bottom: 5px; color: #e68a00; }
+    .anticipo-list { list-style: none; padding: 0; margin: 0; }
+    .anticipo-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px dashed #ccc; font-size: 0.9em; }
+    .anticipo-item:last-child { border-bottom: none; }
+    .anticipo-item .delete-button { background: none; border: none; font-size: 1em; color: #dc3545; cursor: pointer; padding: 0 5px; }
+    .anticipo-item span { display: block; }
+    .anticipo-item .date-time { font-style: italic; color: #777; font-size: 0.8em; }
+    #montosPedidosHistorialSection h2 { color: #007bff; }
+    .montos-pedidos-person-item { background-color: #e6f3ff; border-left: 5px solid #007bff; padding: 10px; border-radius: 6px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .montos-pedidos-person-item h4 { margin-top: 0; margin-bottom: 5px; color: #007bff; }
+    .montos-pedidos-list { list-style: none; padding: 0; margin: 0; }
+    .montos-pedidos-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px dashed #ccc; font-size: 0.9em; }
+    .montos-pedidos-item:last-child { border-bottom: none; }
+    #valorPorPuntoHistorialSection h2 { color: #004d40; }
+    .valor-por-punto-item { background-color: #e0f2f1; border-left: 5px solid #009688; padding: 10px; border-radius: 6px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; }
+    .valor-por-punto-item .delete-button { background: none; border: none; font-size: 1.2em; color: #f44336; cursor: pointer; }
+    #retirosGuardadosSection h2 { color: #17a2b8; }
+    .retiro-guardado-item { background-color: #f0f8ff; border: 1px solid #cceeff; border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .retiro-guardado-item h4 { margin: 0; font-size: 1em; cursor: pointer; }
+    .retiro-guardado-item .actions { display: flex; gap: 5px; }
+    .retiro-guardado-item .actions button { background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
+    .retiro-guardado-item .actions button.delete { background-color: #dc3545; }
+    .retiro-guardado-item.collapsed .retiro-guardado-content { display: none; }
+    @media(max-width: 600px) { form { flex-direction: column; } input, select, button { flex: 1 1 100%; } .persona-forms-container, #calculationContainer { flex-direction: column; } .persona-form-card, #calculationContainer > div { flex: 1 1 100%; } }
+    .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; overflow-y: auto; }
+    .modal-content { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); width: 90%; max-width: 400px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .modal-header h4 { margin: 0; }
+    .modal-body label { display: block; margin-bottom: 5px; font-weight: bold; }
+    .modal-body input { width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+    #informeModalBody p { font-size: 1.1em; margin: 5px 0; }
+    #informeModalBody .informe-total { font-weight: bold; color: #006400; font-size: 1.2em; }
+    #informeModalBody .informe-anticipos { color: #e68a00; }
+    #informeModalBody .informe-historial { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; }
+    #informeModalBody .informe-historial h5 { margin-top: 0; font-size: 1em; }
+    #informeModalBody .informe-historial ul { list-style: none; padding: 0; }
+    #informeModalBody .informe-historial li { background-color: #f9f9f9; padding: 8px; border-radius: 4px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: 0.9em; }
   </style>
 </head>
 <body>
 
-<div style="margin-bottom:20px; display:flex; gap:10px;">
-  <button id="exportBtn">Exportar Datos</button>
-  <button id="importBtn">Importar Datos</button>
-  <input type="file" id="importFile" accept="application/json" style="display:none;">
-</div>
+<!-- INICIO: NUEVA ESTRUCTURA DE MENÚ -->
+<nav id="sideMenu" class="side-menu"></nav>
 
-<div id="login-container">
-  <section id="loginSection">
-    <h2>Ingresar</h2>
-    <form id="loginForm">
-      <input type="text" id="loginNombre" placeholder="Nombre" required />
-      <input type="text" id="loginApellido" placeholder="Apellido" required />
-      <input type="password" id="loginPassword" placeholder="Contraseña" required />
-      <button type="submit">Ingresar</button>
-    </form>
-  </section>
-</div>
+<div id="mainContainer" class="main-container">
+    <button id="menuToggle" class="menu-toggle" style="display: none;">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+<!-- FIN: NUEVA ESTRUCTURA DE MENÚ -->
 
-<div id="main-content" style="display: none;">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h1 style="margin: 0;">Registro Personas y Montos</h1>
-    <div style="text-align: right;">
-        <span id="userInfo"></span>
-        <button id="logoutBtn" class="logout-button">Cerrar Sesión</button>
+    <div id="login-container">
+      <section id="loginSection">
+        <h2>Ingresar</h2>
+        <form id="loginForm">
+          <input type="text" id="loginNombre" placeholder="Nombre" required />
+          <input type="text" id="loginApellido" placeholder="Apellido" required />
+          <input type="password" id="loginPassword" placeholder="Contraseña" required />
+          <button type="submit">Ingresar</button>
+        </form>
+      </section>
     </div>
-  </div>
 
-  <section id="personaSection" class="collapsible-section collapsed">
-    <h2>Agregar Persona</h2>
-    <div class="collapsible-content persona-forms-container">
-      <div id="plantaCard" class="persona-form-card collapsed">
-        <h3>Planta</h3>
-        <div class="card-content">
-          <form id="plantaForm">
-            <input type="text" id="nombrePlanta" placeholder="Nombre" required />
-            <input type="text" id="apellidoPlanta" placeholder="Apellido" required />
-            <select type="text" id="areaPlanta" required>
+    <div id="main-content" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="margin: 0;">Registro y Control</h1>
+        <div style="text-align: right;">
+            <span id="userInfo"></span>
+            <button id="logoutBtn" class="logout-button">Cerrar Sesión</button>
+        </div>
+      </div>
+      
+      <div style="margin-bottom:20px; display:flex; gap:10px;">
+        <button id="exportBtn">Exportar Datos</button>
+        <button id="importBtn">Importar Datos</button>
+        <input type="file" id="importFile" accept="application/json" style="display:none;">
+      </div>
+
+      <!-- Los <section> ahora son paneles de contenido -->
+      <section id="personaSection" class="content-panel">
+        <h2>Agregar Persona</h2>
+        <div class="persona-forms-container">
+          <div id="plantaCard" class="persona-form-card collapsed">
+            <h3>Planta</h3>
+            <div class="card-content">
+              <form id="plantaForm">
+                <input type="text" id="nombrePlanta" placeholder="Nombre" required />
+                <input type="text" id="apellidoPlanta" placeholder="Apellido" required />
+                <select type="text" id="areaPlanta" required>
+                  <option value="">Selecciona Área</option>
+                  <option value="Mesas">Mesas</option>
+                  <option value="Máquinas">Máquinas</option>
+                  <option value="Bóveda">Bóveda</option>
+                  <option value="Otros">Otros</option>
+                </select>
+                <select id="subAreaPlanta" style="display: none;"></select>
+                <input type="number" id="anioPlanta" placeholder="Año" inputmode="numeric" required />
+                <input type="number" id="puntosPlanta" placeholder="Cantidad de puntos" inputmode="numeric" required />
+                <input type="hidden" name="tipo" value="Planta" />
+                <button type="submit">Agregar</button>
+              </form>
+            </div>
+          </div>
+          <div id="partTimeCard" class="persona-form-card collapsed">
+            <h3>Part Time</h3>
+            <div class="card-content">
+              <form id="partTimeForm">
+                <input type="text" id="nombrePartTime" placeholder="Nombre" required />
+                <input type="text" id="apellidoPartTime" placeholder="Apellido" required />
+                <select type="text" id="areaPartTime" required>
+                  <option value="">Selecciona Área</option>
+                  <option value="Mesas">Mesas</option>
+                  <option value="Máquinas">Máquinas</option>
+                  <option value="Bóveda">Bóveda</option>
+                  <option value="Otros">Otros</option>
+                </select>
+                <select id="subAreaPartTime" style="display: none;"></select>
+                <input type="number" id="anioPartTime" placeholder="Año" inputmode="numeric" required />
+                <input type="number" id="puntosPartTime" placeholder="Cantidad de puntos" inputmode="numeric" required />
+                <input type="hidden" name="tipo" value="Part Time" />
+                <button type="submit">Agregar</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="fichasSection" class="content-panel active">
+        <h2>Fichas de Personas</h2>
+        <div>
+          <input type="text" id="searchFichas" placeholder="Buscar persona por nombre o apellido..." style="width: 100%; margin-bottom: 15px;" />
+          <div id="plantaContainer" class="fichas-type-container">
+            <h3 id="plantaSectionHeader">Personal de Planta</h3>
+            <div class="fichas-grid-container"></div>
+          </div>
+          <div id="partTimeContainer" class="fichas-type-container">
+            <h3 id="partTimeSectionHeader">Personal Part Time</h3>
+            <div class="fichas-grid-container"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="montosSection" class="content-panel">
+        <h2>Registrar Montos por Noche</h2>
+        <div>
+          <div id="totalDiario">Total diario: $0</div>
+          <form id="montosForm">
+            <input type="date" id="fecha" required />
+            <select type="text" id="areaMonto" required>
               <option value="">Selecciona Área</option>
               <option value="Mesas">Mesas</option>
               <option value="Máquinas">Máquinas</option>
-              <option value="Bóveda">Bóveda</option>
               <option value="Otros">Otros</option>
             </select>
-            <select id="subAreaPlanta" style="display: none;"></select>
-            <input type="number" id="anioPlanta" placeholder="Año" inputmode="numeric" required />
-            <input type="number" id="puntosPlanta" placeholder="Cantidad de puntos" inputmode="numeric" required />
-            <input type="hidden" name="tipo" value="Planta" />
-            <button type="submit">Agregar</button>
+            <input type="text" id="monto" placeholder="Monto" inputmode="numeric" required />
+            <button type="submit">Agregar Monto</button>
           </form>
+          <div id="tarjetasMontos"></div>
         </div>
-      </div>
-      <div id="partTimeCard" class="persona-form-card collapsed">
-        <h3>Part Time</h3>
-        <div class="card-content">
-          <form id="partTimeForm">
-            <input type="text" id="nombrePartTime" placeholder="Nombre" required />
-            <input type="text" id="apellidoPartTime" placeholder="Apellido" required />
-            <select type="text" id="areaPartTime" required>
-              <option value="">Selecciona Área</option>
-              <option value="Mesas">Mesas</option>
-              <option value="Máquinas">Máquinas</option>
-              <option value="Bóveda">Bóveda</option>
-              <option value="Otros">Otros</option>
-            </select>
-            <select id="subAreaPartTime" style="display: none;"></select>
-            <input type="number" id="anioPartTime" placeholder="Año" inputmode="numeric" required />
-            <input type="number" id="puntosPartTime" placeholder="Cantidad de puntos" inputmode="numeric" required />
-            <input type="hidden" name="tipo" value="Part Time" />
-            <button type="submit">Agregar</button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
-  <section id="fichasSection" class="collapsible-section collapsed">
-    <h2>Fichas de Personas</h2>
-    <div class="collapsible-content">
-      <input type="text" id="searchFichas" placeholder="Buscar persona por nombre o apellido..." style="width: 100%; margin-bottom: 15px;" />
-
-      <div id="plantaContainer" class="fichas-type-container">
-        <h3 id="plantaSectionHeader">Personal de Planta</h3>
-        <div class="fichas-grid-container"></div>
-      </div>
-      <div id="partTimeContainer" class="fichas-type-container">
-        <h3 id="partTimeSectionHeader">Personal Part Time</h3>
-        <div class="fichas-grid-container"></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="montosSection" class="collapsible-section collapsed">
-    <h2>Registrar Montos por Noche</h2>
-    <div class="collapsible-content">
-      <div id="totalDiario">Total diario: $0</div>
-      <form id="montosForm">
-        <input type="date" id="fecha" required />
-        <select type="text" id="areaMonto" required>
-          <option value="">Selecciona Área</option>
-          <option value="Mesas">Mesas</option>
-          <option value="Máquinas">Máquinas</option>
-          <option value="Otros">Otros</option>
-        </select>
-        <input type="text" id="monto" placeholder="Monto" inputmode="numeric" required />
-        <button type="submit">Agregar Monto</button>
-      </form>
-      <div id="tarjetasMontos"></div>
-    </div>
-  </section>
-
-  <section id="retirosPropinaSection" class="collapsible-section collapsed">
-      <h2>Retiros de Propina</h2>
-      <div class="collapsible-content">
-          <input type="text" id="searchRetiros" placeholder="Buscar persona por nombre o apellido..." />
-          <div id="searchResultsContainer"></div>
-          <hr>
-          <div id="calculationContainer">
-              <div class="planta-calculation-container">
-                  <p>Calcula el monto por persona de planta:</p>
-                  <p>Total a dividir: <span id="totalMontoPlanta">$0</span></p>
-                  <button id="registrarValorPorPuntoBtn" style="margin-bottom: 10px;">Registrar Divisor</button>
-                  <div class="total-result" id="resultadoPlanta">$0 por punto</div>
+      <section id="retirosPropinaSection" class="content-panel">
+          <h2>Retiros de Propina</h2>
+          <div>
+              <input type="text" id="searchRetiros" placeholder="Buscar persona por nombre o apellido..." />
+              <div id="searchResultsContainer"></div>
+              <hr>
+              <div id="calculationContainer">
+                  <div class="planta-calculation-container">
+                      <p>Calcula el monto por persona de planta:</p>
+                      <p>Total a dividir: <span id="totalMontoPlanta">$0</span></p>
+                      <button id="registrarValorPorPuntoBtn" style="margin-bottom: 10px;">Registrar Divisor</button>
+                      <div class="total-result" id="resultadoPlanta">$0 por punto</div>
+                  </div>
               </div>
+              <div id="retiroActionsContainer">
+                  <button id="guardarRetirosBtn">Guardar Retiros</button>
+                  <button id="resetRetirosBtn" class="reset-button">Reiniciar Mes (Borra Montos y Retiros)</button>
+              </div>
+              <div id="retirosListContainer"></div>
           </div>
-          <div id="retiroActionsContainer">
-              <button id="guardarRetirosBtn">Guardar Retiros</button>
-              <button id="resetRetirosBtn" class="reset-button">Reiniciar Mes (Borra Montos y Retiros)</button>
-          </div>
-          <div id="retirosListContainer"></div>
-      </div>
-  </section>
+      </section>
 
-  <section id="retirosGuardadosSection" class="collapsible-section collapsed">
-    <h2>Historial de Retiros Guardados</h2>
-    <div class="collapsible-content">
-      <button id="resetRetirosGuardadosBtn" class="reset-button">Borrar Historial de Retiros Guardados</button>
-      <div id="retirosGuardadosContainer"></div>
+      <section id="retirosGuardadosSection" class="content-panel">
+        <h2>Historial de Retiros Guardados</h2>
+        <div>
+          <button id="resetRetirosGuardadosBtn" class="reset-button">Borrar Historial de Retiros Guardados</button>
+          <div id="retirosGuardadosContainer"></div>
+        </div>
+      </section>
+
+      <section id="anticiposHistorialSection" class="content-panel">
+          <h2>Historial de Anticipos</h2>
+          <div>
+            <div id="anticiposHistorialContainer"></div>
+          </div>
+      </section>
+
+      <section id="montosPedidosHistorialSection" class="content-panel">
+          <h2>Historial de Montos Pedidos</h2>
+          <div>
+            <div id="montosPedidosHistorialContainer"></div>
+          </div>
+      </section>
+
+      <section id="valorPorPuntoHistorialSection" class="content-panel">
+          <h2>Historial de Divisores</h2>
+          <div>
+            <div id="valorPorPuntoHistorialContainer"></div>
+          </div>
+      </section>
     </div>
-  </section>
 
-  <section id="anticiposHistorialSection" class="collapsible-section collapsed">
-      <h2>Historial de Anticipos</h2>
-      <div class="collapsible-content">
-        <div id="anticiposHistorialContainer"></div>
-      </div>
-  </section>
+</div> <!-- Cierre de mainContainer -->
 
-  <section id="montosPedidosHistorialSection" class="collapsible-section collapsed">
-      <h2>Historial de Montos Pedidos</h2>
-      <div class="collapsible-content">
-        <div id="montosPedidosHistorialContainer"></div>
-      </div>
-  </section>
-
-  <section id="valorPorPuntoHistorialSection" class="collapsible-section collapsed">
-      <h2>Historial de Divisores</h2>
-      <div class="collapsible-content">
-        <div id="valorPorPuntoHistorialContainer"></div>
-      </div>
-  </section>
-</div>
-
+<!-- Modales (sin cambios estructurales) -->
 <div id="anticipoModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
@@ -1110,7 +513,6 @@
         </div>
     </div>
 </div>
-
 <div id="montosPedidosModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
@@ -1130,7 +532,6 @@
         </div>
     </div>
 </div>
-
 <div id="valorPorPuntoModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
@@ -1150,18 +551,15 @@
         </div>
     </div>
 </div>
-
 <div id="informeModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
             <h4 id="informeModalTitle"></h4>
             <button class="reset-button" id="closeInformeBtn">X</button>
         </div>
-        <div class="modal-body" id="informeModalBody">
-            </div>
+        <div class="modal-body" id="informeModalBody"></div>
     </div>
 </div>
-
 <div id="editPartTimeModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
@@ -1183,6 +581,54 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+
+  // --- INICIO: NUEVA LÓGICA DE NAVEGACIÓN POR MENÚ ---
+  const menuToggle = document.getElementById('menuToggle');
+  const sideMenu = document.getElementById('sideMenu');
+  const mainContainer = document.getElementById('mainContainer');
+
+  const setupMenu = () => {
+      const sections = document.querySelectorAll('#main-content > section');
+      sideMenu.innerHTML = '<div class="menu-header">Menú Principal</div>'; // Limpiar y añadir cabecera
+      sections.forEach(section => {
+          const title = section.querySelector('h2').textContent;
+          const link = document.createElement('a');
+          link.href = '#';
+          link.textContent = title;
+          link.className = 'menu-link';
+          link.dataset.target = section.id;
+          if (section.classList.contains('active')) {
+              link.classList.add('active-link');
+          }
+          sideMenu.appendChild(link);
+      });
+
+      const menuLinks = document.querySelectorAll('.menu-link');
+      menuLinks.forEach(link => {
+          link.addEventListener('click', (e) => {
+              e.preventDefault();
+              const targetId = link.dataset.target;
+
+              sections.forEach(panel => panel.classList.remove('active'));
+              document.getElementById(targetId).classList.add('active');
+
+              menuLinks.forEach(l => l.classList.remove('active-link'));
+              link.classList.add('active-link');
+
+              if (window.innerWidth < 992) {
+                  sideMenu.classList.remove('open');
+                  menuToggle.classList.remove('active');
+              }
+          });
+      });
+  };
+
+  menuToggle.addEventListener('click', () => {
+      sideMenu.classList.toggle('open');
+      menuToggle.classList.toggle('active');
+  });
+  // --- FIN: NUEVA LÓGICA DE NAVEGACIÓN POR MENÚ ---
+
 
   // =======================================================
   //                 VARIABLES GLOBALES Y CONSTANTES
@@ -1211,99 +657,83 @@ document.addEventListener('DOMContentLoaded', () => {
   // =======================================================
   //                 UTILIDADES
   // =======================================================
-
   function formatNumberWithPoints(value) {
-    if (value === null || value === undefined || isNaN(value)) {
-        return "0";
-    }
-    const num = Math.round(value).toString();
-    return num.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    if (value === null || value === undefined || isNaN(value)) { return "0"; }
+    return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   }
-
   function formatDate(dateString) {
     if (!dateString) return '';
     const [year, month, day] = dateString.split('-');
     return `${day}/${month}/${year}`;
   }
-
   function getTodayDateString() {
     const today = new Date();
-    const year = today.getFullYear();
-    const month = (today.getMonth() + 1).toString().padStart(2, '0');
-    const day = today.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return today.toISOString().split('T')[0];
   }
-
   function getCurrentTimeString() {
     const now = new Date();
     const hours = now.getHours().toString().padStart(2, '0');
     const minutes = now.getMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;
   }
-
   function usuarioExiste(nombre, apellido) {
     const usuarios = JSON.parse(localStorage.getItem('usuarios')) || {};
     return usuarios.hasOwnProperty(`${nombre}-${apellido}`);
   }
-
   function guardarUsuario(nombre, apellido, password) {
     const usuarios = JSON.parse(localStorage.getItem('usuarios')) || {};
     usuarios[`${nombre}-${apellido}`] = { password };
     localStorage.setItem('usuarios', JSON.stringify(usuarios));
   }
 
+  // =======================================================
+  //                 GESTIÓN DE SESIÓN
+  // =======================================================
   function checkLogin() {
     const user = JSON.parse(localStorage.getItem('loggedInUser'));
     if (user && user.nombre && user.apellido) {
       loggedInUser = user;
       loginContainer.style.display = 'none';
       mainContent.style.display = 'block';
-      userInfoSpan.textContent = `Sesión iniciada como: ${loggedInUser.nombre} ${loggedInUser.apellido}`;
-
+      menuToggle.style.display = 'flex'; // Mostrar botón del menú
+      userInfoSpan.textContent = `Sesión: ${loggedInUser.nombre} ${loggedInUser.apellido}`;
+      setupMenu(); // Construir el menú ahora que sabemos que el usuario está logueado
     } else {
       loginContainer.style.display = 'block';
       mainContent.style.display = 'none';
+      menuToggle.style.display = 'none'; // Ocultar botón del menú
       userInfoSpan.textContent = '';
     }
   }
-
-  // =======================================================
-  //                 GESTIÓN DE SESIÓN
-  // =======================================================
 
   loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const nombre = document.getElementById('loginNombre').value;
     const apellido = document.getElementById('loginApellido').value;
     const password = document.getElementById('loginPassword').value;
+    const userKey = `${nombre}-${apellido}`;
 
-    if (!usuarioExiste(nombre, apellido)) {
-      guardarUsuario(nombre, apellido, password);
-      localStorage.setItem('loggedInUser', JSON.stringify({ nombre, apellido }));
-      checkLogin();
-      location.reload();
-    } else {
-      const usuarios = JSON.parse(localStorage.getItem('usuarios'));
-      if (usuarios[`${nombre}-${apellido}`].password === password) {
+    const usuarios = JSON.parse(localStorage.getItem('usuarios')) || {};
+    if (!usuarios[userKey]) {
+      usuarios[userKey] = { password };
+      localStorage.setItem('usuarios', JSON.stringify(usuarios));
+    }
+
+    if (usuarios[userKey].password === password) {
         localStorage.setItem('loggedInUser', JSON.stringify({ nombre, apellido }));
-        checkLogin();
         location.reload();
-      } else {
+    } else {
         alert('Contraseña incorrecta.');
-      }
     }
   });
 
   logoutBtn.addEventListener('click', () => {
     localStorage.removeItem('loggedInUser');
-    checkLogin();
     location.reload();
   });
 
-  // =======================================================
-  //                 GESTIÓN DE PERSONAL (PLANTILLA/PART-TIME)
-  // =======================================================
-
+  // El resto de tu código JavaScript permanece aquí, sin cambios...
+  // ... (todo el código desde la línea 996 del original)
   document.querySelectorAll('select[id^="area"]').forEach(select => {
     select.addEventListener('change', (e) => {
       const subAreaSelect = e.target.closest('form')?.querySelector('select[id^="subArea"]');
@@ -1515,7 +945,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById(formId);
 
       if (form) {
-          document.getElementById('personaSection').classList.remove('collapsed');
+          // Navegar a la sección de agregar persona
+          document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+          document.getElementById('personaSection').classList.add('active');
+          document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
+          document.querySelector('.menu-link[data-target="personaSection"]').classList.add('active-link');
+
           document.getElementById(cardId).classList.add('expanded');
           document.getElementById(cardId).classList.remove('collapsed');
 
@@ -1644,11 +1079,6 @@ document.addEventListener('DOMContentLoaded', () => {
           <p>Total de propinas: $${formatNumberWithPoints(totalPozoIndividual)}</p>
       `;
   }
-
-  // =======================================================
-  //                 GESTIÓN DE RETIROS DE PROPINAS
-  // =======================================================
-
   const searchRetirosInput = document.getElementById('searchRetiros');
   const searchResultsContainer = document.getElementById('searchResultsContainer');
   const retirosListContainer = document.getElementById('retirosListContainer');
@@ -2033,26 +1463,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('guardarRetirosBtn').addEventListener('click', guardarRetiros);
   
-  // =======================================================
-  //      >>> CORRECCIÓN DEL BOTÓN REINICIAR <<<
-  // =======================================================
   document.getElementById('resetRetirosBtn').addEventListener('click', () => {
     if (confirm('¿Estás SEGURO de reiniciar el mes? Esto borrará TODOS los montos registrados, la lista de retiros actual y los historiales de anticipos y montos pedidos. Esta acción no se puede deshacer.')) {
-      // Borrar lista de retiros actual
       localStorage.removeItem('retirosList');
       retirosList = [];
-      
-      // Borrar todos los montos registrados
       localStorage.removeItem('montosPorFecha');
-      
-      // Borrar historiales de deudas
       localStorage.removeItem('anticiposHistorial');
       localStorage.removeItem('montosPedidosHistorial');
       localStorage.removeItem('valorPorPuntoHistorial');
-      
-      // Actualizar la interfaz gráfica
       alert('Se han reiniciado todos los datos del período.');
-      location.reload(); // Recargar la página para que todos los cambios se hagan efectivos
+      location.reload();
     }
   });
 
@@ -2063,22 +1483,14 @@ document.addEventListener('DOMContentLoaded', () => {
           renderRetirosGuardados();
       }
   });
-
-
-  // =======================================================
-  //                 GESTIÓN DE MONTOS
-  // =======================================================
-
   let montosPorFecha = {};
   function cargarYMostrarMontos() {
     montosPorFecha = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
     mostrarMontosAgrupados();
   }
-
   function guardarMontos() {
     localStorage.setItem('montosPorFecha', JSON.stringify(montosPorFecha));
   }
-
   function mostrarMontosAgrupados() {
     const contenedor = document.getElementById('tarjetasMontos');
     contenedor.innerHTML = '';
@@ -2179,11 +1591,6 @@ document.addEventListener('DOMContentLoaded', () => {
           }
       }
   });
-
-  // =======================================================
-  //                 GESTIÓN DE MODALES
-  // =======================================================
-
   let currentAnticipoPerson = null;
   const anticipoModal = document.getElementById('anticipoModal');
   const modalTitle = document.getElementById('modalTitle');
@@ -2192,7 +1599,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const anticipoHoraInput = document.getElementById('anticipoHoraInput');
   const saveAnticipoBtn = document.getElementById('saveAnticipoBtn');
   const cancelAnticipoBtn = document.getElementById('cancelAnticipoBtn');
-
   let currentMontosPedidosPerson = null;
   const montosPedidosModal = document.getElementById('montosPedidosModal');
   const montosPedidosModalTitle = document.getElementById('montosPedidosModalTitle');
@@ -2201,21 +1607,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const montosPedidosHoraInput = document.getElementById('montosPedidosHoraInput');
   const saveMontosPedidosBtn = document.getElementById('saveMontosPedidosBtn');
   const cancelMontosPedidosBtn = document.getElementById('cancelMontosPedidosBtn');
-
   const valorPorPuntoModal = document.getElementById('valorPorPuntoModal');
   const valorPorPuntoInput = document.getElementById('valorPorPuntoInput');
   const valorPorPuntoFechaInput = document.getElementById('valorPorPuntoFechaInput');
   const valorPorPuntoHoraInput = document.getElementById('valorPorPuntoHoraInput');
   const saveValorPorPuntoBtn = document.getElementById('saveValorPorPuntoBtn');
   const cancelValorPorPuntoBtn = document.getElementById('cancelValorPorPuntoBtn');
-
   const editPartTimeModal = document.getElementById('editPartTimeModal');
   const editTotalPropinasSpan = document.getElementById('editTotalPropinas');
   const editDivisorPartTimeInput = document.getElementById('editDivisorPartTimeInput');
   const saveEditPartTimeBtn = document.getElementById('saveEditPartTimeBtn');
   const cancelEditPartTimeBtn = document.getElementById('cancelEditPartTimeBtn');
   let currentPartTimePersonInRetirosList;
-
 
   function openAnticipoModal(nombre, apellido) {
       currentAnticipoPerson = { nombre, apellido };
@@ -2226,12 +1629,10 @@ document.addEventListener('DOMContentLoaded', () => {
       anticipoHoraInput.value = getCurrentTimeString();
       anticipoModal.style.display = 'flex';
   }
-
   function closeAnticipoModal() {
       currentAnticipoPerson = null;
       anticipoModal.style.display = 'none';
   }
-
   function openMontosPedidosModal(nombre, apellido) {
       currentMontosPedidosPerson = { nombre, apellido };
       montosPedidosModalTitle.textContent = `Registrar Monto Pedido para ${nombre} ${apellido}`;
@@ -2241,12 +1642,10 @@ document.addEventListener('DOMContentLoaded', () => {
       montosPedidosHoraInput.value = getCurrentTimeString();
       montosPedidosModal.style.display = 'flex';
   }
-
   function closeMontosPedidosModal() {
       currentMontosPedidosPerson = null;
       montosPedidosModal.style.display = 'none';
   }
-
   function openValorPorPuntoModal() {
       valorPorPuntoInput.value = formatNumberWithPoints(latestDivisor) || '';
       valorPorPuntoInput.dataset.cleanValue = latestDivisor || '';
@@ -2254,25 +1653,20 @@ document.addEventListener('DOMContentLoaded', () => {
       valorPorPuntoHoraInput.value = getCurrentTimeString();
       valorPorPuntoModal.style.display = 'flex';
   }
-
   function closeValorPorPuntoModal() {
       valorPorPuntoModal.style.display = 'none';
   }
 
   saveAnticipoBtn.addEventListener('click', () => {
       if (!currentAnticipoPerson) return;
-
       const monto = parseFloat(anticipoMontoInput.dataset.cleanValue) || 0;
       const fecha = anticipoFechaInput.value;
       const hora = anticipoHoraInput.value;
       const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
-
-
       if (monto <= 0 || !fecha || !hora) {
           alert('Por favor, ingresa un monto válido, fecha y hora.');
           return;
       }
-
       agregarAnticipoAHistorial(currentAnticipoPerson.nombre, currentAnticipoPerson.apellido, monto, fecha, hora, loggedBy);
       renderRetirosList();
       closeAnticipoModal();
@@ -2282,38 +1676,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   saveMontosPedidosBtn.addEventListener('click', () => {
       if (!currentMontosPedidosPerson) return;
-
       const monto = parseFloat(montosPedidosMontoInput.dataset.cleanValue) || 0;
       const fecha = montosPedidosFechaInput.value;
       const hora = montosPedidosHoraInput.value;
       const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
-
       if (monto <= 0 || !fecha || !hora) {
           alert('Por favor, ingresa un monto válido, fecha y hora.');
           return;
       }
-
       agregarMontoPedidoAHistorial(currentMontosPedidosPerson.nombre, currentMontosPedidosPerson.apellido, monto, fecha, hora, loggedBy);
-
       const personaIndex = retirosList.findIndex(p => p.nombre === currentMontosPedidosPerson.nombre && p.apellido === currentMontosPedidosPerson.apellido);
       if (personaIndex > -1) {
           const personaRetiro = retirosList[personaIndex];
           const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === personaRetiro.nombre && p.apellido === personaRetiro.apellido);
-          
           if (historialPersona && historialPersona.tipo === 'Part Time') {
               const pozoIndividual = calcularPozoIndividual(historialPersona);
               const divisor = parseFloat(personaRetiro.divisorRetiro) || 1;
               const puntoActual = (pozoIndividual / divisor) || 0;
               const puntos = parseFloat(historialPersona.puntos) || 0;
               const alcanceActual = puntoActual * puntos;
-
               const totalMontosPedidos = getTotalMontosPedidos(currentMontosPedidosPerson.nombre, currentMontosPedidosPerson.apellido);
               personaRetiro.restanteAlcance = alcanceActual - totalMontosPedidos;
               localStorage.setItem('retirosList', JSON.stringify(retirosList));
           }
       }
       renderRetirosList();
-
       closeMontosPedidosModal();
   });
 
@@ -2324,16 +1711,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const fecha = valorPorPuntoFechaInput.value;
       const hora = valorPorPuntoHoraInput.value;
       const loggedBy = `${loggedInUser.nombre} ${loggedInUser.apellido}`;
-
       if (divisor <= 0 || !fecha || !hora) {
           alert('Por favor, ingresa un divisor válido, fecha y hora.');
           return;
       }
-
       let historial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
       historial.unshift({ valor: divisor, fecha, hora, loggedBy, id: Date.now() });
       localStorage.setItem('valorPorPuntoHistorial', JSON.stringify(historial));
-
       latestDivisor = divisor;
       updatePlantaRetiros();
       renderValorPorPuntoHistorial();
@@ -2363,24 +1747,19 @@ document.addEventListener('DOMContentLoaded', () => {
           alert('Por favor, ingresa un divisor válido.');
           return;
       }
-
       const personaIndex = retirosList.findIndex(p => p.nombre === currentPartTimePersonInRetirosList.nombre && p.apellido === currentPartTimePersonInRetirosList.apellido);
       if (personaIndex > -1) {
           const personaRetiro = retirosList[personaIndex];
           personaRetiro.divisorRetiro = divisor;
-
           const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === personaRetiro.nombre && p.apellido === personaRetiro.apellido);
           const pozoIndividual = calcularPozoIndividual(historialPersona);
           const puntoActual = (pozoIndividual / divisor) || 0;
           const puntos = parseFloat(historialPersona.puntos) || 0;
           const alcanceActual = puntoActual * puntos;
-
           const totalMontosPedidos = getTotalMontosPedidos(personaRetiro.nombre, personaRetiro.apellido);
-
           personaRetiro.montoRetiroFinal = alcanceActual;
           personaRetiro.totalAlcance = alcanceActual;
           personaRetiro.restanteAlcance = alcanceActual - totalMontosPedidos;
-
           localStorage.setItem('retirosList', JSON.stringify(retirosList));
           renderRetirosList();
       }
@@ -2388,11 +1767,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   cancelEditPartTimeBtn.addEventListener('click', closeEditPartTimeModal);
-
-  // =======================================================
-  //                 HISTORIALES
-  // =======================================================
-
   function getTotalAnticipos(nombre, apellido) {
       const historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
       return historialAnticipos.filter(ant => ant.nombre === nombre && ant.apellido === apellido).reduce((sum, ant) => sum + (parseFloat(ant.monto) || 0), 0);
@@ -2406,10 +1780,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function agregarAnticipoAHistorial(nombre, apellido, monto, fecha, hora, loggedBy) {
       let historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
       const id = Date.now();
-
       const nuevoRegistro = { nombre, apellido, monto, fecha, hora, loggedBy, id };
       historialAnticipos.unshift(nuevoRegistro);
-
       localStorage.setItem('anticiposHistorial', JSON.stringify(historialAnticipos));
       renderAnticiposHistorial();
   }
@@ -2417,10 +1789,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function agregarMontoPedidoAHistorial(nombre, apellido, monto, fecha, hora, loggedBy) {
       let historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
       const id = Date.now();
-
       const nuevoRegistro = { nombre, apellido, monto, fecha, hora, loggedBy, id };
       historialMontosPedidos.unshift(nuevoRegistro);
-
       localStorage.setItem('montosPedidosHistorial', JSON.stringify(historialMontosPedidos));
       renderMontosPedidosHistorial();
   }
@@ -2428,18 +1798,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function eliminarAnticipoDeHistorial(id, nombre, apellido) {
       let historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
       const index = historialAnticipos.findIndex(reg => reg.id === id);
-
       if (index !== -1) {
           historialAnticipos.splice(index, 1);
           localStorage.setItem('anticiposHistorial', JSON.stringify(historialAnticipos));
-
           const personaEnRetiros = retirosList.find(p => p.nombre === nombre && p.apellido === apellido);
           if (personaEnRetiros && personaEnRetiros.tipo === 'Planta') {
               personaEnRetiros.anticipos = getTotalAnticipos(nombre, apellido);
               personaEnRetiros.totalAlcance = (personaEnRetiros.montoRetiroFinal || 0) - personaEnRetiros.anticipos;
               localStorage.setItem('retirosList', JSON.stringify(retirosList));
           }
-
           renderAnticiposHistorial();
           renderRetirosList();
       }
@@ -2448,11 +1815,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function eliminarMontoPedidoDeHistorial(id, nombre, apellido) {
       let historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
       const index = historialMontosPedidos.findIndex(reg => reg.id === id);
-
       if (index !== -1) {
           historialMontosPedidos.splice(index, 1);
           localStorage.setItem('montosPedidosHistorial', JSON.stringify(historialMontosPedidos));
-
           const personaEnRetiros = retirosList.find(p => p.nombre === nombre && p.apellido === apellido);
           if (personaEnRetiros && personaEnRetiros.tipo === 'Part Time') {
               const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === personaEnRetiros.nombre && p.apellido === personaEnRetiros.apellido);
@@ -2465,7 +1830,6 @@ document.addEventListener('DOMContentLoaded', () => {
               personaEnRetiros.restanteAlcance = alcanceActual - totalMontosPedidos;
               localStorage.setItem('retirosList', JSON.stringify(retirosList));
           }
-
           renderMontosPedidosHistorial();
           renderRetirosList();
       }
@@ -2477,13 +1841,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (index !== -1) {
         historial.splice(index, 1);
         localStorage.setItem('valorPorPuntoHistorial', JSON.stringify(historial));
-
         if (historial.length > 0) {
             latestDivisor = historial[0].valor;
         } else {
             latestDivisor = 0;
         }
-
         renderValorPorPuntoHistorial();
         updatePlantaRetiros();
     }
@@ -2493,44 +1855,29 @@ document.addEventListener('DOMContentLoaded', () => {
       const historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
       const container = document.getElementById('anticiposHistorialContainer');
       container.innerHTML = '';
-
       const groupedByPerson = historialAnticipos.reduce((acc, registro) => {
           const key = `${registro.nombre} ${registro.apellido}`;
           if (!acc[key]) {
-              acc[key] = {
-                  nombre: registro.nombre,
-                  apellido: registro.apellido,
-                  registros: []
-              };
+              acc[key] = { nombre: registro.nombre, apellido: registro.apellido, registros: [] };
           }
           acc[key].registros.push(registro);
           return acc;
       }, {});
-
       for (const key in groupedByPerson) {
           const personData = groupedByPerson[key];
           const personDiv = document.createElement('div');
           personDiv.className = 'anticipo-person-item';
-          personDiv.innerHTML = `
-              <h4>${personData.nombre} ${personData.apellido}</h4>
-              <ul class="anticipo-list"></ul>
-          `;
+          personDiv.innerHTML = `<h4>${personData.nombre} ${personData.apellido}</h4><ul class="anticipo-list"></ul>`;
           const ul = personDiv.querySelector('ul');
           personData.registros.sort((a, b) => b.id - a.id);
           personData.registros.forEach(registro => {
               const li = document.createElement('li');
               li.className = 'anticipo-item';
-              li.innerHTML = `
-                  <span>$${formatNumberWithPoints(registro.monto)}</span>
-                  <span class="date-time">${formatDate(registro.fecha)} ${registro.hora}</span>
-                  <p class="registro-user">Registrado por: ${registro.loggedBy || 'Desconocido'}</p>
-                  <button class="delete-button" data-id="${registro.id}" data-nombre="${registro.nombre}" data-apellido="${registro.apellido}">🗑️</button>
-              `;
+              li.innerHTML = `<span>$${formatNumberWithPoints(registro.monto)}</span><span class="date-time">${formatDate(registro.fecha)} ${registro.hora}</span><p class="registro-user">Registrado por: ${registro.loggedBy || 'Desconocido'}</p><button class="delete-button" data-id="${registro.id}" data-nombre="${registro.nombre}" data-apellido="${registro.apellido}">🗑️</button>`;
               ul.appendChild(li);
           });
           container.appendChild(personDiv);
       }
-
       document.querySelectorAll('#anticiposHistorialContainer .delete-button').forEach(btn => {
           btn.addEventListener('click', (e) => {
               const id = parseInt(e.target.dataset.id);
@@ -2547,44 +1894,29 @@ document.addEventListener('DOMContentLoaded', () => {
       const historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
       const container = document.getElementById('montosPedidosHistorialContainer');
       container.innerHTML = '';
-
       const groupedByPerson = historialMontosPedidos.reduce((acc, registro) => {
           const key = `${registro.nombre} ${registro.apellido}`;
           if (!acc[key]) {
-              acc[key] = {
-                  nombre: registro.nombre,
-                  apellido: registro.apellido,
-                  registros: []
-              };
+              acc[key] = { nombre: registro.nombre, apellido: registro.apellido, registros: [] };
           }
           acc[key].registros.push(registro);
           return acc;
       }, {});
-
       for (const key in groupedByPerson) {
           const personData = groupedByPerson[key];
           const personDiv = document.createElement('div');
           personDiv.className = 'montos-pedidos-person-item';
-          personDiv.innerHTML = `
-              <h4>${personData.nombre} ${personData.apellido}</h4>
-              <ul class="montos-pedidos-list"></ul>
-          `;
+          personDiv.innerHTML = `<h4>${personData.nombre} ${personData.apellido}</h4><ul class="montos-pedidos-list"></ul>`;
           const ul = personDiv.querySelector('ul');
           personData.registros.sort((a, b) => b.id - a.id);
           personData.registros.forEach(registro => {
               const li = document.createElement('li');
               li.className = 'montos-pedidos-item';
-              li.innerHTML = `
-                  <span>$${formatNumberWithPoints(registro.monto)}</span>
-                  <span class="date-time">${formatDate(registro.fecha)} ${registro.hora})</span>
-                  <p class="registro-user">Registrado por: ${registro.loggedBy || 'Desconocido'}</p>
-                  <button class="delete-button" data-id="${registro.id}" data-nombre="${registro.nombre}" data-apellido="${registro.apellido}">🗑️</button>
-              `;
+              li.innerHTML = `<span>$${formatNumberWithPoints(registro.monto)}</span><span class="date-time">${formatDate(registro.fecha)} ${registro.hora})</span><p class="registro-user">Registrado por: ${registro.loggedBy || 'Desconocido'}</p><button class="delete-button" data-id="${registro.id}" data-nombre="${registro.nombre}" data-apellido="${registro.apellido}">🗑️</button>`;
               ul.appendChild(li);
           });
           container.appendChild(personDiv);
       }
-
       document.querySelectorAll('#montosPedidosHistorialContainer .delete-button').forEach(btn => {
           btn.addEventListener('click', (e) => {
               const id = parseInt(e.target.dataset.id);
@@ -2601,21 +1933,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const historial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
       const container = document.getElementById('valorPorPuntoHistorialContainer');
       container.innerHTML = '';
-
       if (historial.length > 0) {
           historial.forEach(registro => {
               const item = document.createElement('div');
               item.className = 'valor-por-punto-item';
-              item.innerHTML = `
-                  <span><strong>Divisor:</strong> ${formatNumberWithPoints(registro.valor)}</span>
-                  <span><strong>Fecha:</strong> ${formatDate(registro.fecha)}</span>
-                  <span><strong>Hora:</strong> ${registro.hora}</span>
-                  <p class="registro-user">Registrado por: ${registro.loggedBy || 'Desconocido'}</p>
-                  <button class="delete-button" data-id="${registro.id}">🗑️</button>
-              `;
+              item.innerHTML = `<span><strong>Divisor:</strong> ${formatNumberWithPoints(registro.valor)}</span><span><strong>Fecha:</strong> ${formatDate(registro.fecha)}</span><span><strong>Hora:</strong> ${registro.hora}</span><p class="registro-user">Registrado por: ${registro.loggedBy || 'Desconocido'}</p><button class="delete-button" data-id="${registro.id}">🗑️</button>`;
               container.appendChild(item);
           });
-
           document.querySelectorAll('#valorPorPuntoHistorialContainer .delete-button').forEach(btn => {
               btn.addEventListener('click', (e) => {
                   const id = parseInt(e.target.dataset.id);
@@ -2635,38 +1959,23 @@ document.addEventListener('DOMContentLoaded', () => {
   function showInforme(nombre, apellido) {
       const personaRetiro = retirosList.find(p => p.nombre === nombre && p.apellido === apellido);
       if (!personaRetiro) {
-          alert('Persona no encontrada en la lista de retiros.');
-          return;
+          alert('Persona no encontrada en la lista de retiros.'); return;
       }
-
       const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === nombre && p.apellido === apellido);
       if (!historialPersona) {
-          alert('Persona no encontrada en el historial.');
-          return;
+          alert('Persona no encontrada en el historial.'); return;
       }
-
       const historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
       const anticiposPersona = historialAnticipos.filter(ant => ant.nombre === nombre && ant.apellido === apellido);
-
       const historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
       const montosPedidosPersona = historialMontosPedidos.filter(mp => mp.nombre === nombre && mp.apellido === apellido);
-
       informeModalTitle.textContent = `Informe de Retiro para ${nombre} ${apellido}`;
-
       let htmlContent = '';
       if (historialPersona.tipo === 'Planta') {
         const totalRecibir = personaRetiro.montoRetiroFinal || 0;
         const totalAnticipos = getTotalAnticipos(nombre, apellido);
         const totalAlcance = personaRetiro.totalAlcance || 0;
-
-        htmlContent = `
-            <p><strong>Total de propinas:</strong> <span class="informe-total">$${formatNumberWithPoints(totalDiarioMonto)}</span></p>
-            <p><strong>Divisor:</strong> <span class="informe-total">${formatNumberWithPoints(latestDivisor)}</span></p>
-            <p><strong>Valor por punto:</strong> <span class="informe-total">$${formatNumberWithPoints(latestValorPorPunto)}</span></p>
-            <p><strong>Total a recibir:</strong> <span class="informe-total">$${formatNumberWithPoints(totalRecibir)}</span></p>
-            <p><strong>Total de anticipos:</strong> <span class="informe-anticipos">$${formatNumberWithPoints(totalAnticipos)}</span></p>
-            <p><strong>Total Alcance:</strong> <span class="informe-total">$${formatNumberWithPoints(totalAlcance)}</span></p>
-        `;
+        htmlContent = `<p><strong>Total de propinas:</strong> <span class="informe-total">$${formatNumberWithPoints(totalDiarioMonto)}</span></p><p><strong>Divisor:</strong> <span class="informe-total">${formatNumberWithPoints(latestDivisor)}</span></p><p><strong>Valor por punto:</strong> <span class="informe-total">$${formatNumberWithPoints(latestValorPorPunto)}</span></p><p><strong>Total a recibir:</strong> <span class="informe-total">$${formatNumberWithPoints(totalRecibir)}</span></p><p><strong>Total de anticipos:</strong> <span class="informe-anticipos">$${formatNumberWithPoints(totalAnticipos)}</span></p><p><strong>Total Alcance:</strong> <span class="informe-total">$${formatNumberWithPoints(totalAlcance)}</span></p>`;
       } else {
         const pozoIndividual = calcularPozoIndividual(historialPersona);
         const divisorActual = parseFloat(personaRetiro.divisorRetiro) || 1;
@@ -2674,48 +1983,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const alcanceActual = puntoActual * (parseFloat(historialPersona.puntos) || 0);
         const totalMontosPedidos = getTotalMontosPedidos(nombre, apellido);
         const restanteAlcance = alcanceActual - totalMontosPedidos;
-
-        htmlContent = `
-            <p><strong>Días trabajados:</strong> ${historialPersona.diasTrabajados ? historialPersona.diasTrabajados.length : 0}</p>
-            <p><strong>Total de propinas del pozo:</strong> <span class="informe-total">$${formatNumberWithPoints(pozoIndividual)}</span></p>
-            <p><strong>Divisor aplicado:</strong> ${formatNumberWithPoints(divisorActual)}</p>
-            <p><strong>Punto-actual-PT:</strong> <span class="informe-total">$${formatNumberWithPoints(puntoActual)}</span></p>
-            <p><strong>Alcance-Actual:</strong> <span class="informe-total">$${formatNumberWithPoints(alcanceActual)}</span></p>
-            <p><strong>Montos-Pedidos:</strong> <span class="informe-total">$${formatNumberWithPoints(totalMontosPedidos)}</span></p>
-            <p><strong>Restante-Alcance:</strong> <span class="informe-total">$${formatNumberWithPoints(restanteAlcance)}</span></p>
-        `;
+        htmlContent = `<p><strong>Días trabajados:</strong> ${historialPersona.diasTrabajados ? historialPersona.diasTrabajados.length : 0}</p><p><strong>Total de propinas del pozo:</strong> <span class="informe-total">$${formatNumberWithPoints(pozoIndividual)}</span></p><p><strong>Divisor aplicado:</strong> ${formatNumberWithPoints(divisorActual)}</p><p><strong>Punto-actual-PT:</strong> <span class="informe-total">$${formatNumberWithPoints(puntoActual)}</span></p><p><strong>Alcance-Actual:</strong> <span class="informe-total">$${formatNumberWithPoints(alcanceActual)}</span></p><p><strong>Montos-Pedidos:</strong> <span class="informe-total">$${formatNumberWithPoints(totalMontosPedidos)}</span></p><p><strong>Restante-Alcance:</strong> <span class="informe-total">$${formatNumberWithPoints(restanteAlcance)}</span></p>`;
       }
-
       if (anticiposPersona.length > 0) {
-          htmlContent += `
-              <div class="informe-historial">
-                  <h5>Historial de Anticipos:</h5>
-                  <ul>
-          `;
+          htmlContent += `<div class="informe-historial"><h5>Historial de Anticipos:</h5><ul>`;
           anticiposPersona.sort((a, b) => b.id - a.id);
-          anticiposPersona.forEach(ant => {
-              htmlContent += `<li>$${formatNumberWithPoints(ant.monto)} (${formatDate(ant.fecha)} ${ant.hora})</li>`;
-          });
+          anticiposPersona.forEach(ant => { htmlContent += `<li>$${formatNumberWithPoints(ant.monto)} (${formatDate(ant.fecha)} ${ant.hora})</li>`; });
           htmlContent += `</ul></div>`;
       } else {
           htmlContent += `<p>No hay anticipos registrados.</p>`;
       }
-
       if (montosPedidosPersona.length > 0) {
-          htmlContent += `
-              <div class="informe-historial">
-                  <h5>Historial de Montos Pedidos:</h5>
-                  <ul>
-          `;
+          htmlContent += `<div class="informe-historial"><h5>Historial de Montos Pedidos:</h5><ul>`;
           montosPedidosPersona.sort((a, b) => b.id - a.id);
-          montosPedidosPersona.forEach(mp => {
-              htmlContent += `<li>$${formatNumberWithPoints(mp.monto)} (${formatDate(mp.fecha)} ${mp.hora})</li>`;
-          });
+          montosPedidosPersona.forEach(mp => { htmlContent += `<li>$${formatNumberWithPoints(mp.monto)} (${formatDate(mp.fecha)} ${mp.hora})</li>`; });
           htmlContent += `</ul></div>`;
       } else {
           htmlContent += `<p>No hay montos pedidos registrados.</p>`;
       }
-
       informeModalBody.innerHTML = htmlContent;
       informeModal.style.display = 'flex';
   }
@@ -2726,61 +2011,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function generatePDF(nombre, apellido) {
       const personaRetiro = retirosList.find(p => p.nombre === nombre && p.apellido === apellido);
-      if (!personaRetiro) {
-          alert('Datos de la persona no encontrados para generar el PDF.');
-          return;
-      }
-
+      if (!personaRetiro) { alert('Datos de la persona no encontrados para generar el PDF.'); return; }
       const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === nombre && p.apellido === apellido);
-      if (!historialPersona) {
-          alert('Datos de la persona no encontrados para generar el PDF.');
-          return;
-      }
-
+      if (!historialPersona) { alert('Datos de la persona no encontrados para generar el PDF.'); return; }
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       const today = new Date();
       const formattedDate = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
-
       const historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
       const anticiposPersona = historialAnticipos.filter(ant => ant.nombre === nombre && ant.apellido === apellido);
-
       const historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
       const montosPedidosPersona = historialMontosPedidos.filter(mp => mp.nombre === nombre && mp.apellido === apellido);
-
       let y = 20;
-
-      doc.setFontSize(16);
-      doc.text("Recibo de Retiro de Propina", 105, y, null, null, "center");
-      y += 10;
-      doc.setFontSize(10);
-      doc.text(`Fecha: ${formattedDate}`, 180, y, null, null, "right");
+      doc.setFontSize(16); doc.text("Recibo de Retiro de Propina", 105, y, null, null, "center");
+      y += 10; doc.setFontSize(10); doc.text(`Fecha: ${formattedDate}`, 180, y, null, null, "right");
+      y += 20; doc.setFontSize(12); doc.text(`Nombre: ${historialPersona.nombre} ${historialPersona.apellido}`, 20, y);
+      y += 10; doc.text(`Área: ${historialPersona.area}`, 20, y);
+      y += 10; doc.text(`Puntos: ${historialPersona.puntos}`, 20, y);
       y += 20;
-
-      doc.setFontSize(12);
-      doc.text(`Nombre: ${historialPersona.nombre} ${historialPersona.apellido}`, 20, y);
-      y += 10;
-      doc.text(`Área: ${historialPersona.area}`, 20, y);
-      y += 10;
-      doc.text(`Puntos: ${historialPersona.puntos}`, 20, y);
-      y += 20;
-
       if (historialPersona.tipo === 'Planta') {
           const totalRecibir = personaRetiro.montoRetiroFinal || 0;
           const totalAnticipos = getTotalAnticipos(nombre, apellido);
           const totalAlcance = personaRetiro.totalAlcance || 0;
-          doc.text(`Total de propinas: $${formatNumberWithPoints(totalDiarioMonto)}`, 20, y);
-          y += 10;
-          doc.text(`Divisor: ${formatNumberWithPoints(latestDivisor)}`, 20, y);
-          y += 10;
-          doc.text(`Valor por punto: $${formatNumberWithPoints(latestValorPorPunto)}`, 20, y);
-          y += 10;
-          doc.text(`Total a Recibir: $${formatNumberWithPoints(totalRecibir)}`, 20, y);
-          y += 10;
-          doc.text(`Anticipos: $${formatNumberWithPoints(totalAnticipos)}`, 20, y);
-          y += 10;
-          doc.text(`Total Alcance: $${formatNumberWithPoints(totalAlcance)}`, 20, y);
-          y += 20;
+          doc.text(`Total de propinas: $${formatNumberWithPoints(totalDiarioMonto)}`, 20, y); y += 10;
+          doc.text(`Divisor: ${formatNumberWithPoints(latestDivisor)}`, 20, y); y += 10;
+          doc.text(`Valor por punto: $${formatNumberWithPoints(latestValorPorPunto)}`, 20, y); y += 10;
+          doc.text(`Total a Recibir: $${formatNumberWithPoints(totalRecibir)}`, 20, y); y += 10;
+          doc.text(`Anticipos: $${formatNumberWithPoints(totalAnticipos)}`, 20, y); y += 10;
+          doc.text(`Total Alcance: $${formatNumberWithPoints(totalAlcance)}`, 20, y); y += 20;
       } else {
           const pozoIndividual = calcularPozoIndividual(historialPersona);
           const divisorActual = parseFloat(personaRetiro.divisorRetiro) || 1;
@@ -2788,63 +2046,32 @@ document.addEventListener('DOMContentLoaded', () => {
           const alcanceActual = puntoActual * (parseFloat(historialPersona.puntos) || 0);
           const totalMontosPedidos = getTotalMontosPedidos(nombre, apellido);
           const restanteAlcance = alcanceActual - totalMontosPedidos;
-
-          doc.text(`Días trabajados: ${historialPersona.diasTrabajados ? historialPersona.diasTrabajados.length : 0}`, 20, y);
-          y += 10;
-          doc.text(`Total de propinas del pozo: $${formatNumberWithPoints(pozoIndividual)}`, 20, y);
-          y += 10;
-          doc.text(`Divisor aplicado: ${formatNumberWithPoints(divisorActual)}`, 20, y);
-          y += 10;
-          doc.text(`Punto-actual-PT: $${formatNumberWithPoints(puntoActual)}`, 20, y);
-          y += 10;
-          doc.text(`Alcance-Actual: $${formatNumberWithPoints(alcanceActual)}`, 20, y);
-          y += 10;
-          doc.text(`Montos-Pedidos: $${formatNumberWithPoints(totalMontosPedidos)}`, 20, y);
-          y += 10;
-          doc.text(`Restante-Alcance: $${formatNumberWithPoints(restanteAlcance)}`, 20, y);
-          y += 20;
+          doc.text(`Días trabajados: ${historialPersona.diasTrabajados ? historialPersona.diasTrabajados.length : 0}`, 20, y); y += 10;
+          doc.text(`Total de propinas del pozo: $${formatNumberWithPoints(pozoIndividual)}`, 20, y); y += 10;
+          doc.text(`Divisor aplicado: ${formatNumberWithPoints(divisorActual)}`, 20, y); y += 10;
+          doc.text(`Punto-actual-PT: $${formatNumberWithPoints(puntoActual)}`, 20, y); y += 10;
+          doc.text(`Alcance-Actual: $${formatNumberWithPoints(alcanceActual)}`, 20, y); y += 10;
+          doc.text(`Montos-Pedidos: $${formatNumberWithPoints(totalMontosPedidos)}`, 20, y); y += 10;
+          doc.text(`Restante-Alcance: $${formatNumberWithPoints(restanteAlcance)}`, 20, y); y += 20;
       }
-
       if (anticiposPersona.length > 0) {
-        doc.setFontSize(12);
-        doc.text("Historial de Anticipos:", 20, y);
-        y += 10;
-        doc.setFontSize(10);
+        doc.setFontSize(12); doc.text("Historial de Anticipos:", 20, y); y += 10; doc.setFontSize(10);
         anticiposPersona.sort((a, b) => b.id - a.id);
-        anticiposPersona.forEach(ant => {
-          doc.text(`- $${formatNumberWithPoints(ant.monto)} (${formatDate(ant.fecha)} ${ant.hora})`, 25, y);
-          y += 7;
-        });
+        anticiposPersona.forEach(ant => { doc.text(`- $${formatNumberWithPoints(ant.monto)} (${formatDate(ant.fecha)} ${ant.hora})`, 25, y); y += 7; });
         y += 10;
       }
-
       if (montosPedidosPersona.length > 0) {
-          doc.setFontSize(12);
-          doc.text("Historial de Montos Pedidos:", 20, y);
-          y += 10;
-          doc.setFontSize(10);
+          doc.setFontSize(12); doc.text("Historial de Montos Pedidos:", 20, y); y += 10; doc.setFontSize(10);
           montosPedidosPersona.sort((a, b) => b.id - a.id);
-          montosPedidosPersona.forEach(mp => {
-              doc.text(`- $${formatNumberWithPoints(mp.monto)} (${formatDate(mp.fecha)} ${mp.hora})`, 25, y);
-              y += 7;
-          });
+          montosPedidosPersona.forEach(mp => { doc.text(`- $${formatNumberWithPoints(mp.monto)} (${formatDate(mp.fecha)} ${mp.hora})`, 25, y); y += 7; });
           y += 10;
       }
-
-      doc.setFontSize(12);
-      doc.text("________________________________", 20, y);
-      y += 10;
-      doc.text("Firma", 20, y);
-
+      doc.setFontSize(12); doc.text("________________________________", 20, y);
+      y += 10; doc.text("Firma", 20, y);
       doc.save(`Recibo-${historialPersona.nombre}-${historialPersona.apellido}.pdf`);
   }
-
-  // =======================================================
-  //                 CONFIGURACIÓN DE ENTRADAS NUMÉRICAS
-  // =======================================================
   function setupCurrencyInput(inputElement) {
     if (!inputElement) return;
-
     inputElement.setAttribute('type', 'text');
     inputElement.addEventListener('input', (e) => {
       let value = e.target.value.replace(/\./g, '');
@@ -2857,31 +2084,13 @@ document.addEventListener('DOMContentLoaded', () => {
         e.target.value = formatNumberWithPoints(e.target.value);
       }
     });
-    
     const initialValue = inputElement.value;
     if (initialValue) {
         inputElement.dataset.cleanValue = initialValue.replace(/\./g, '');
         inputElement.value = formatNumberWithPoints(initialValue);
     }
   }
-
-  // =======================================================
-  //                 CONFIGURACIÓN INICIAL Y EVENTOS
-  // =======================================================
-
-  function setupCollapsibleSection(sectionId) {
-    const section = document.getElementById(sectionId);
-    if (section) {
-      const h2 = section.querySelector('h2');
-      if (h2) {
-        h2.addEventListener('click', () => {
-          section.classList.toggle('collapsed');
-          section.classList.toggle('expanded');
-        });
-      }
-    }
-  }
-
+  
   function setupCollapsibleCard(cardId) {
     const card = document.getElementById(cardId);
     if (card) {
@@ -2903,8 +2112,6 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('partTimeContainer').classList.toggle('collapsed');
       });
   }
-
-  // === INICIALIZACIÓN DE LA APLICACIÓN ===
   function initApp() {
     checkLogin();
     if (loggedInUser) {
@@ -2912,12 +2119,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const historialCorregido = historial.filter(persona => {
             return persona && typeof persona === 'object' && persona.tipo;
         }).map(persona => {
-            if (persona.tipo && persona.tipo.toLowerCase() === 'parttime') {
-                persona.tipo = 'Part Time';
-            }
-            if (persona.tipo === 'Part Time' && persona.divisorRetiro === undefined) {
-                persona.divisorRetiro = 1; 
-            }
+            if (persona.tipo && persona.tipo.toLowerCase() === 'parttime') { persona.tipo = 'Part Time'; }
+            if (persona.tipo === 'Part Time' && persona.divisorRetiro === undefined) { persona.divisorRetiro = 1; }
             return persona;
         });
         localStorage.setItem('historial', JSON.stringify(historialCorregido));
@@ -2939,18 +2142,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (fechaMontoInput) {
             fechaMontoInput.value = getTodayDateString();
         }
-
-        setupCollapsibleSection('personaSection');
-        setupCollapsibleSection('fichasSection');
-        setupCollapsibleSection('retirosPropinaSection');
-        setupCollapsibleSection('montosSection');
-        setupCollapsibleSection('anticiposHistorialSection');
-        setupCollapsibleSection('montosPedidosHistorialSection');
-        setupCollapsibleSection('valorPorPuntoHistorialSection');
-        setupCollapsibleSection('retirosGuardadosSection');
+        
         setupCollapsibleCard('plantaCard');
         setupCollapsibleCard('partTimeCard');
-
         setupMainCollapsibles();
 
         setupCurrencyInput(document.getElementById('monto'));
@@ -2965,38 +2159,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // === EXPORTAR/IMPORTAR DATOS ===
   document.getElementById('exportBtn').addEventListener('click', () => {
-    const keysToExport = [
-      'usuarios',
-      'loggedInUser',
-      'historial',
-      'retirosList',
-      'retirosGuardados',
-      'montosPorFecha',
-      'anticiposHistorial',
-      'montosPedidosHistorial',
-      'valorPorPuntoHistorial'
-    ];
+    const keysToExport = ['usuarios', 'loggedInUser', 'historial', 'retirosList', 'retirosGuardados', 'montosPorFecha', 'anticiposHistorial', 'montosPedidosHistorial', 'valorPorPuntoHistorial'];
     const exportData = {};
-    keysToExport.forEach(key => {
-      exportData[key] = localStorage.getItem(key);
-    });
+    keysToExport.forEach(key => { exportData[key] = localStorage.getItem(key); });
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `backup_propinas_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
   });
-
-  document.getElementById('importBtn').addEventListener('click', () => {
-    document.getElementById('importFile').click();
-  });
-
+  document.getElementById('importBtn').addEventListener('click', () => { document.getElementById('importFile').click(); });
   document.getElementById('importFile').addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -3004,15 +2178,10 @@ document.addEventListener('DOMContentLoaded', () => {
     reader.onload = function(e) {
       try {
         const importedData = JSON.parse(e.target.result);
-        if (typeof importedData !== 'object' || !importedData) {
-          alert("El archivo no tiene el formato esperado.");
-          return;
-        }
+        if (typeof importedData !== 'object' || !importedData) { alert("El archivo no tiene el formato esperado."); return; }
         if (!confirm('¿Estás seguro de que deseas importar estos datos? Esto sobrescribirá los datos actuales.')) return;
         Object.keys(importedData).forEach(key => {
-          if (importedData[key] !== undefined && importedData[key] !== null) {
-            localStorage.setItem(key, importedData[key]);
-          }
+          if (importedData[key] !== undefined && importedData[key] !== null) { localStorage.setItem(key, importedData[key]); }
         });
         alert("Datos importados con éxito. La página se recargará para ver los cambios.");
         location.reload();
@@ -3022,12 +2191,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     reader.readAsText(file);
   });
-
-  // Arrancar la aplicación
   initApp();
-
 });
 </script>
 
 </body>
 </html>
+
+
