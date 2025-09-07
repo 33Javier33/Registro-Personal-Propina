@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF--8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registro de Personas y Montos</title>
   
@@ -11,6 +11,7 @@
         --primary-color: #007bff;
         --secondary-color: #4CAF50;
         --danger-color: #dc3545;
+        --info-color: #17a2b8; /* Color para el nuevo botón */
         --text-dark: #222;
         --text-light: #555;
         --bg-light: #f0f2f5;
@@ -25,7 +26,7 @@
         transition: margin-left 0.3s ease;
     }
 
-    /* --- INICIO: NUEVOS ESTILOS PARA MENÚ HAMBURGUESA --- */
+    /* --- INICIO: ESTILOS PARA MENÚ HAMBURGUESA --- */
     .menu-toggle {
         position: fixed;
         top: 15px;
@@ -133,7 +134,7 @@
             transform: translateX(0);
         }
     }
-    /* --- FIN: NUEVOS ESTILOS PARA MENÚ HAMBURGUESA --- */
+    /* --- FIN: ESTILOS PARA MENÚ HAMBURGUESA --- */
 
     h1 {
       text-align: center;
@@ -157,7 +158,6 @@
       padding-bottom: 10px;
     }
     
-    /* El resto de tus estilos originales... */
     #totalDiario { font-weight: bold; font-size: 1.5em; margin: 10px 0; color: #007bff; text-align: center; }
     form { display: flex; flex-wrap: wrap; gap: 10px; }
     input, select, button { flex: 1 1 45%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 1em; }
@@ -293,11 +293,12 @@
     .valor-por-punto-item { background-color: #e0f2f1; border-left: 5px solid #009688; padding: 10px; border-radius: 6px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; font-size: 0.9em; }
     .valor-por-punto-item .delete-button { background: none; border: none; font-size: 1.2em; color: #f44336; cursor: pointer; }
     #retirosGuardadosSection h2 { color: #17a2b8; }
-    .retiro-guardado-item { background-color: #f0f8ff; border: 1px solid #cceeff; border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-    .retiro-guardado-item h4 { margin: 0; font-size: 1em; cursor: pointer; }
-    .retiro-guardado-item .actions { display: flex; gap: 5px; }
-    .retiro-guardado-item .actions button { background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
-    .retiro-guardado-item .actions button.delete { background-color: #dc3545; }
+    .retiro-guardado-item { background-color: #f0f8ff; border: 1px solid #cceeff; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+    .retiro-guardado-header { display: flex; justify-content: space-between; align-items: center; }
+    .retiro-guardado-header h4 { margin: 0; font-size: 1em; cursor: pointer; }
+    .retiro-guardado-header .actions { display: flex; gap: 5px; }
+    .retiro-guardado-header .actions button { background-color: #007bff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; }
+    .retiro-guardado-header .actions button.delete { background-color: #dc3545; }
     .retiro-guardado-item.collapsed .retiro-guardado-content { display: none; }
     @media(max-width: 600px) { form { flex-direction: column; } input, select, button { flex: 1 1 100%; } .persona-forms-container, #calculationContainer { flex-direction: column; } .persona-form-card, #calculationContainer > div { flex: 1 1 100%; } }
     .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; overflow-y: auto; }
@@ -318,7 +319,7 @@
 </head>
 <body>
 
-<!-- INICIO: NUEVA ESTRUCTURA DE MENÚ -->
+<!-- INICIO: ESTRUCTURA DE MENÚ -->
 <nav id="sideMenu" class="side-menu"></nav>
 
 <div id="mainContainer" class="main-container">
@@ -327,7 +328,7 @@
         <span></span>
         <span></span>
     </button>
-<!-- FIN: NUEVA ESTRUCTURA DE MENÚ -->
+<!-- FIN: ESTRUCTURA DE MENÚ -->
 
     <div id="login-container">
       <section id="loginSection">
@@ -423,6 +424,8 @@
       <section id="montosSection" class="content-panel">
         <h2>Registrar Montos por Noche</h2>
         <div>
+          <button id="importarDesdeSheetsBtn" style="width: 100%; margin-bottom: 15px; background-color: var(--info-color);">Importar desde Sheets</button>
+
           <div id="totalDiario">Total diario: $0</div>
           <form id="montosForm">
             <input type="date" id="fecha" required />
@@ -493,7 +496,7 @@
 
 </div> <!-- Cierre de mainContainer -->
 
-<!-- Modales (sin cambios estructurales) -->
+<!-- Modales -->
 <div id="anticipoModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
@@ -582,14 +585,14 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-  // --- INICIO: NUEVA LÓGICA DE NAVEGACIÓN POR MENÚ ---
+  // --- LÓGICA DE NAVEGACIÓN POR MENÚ ---
   const menuToggle = document.getElementById('menuToggle');
   const sideMenu = document.getElementById('sideMenu');
   const mainContainer = document.getElementById('mainContainer');
 
   const setupMenu = () => {
       const sections = document.querySelectorAll('#main-content > section');
-      sideMenu.innerHTML = '<div class="menu-header">Menú Principal</div>'; // Limpiar y añadir cabecera
+      sideMenu.innerHTML = '<div class="menu-header">Menú Principal</div>';
       sections.forEach(section => {
           const title = section.querySelector('h2').textContent;
           const link = document.createElement('a');
@@ -627,12 +630,12 @@ document.addEventListener('DOMContentLoaded', () => {
       sideMenu.classList.toggle('open');
       menuToggle.classList.toggle('active');
   });
-  // --- FIN: NUEVA LÓGICA DE NAVEGACIÓN POR MENÚ ---
-
 
   // =======================================================
   //                 VARIABLES GLOBALES Y CONSTANTES
   // =======================================================
+  const SCRIPT_URL_RECAUDACION = 'https://script.google.com/macros/s/AKfycbxna9EH5LZPTPCPws58pGro6qCrZ8_zNwvUkUHS28BYfd8CsAcD1MRcqlITbDm4lTk/exec'; 
+
   let currentEditIndex = -1;
   let totalDiarioMonto = 0;
   let latestValorPorPunto = 0;
@@ -653,6 +656,62 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutBtn = document.getElementById('logoutBtn');
   let loggedInUser = null;
   const fechaMontoInput = document.getElementById('fecha');
+
+  // =======================================================
+  //                 IMPORTACIÓN DESDE SHEETS
+  // =======================================================
+  async function importarDesdeSheets() {
+      const btn = document.getElementById('importarDesdeSheetsBtn');
+      btn.textContent = 'Importando...';
+      btn.disabled = true;
+
+      const url = new URL(SCRIPT_URL_RECAUDACION);
+      url.searchParams.append('action', 'get');
+
+      try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error(`Error de red: ${response.statusText}`);
+          const result = await response.json();
+
+          if (result.status !== 'success' || !result.data) {
+              throw new Error(result.message || 'La respuesta del script no fue exitosa.');
+          }
+
+          const datosImportados = result.data;
+          let montosActuales = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
+          let registrosNuevos = 0;
+          let registrosOmitidos = 0;
+
+          datosImportados.forEach(dato => {
+              const { fecha, tipo, monto } = dato;
+              
+              if (!montosActuales[fecha]) {
+                  montosActuales[fecha] = [];
+              }
+              
+              const existe = montosActuales[fecha].some(m => m.area === tipo && parseFloat(m.monto) === parseFloat(monto));
+              
+              if (!existe) {
+                  montosActuales[fecha].push({ area: tipo, monto: parseFloat(monto), loggedBy: 'Importado de Sheet' });
+                  registrosNuevos++;
+              } else {
+                  registrosOmitidos++;
+              }
+          });
+
+          localStorage.setItem('montosPorFecha', JSON.stringify(montosActuales));
+          cargarYMostrarMontos();
+          
+          alert(`Importación completada. Se agregaron ${registrosNuevos} nuevos registros. Se omitieron ${registrosOmitidos} registros duplicados.`);
+
+      } catch (error) {
+          alert('Error al importar desde Sheets: ' + error.message);
+          console.error("Error detallado:", error);
+      } finally {
+          btn.textContent = 'Importar desde Sheets';
+          btn.disabled = false;
+      }
+  }
 
   // =======================================================
   //                 UTILIDADES
@@ -676,14 +735,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const minutes = now.getMinutes().toString().padStart(2, '0');
     return `${hours}:${minutes}`;
   }
-  function usuarioExiste(nombre, apellido) {
-    const usuarios = JSON.parse(localStorage.getItem('usuarios')) || {};
-    return usuarios.hasOwnProperty(`${nombre}-${apellido}`);
-  }
-  function guardarUsuario(nombre, apellido, password) {
-    const usuarios = JSON.parse(localStorage.getItem('usuarios')) || {};
-    usuarios[`${nombre}-${apellido}`] = { password };
-    localStorage.setItem('usuarios', JSON.stringify(usuarios));
+  
+  function setupNumericInputFormatting(inputElement) {
+    if (!inputElement) return;
+    inputElement.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\./g, '');
+        if (isNaN(value) || value === '') {
+            e.target.dataset.cleanValue = '';
+            e.target.value = '';
+        } else {
+            e.target.dataset.cleanValue = value;
+            e.target.value = formatNumberWithPoints(parseInt(value, 10));
+        }
+    });
   }
 
   // =======================================================
@@ -695,48 +759,67 @@ document.addEventListener('DOMContentLoaded', () => {
       loggedInUser = user;
       loginContainer.style.display = 'none';
       mainContent.style.display = 'block';
-      menuToggle.style.display = 'flex'; // Mostrar botón del menú
+      menuToggle.style.display = 'flex';
       userInfoSpan.textContent = `Sesión: ${loggedInUser.nombre} ${loggedInUser.apellido}`;
-      setupMenu(); // Construir el menú ahora que sabemos que el usuario está logueado
+      setupMenu();
     } else {
       loginContainer.style.display = 'block';
       mainContent.style.display = 'none';
-      menuToggle.style.display = 'none'; // Ocultar botón del menú
+      menuToggle.style.display = 'none';
       userInfoSpan.textContent = '';
     }
   }
 
+  // ### INICIO: BLOQUE DE LOGIN CORREGIDO ###
   loginForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const nombre = document.getElementById('loginNombre').value;
-    const apellido = document.getElementById('loginApellido').value;
-    const password = document.getElementById('loginPassword').value;
-    const userKey = `${nombre}-${apellido}`;
+      e.preventDefault();
+      const nombre = document.getElementById('loginNombre').value.trim();
+      const apellido = document.getElementById('loginApellido').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const userKey = `${nombre}-${apellido}`;
 
-    const usuarios = JSON.parse(localStorage.getItem('usuarios')) || {};
-    if (!usuarios[userKey]) {
-      usuarios[userKey] = { password };
-      localStorage.setItem('usuarios', JSON.stringify(usuarios));
-    }
+      if (!nombre || !apellido || !password) {
+          alert("Por favor, completa todos los campos.");
+          return;
+      }
 
-    if (usuarios[userKey].password === password) {
-        localStorage.setItem('loggedInUser', JSON.stringify({ nombre, apellido }));
-        location.reload();
-    } else {
-        alert('Contraseña incorrecta.');
-    }
+      const usuarios = JSON.parse(localStorage.getItem('usuarios')) || {};
+      const existingUser = usuarios[userKey];
+
+      if (existingUser) {
+          // --- RUTA DE LOGIN PARA USUARIO EXISTENTE ---
+          if (existingUser.password === password) {
+              // Contraseña correcta
+              localStorage.setItem('loggedInUser', JSON.stringify({ nombre, apellido }));
+              location.reload();
+          } else {
+              // Contraseña incorrecta
+              alert('Contraseña incorrecta.');
+          }
+      } else {
+          // --- RUTA DE REGISTRO PARA NUEVO USUARIO ---
+          // El usuario no existe, así que lo creamos y lo logueamos.
+          usuarios[userKey] = { password: password };
+          localStorage.setItem('usuarios', JSON.stringify(usuarios));
+          localStorage.setItem('loggedInUser', JSON.stringify({ nombre, apellido }));
+          location.reload();
+      }
   });
+  // ### FIN: BLOQUE DE LOGIN CORREGIDO ###
+
 
   logoutBtn.addEventListener('click', () => {
     localStorage.removeItem('loggedInUser');
     location.reload();
   });
-
-  // El resto de tu código JavaScript permanece aquí, sin cambios...
-  // ... (todo el código desde la línea 996 del original)
+  
+  // =======================================================
+  //                GESTIÓN DE PERSONAS (FICHAS)
+  // =======================================================
   document.querySelectorAll('select[id^="area"]').forEach(select => {
     select.addEventListener('change', (e) => {
-      const subAreaSelect = e.target.closest('form')?.querySelector('select[id^="subArea"]');
+      const form = e.target.closest('form');
+      const subAreaSelect = form ? form.querySelector('select[id^="subArea"]') : null;
       if (subAreaSelect) {
         const selectedArea = e.target.value;
         if (areaOptions.hasOwnProperty(selectedArea) && areaOptions[selectedArea].length > 1) {
@@ -945,7 +1028,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById(formId);
 
       if (form) {
-          // Navegar a la sección de agregar persona
           document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
           document.getElementById('personaSection').classList.add('active');
           document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active-link'));
@@ -1079,6 +1161,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <p>Total de propinas: $${formatNumberWithPoints(totalPozoIndividual)}</p>
       `;
   }
+  
+  // =======================================================
+  //                 GESTIÓN DE RETIROS
+  // =======================================================
   const searchRetirosInput = document.getElementById('searchRetiros');
   const searchResultsContainer = document.getElementById('searchResultsContainer');
   const retirosListContainer = document.getElementById('retirosListContainer');
@@ -1369,35 +1455,46 @@ document.addEventListener('DOMContentLoaded', () => {
       retirosGuardados.forEach(guardado => {
           const item = document.createElement('div');
           item.className = 'retiro-guardado-item collapsed';
-          item.innerHTML = `
+          
+          const header = document.createElement('div');
+          header.className = 'retiro-guardado-header';
+          header.innerHTML = `
               <h4>Retiros del ${formatDate(guardado.fecha)} - ${guardado.hora}</h4>
               <div class="actions">
-                  <button class="show-details-btn">Ver Detalles</button>
                   <button class="delete-btn delete">Eliminar</button>
               </div>
-              <div class="retiro-guardado-content" style="margin-top: 10px;">
-                  <p><strong>Total de Monto Diario:</strong> $${formatNumberWithPoints(guardado.totalMontoDiario)}</p>
-                  <p><strong>Divisor de Planta:</strong> ${formatNumberWithPoints(guardado.divisorPlanta)}</p>
-                  <p><strong>Valor por Punto:</strong> $${formatNumberWithPoints(guardado.valorPorPunto)}</p>
-                  <h5>Detalles por Persona:</h5>
-                  <ul>
-                  ${guardado.retiros.map(retiro => `
-                      <li>
-                          <strong>${retiro.nombre} ${retiro.apellido} (${retiro.tipo})</strong>
-                          - ${retiro.tipo === 'Planta' ? `Monto a recibir: $${formatNumberWithPoints(retiro.montoRetiroFinal)}` : `Monto: $${formatNumberWithPoints(retiro.montoRetiroFinal)}`}
-                      </li>
-                  `).join('')}
-                  </ul>
-              </div>
+          `;
+          
+          const content = document.createElement('div');
+          content.className = 'retiro-guardado-content';
+          content.style.marginTop = '10px';
+          content.innerHTML = `
+              <p><strong>Total de Monto Diario:</strong> $${formatNumberWithPoints(guardado.totalMontoDiario)}</p>
+              <p><strong>Divisor de Planta:</strong> ${formatNumberWithPoints(guardado.divisorPlanta)}</p>
+              <p><strong>Valor por Punto:</strong> $${formatNumberWithPoints(guardado.valorPorPunto)}</p>
+              <h5>Detalles por Persona:</h5>
+              <ul>
+              ${guardado.retiros.map(retiro => {
+                const historialPersona = (JSON.parse(localStorage.getItem('historial')) || []).find(p => p.nombre === retiro.nombre && p.apellido === retiro.apellido);
+                const tipoPersona = historialPersona ? historialPersona.tipo : 'Desconocido';
+                return `
+                  <li>
+                      <strong>${retiro.nombre} ${retiro.apellido} (${tipoPersona})</strong>
+                      - ${tipoPersona === 'Planta' ? `Monto a recibir: $${formatNumberWithPoints(retiro.montoRetiroFinal)}` : `Monto: $${formatNumberWithPoints(retiro.montoRetiroFinal)}`}
+                  </li>`
+              }).join('')}
+              </ul>
           `;
 
+          item.appendChild(header);
+          item.appendChild(content);
           retirosGuardadosContainer.appendChild(item);
 
-          item.querySelector('h4').addEventListener('click', () => {
+          header.querySelector('h4').addEventListener('click', () => {
               item.classList.toggle('collapsed');
           });
 
-          item.querySelector('.delete-btn').addEventListener('click', () => {
+          header.querySelector('.delete-btn').addEventListener('click', () => {
               if (confirm('¿Estás seguro de que quieres eliminar este historial de retiros?')) {
                   retirosGuardados = retirosGuardados.filter(r => r.id !== guardado.id);
                   localStorage.setItem('retirosGuardados', JSON.stringify(retirosGuardados));
@@ -1483,6 +1580,10 @@ document.addEventListener('DOMContentLoaded', () => {
           renderRetirosGuardados();
       }
   });
+  
+  // =======================================================
+  //                 GESTIÓN DE MONTOS
+  // =======================================================
   let montosPorFecha = {};
   function cargarYMostrarMontos() {
     montosPorFecha = JSON.parse(localStorage.getItem('montosPorFecha')) || {};
@@ -1591,6 +1692,10 @@ document.addEventListener('DOMContentLoaded', () => {
           }
       }
   });
+  
+  // =======================================================
+  //                 GESTIÓN DE MODALES Y ANTICIPOS
+  // =======================================================
   let currentAnticipoPerson = null;
   const anticipoModal = document.getElementById('anticipoModal');
   const modalTitle = document.getElementById('modalTitle');
@@ -1767,6 +1872,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   cancelEditPartTimeBtn.addEventListener('click', closeEditPartTimeModal);
+  
+  // =======================================================
+  //                 GESTIÓN DE HISTORIALES
+  // =======================================================
   function getTotalAnticipos(nombre, apellido) {
       const historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
       return historialAnticipos.filter(ant => ant.nombre === nombre && ant.apellido === apellido).reduce((sum, ant) => sum + (parseFloat(ant.monto) || 0), 0);
@@ -1912,7 +2021,7 @@ document.addEventListener('DOMContentLoaded', () => {
           personData.registros.forEach(registro => {
               const li = document.createElement('li');
               li.className = 'montos-pedidos-item';
-              li.innerHTML = `<span>$${formatNumberWithPoints(registro.monto)}</span><span class="date-time">${formatDate(registro.fecha)} ${registro.hora})</span><p class="registro-user">Registrado por: ${registro.loggedBy || 'Desconocido'}</p><button class="delete-button" data-id="${registro.id}" data-nombre="${registro.nombre}" data-apellido="${registro.apellido}">🗑️</button>`;
+              li.innerHTML = `<span>$${formatNumberWithPoints(registro.monto)}</span><span class="date-time">${formatDate(registro.fecha)} ${registro.hora}</span><p class="registro-user">Registrado por: ${registro.loggedBy || 'Desconocido'}</p><button class="delete-button" data-id="${registro.id}" data-nombre="${registro.nombre}" data-apellido="${registro.apellido}">🗑️</button>`;
               ul.appendChild(li);
           });
           container.appendChild(personDiv);
@@ -1951,6 +2060,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
   }
 
+  // =======================================================
+  //                 INFORMES Y PDF
+  // =======================================================
   const informeModal = document.getElementById('informeModal');
   const informeModalTitle = document.getElementById('informeModalTitle');
   const informeModalBody = document.getElementById('informeModalBody');
@@ -1990,17 +2102,13 @@ document.addEventListener('DOMContentLoaded', () => {
           anticiposPersona.sort((a, b) => b.id - a.id);
           anticiposPersona.forEach(ant => { htmlContent += `<li>$${formatNumberWithPoints(ant.monto)} (${formatDate(ant.fecha)} ${ant.hora})</li>`; });
           htmlContent += `</ul></div>`;
-      } else {
-          htmlContent += `<p>No hay anticipos registrados.</p>`;
-      }
+      } 
       if (montosPedidosPersona.length > 0) {
           htmlContent += `<div class="informe-historial"><h5>Historial de Montos Pedidos:</h5><ul>`;
           montosPedidosPersona.sort((a, b) => b.id - a.id);
           montosPedidosPersona.forEach(mp => { htmlContent += `<li>$${formatNumberWithPoints(mp.monto)} (${formatDate(mp.fecha)} ${mp.hora})</li>`; });
           htmlContent += `</ul></div>`;
-      } else {
-          htmlContent += `<p>No hay montos pedidos registrados.</p>`;
-      }
+      } 
       informeModalBody.innerHTML = htmlContent;
       informeModal.style.display = 'flex';
   }
@@ -2018,10 +2126,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const doc = new jsPDF();
       const today = new Date();
       const formattedDate = `${today.getDate()}/${today.getMonth() + 1}/${today.getFullYear()}`;
-      const historialAnticipos = JSON.parse(localStorage.getItem('anticiposHistorial')) || [];
-      const anticiposPersona = historialAnticipos.filter(ant => ant.nombre === nombre && ant.apellido === apellido);
-      const historialMontosPedidos = JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [];
-      const montosPedidosPersona = historialMontosPedidos.filter(mp => mp.nombre === nombre && mp.apellido === apellido);
+      
       let y = 20;
       doc.setFontSize(16); doc.text("Recibo de Retiro de Propina", 105, y, null, null, "center");
       y += 10; doc.setFontSize(10); doc.text(`Fecha: ${formattedDate}`, 180, y, null, null, "right");
@@ -2029,6 +2134,7 @@ document.addEventListener('DOMContentLoaded', () => {
       y += 10; doc.text(`Área: ${historialPersona.area}`, 20, y);
       y += 10; doc.text(`Puntos: ${historialPersona.puntos}`, 20, y);
       y += 20;
+      
       if (historialPersona.tipo === 'Planta') {
           const totalRecibir = personaRetiro.montoRetiroFinal || 0;
           const totalAnticipos = getTotalAnticipos(nombre, apellido);
@@ -2036,10 +2142,10 @@ document.addEventListener('DOMContentLoaded', () => {
           doc.text(`Total de propinas: $${formatNumberWithPoints(totalDiarioMonto)}`, 20, y); y += 10;
           doc.text(`Divisor: ${formatNumberWithPoints(latestDivisor)}`, 20, y); y += 10;
           doc.text(`Valor por punto: $${formatNumberWithPoints(latestValorPorPunto)}`, 20, y); y += 10;
-          doc.text(`Total a Recibir: $${formatNumberWithPoints(totalRecibir)}`, 20, y); y += 10;
-          doc.text(`Anticipos: $${formatNumberWithPoints(totalAnticipos)}`, 20, y); y += 10;
-          doc.text(`Total Alcance: $${formatNumberWithPoints(totalAlcance)}`, 20, y); y += 20;
-      } else {
+          doc.setFontSize(14); doc.setFont(undefined, 'bold'); doc.text(`Total a Recibir: $${formatNumberWithPoints(totalRecibir)}`, 20, y); y += 10;
+          doc.setFontSize(12); doc.setFont(undefined, 'normal'); doc.text(`Anticipos: -$${formatNumberWithPoints(totalAnticipos)}`, 20, y); y += 10;
+          doc.setFontSize(14); doc.setFont(undefined, 'bold'); doc.text(`TOTAL ALCANCE: $${formatNumberWithPoints(totalAlcance)}`, 20, y); y += 20;
+      } else { // Part Time
           const pozoIndividual = calcularPozoIndividual(historialPersona);
           const divisorActual = parseFloat(personaRetiro.divisorRetiro) || 1;
           const puntoActual = (pozoIndividual / divisorActual) || 0;
@@ -2049,152 +2155,127 @@ document.addEventListener('DOMContentLoaded', () => {
           doc.text(`Días trabajados: ${historialPersona.diasTrabajados ? historialPersona.diasTrabajados.length : 0}`, 20, y); y += 10;
           doc.text(`Total de propinas del pozo: $${formatNumberWithPoints(pozoIndividual)}`, 20, y); y += 10;
           doc.text(`Divisor aplicado: ${formatNumberWithPoints(divisorActual)}`, 20, y); y += 10;
-          doc.text(`Punto-actual-PT: $${formatNumberWithPoints(puntoActual)}`, 20, y); y += 10;
-          doc.text(`Alcance-Actual: $${formatNumberWithPoints(alcanceActual)}`, 20, y); y += 10;
-          doc.text(`Montos-Pedidos: $${formatNumberWithPoints(totalMontosPedidos)}`, 20, y); y += 10;
-          doc.text(`Restante-Alcance: $${formatNumberWithPoints(restanteAlcance)}`, 20, y); y += 20;
+          doc.text(`Valor por punto actual: $${formatNumberWithPoints(puntoActual)}`, 20, y); y += 10;
+          doc.setFontSize(14); doc.setFont(undefined, 'bold'); doc.text(`Alcance Actual: $${formatNumberWithPoints(alcanceActual)}`, 20, y); y += 10;
+          doc.setFontSize(12); doc.setFont(undefined, 'normal'); doc.text(`Montos Pedidos: -$${formatNumberWithPoints(totalMontosPedidos)}`, 20, y); y += 10;
+          doc.setFontSize(14); doc.setFont(undefined, 'bold'); doc.text(`RESTANTE ALCANCE: $${formatNumberWithPoints(restanteAlcance)}`, 20, y); y += 20;
       }
-      if (anticiposPersona.length > 0) {
-        doc.setFontSize(12); doc.text("Historial de Anticipos:", 20, y); y += 10; doc.setFontSize(10);
-        anticiposPersona.sort((a, b) => b.id - a.id);
-        anticiposPersona.forEach(ant => { doc.text(`- $${formatNumberWithPoints(ant.monto)} (${formatDate(ant.fecha)} ${ant.hora})`, 25, y); y += 7; });
-        y += 10;
-      }
-      if (montosPedidosPersona.length > 0) {
-          doc.setFontSize(12); doc.text("Historial de Montos Pedidos:", 20, y); y += 10; doc.setFontSize(10);
-          montosPedidosPersona.sort((a, b) => b.id - a.id);
-          montosPedidosPersona.forEach(mp => { doc.text(`- $${formatNumberWithPoints(mp.monto)} (${formatDate(mp.fecha)} ${mp.hora})`, 25, y); y += 7; });
-          y += 10;
-      }
-      doc.setFontSize(12); doc.text("________________________________", 20, y);
-      y += 10; doc.text("Firma", 20, y);
-      doc.save(`Recibo-${historialPersona.nombre}-${historialPersona.apellido}.pdf`);
-  }
-  function setupCurrencyInput(inputElement) {
-    if (!inputElement) return;
-    inputElement.setAttribute('type', 'text');
-    inputElement.addEventListener('input', (e) => {
-      let value = e.target.value.replace(/\./g, '');
-      if (value.match(/^\d*$/)) {
-        e.target.dataset.cleanValue = value;
-        e.target.value = formatNumberWithPoints(value);
-      } else {
-        e.target.value = e.target.value.replace(/[^0-9]/g, '');
-        e.target.dataset.cleanValue = e.target.value;
-        e.target.value = formatNumberWithPoints(e.target.value);
-      }
-    });
-    const initialValue = inputElement.value;
-    if (initialValue) {
-        inputElement.dataset.cleanValue = initialValue.replace(/\./g, '');
-        inputElement.value = formatNumberWithPoints(initialValue);
-    }
+      
+      y += 30;
+      doc.text("________________________", 20, y);
+      y += 7;
+      doc.text("Firma", 35, y);
+      
+      doc.save(`recibo-${nombre}_${apellido}-${getTodayDateString()}.pdf`);
   }
   
-  function setupCollapsibleCard(cardId) {
-    const card = document.getElementById(cardId);
-    if (card) {
-      const h3 = card.querySelector('h3');
-      if (h3) {
-        h3.addEventListener('click', () => {
-          card.classList.toggle('collapsed');
-          card.classList.toggle('expanded');
-        });
-      }
-    }
+  // =======================================================
+  //                 EXPORTACIÓN / IMPORTACIÓN DE DATOS
+  // =======================================================
+  function exportData() {
+      const dataToExport = {
+          usuarios: JSON.parse(localStorage.getItem('usuarios')) || {},
+          historial: JSON.parse(localStorage.getItem('historial')) || [],
+          montosPorFecha: JSON.parse(localStorage.getItem('montosPorFecha')) || {},
+          retirosList: JSON.parse(localStorage.getItem('retirosList')) || [],
+          retirosGuardados: JSON.parse(localStorage.getItem('retirosGuardados')) || [],
+          anticiposHistorial: JSON.parse(localStorage.getItem('anticiposHistorial')) || [],
+          montosPedidosHistorial: JSON.parse(localStorage.getItem('montosPedidosHistorial')) || [],
+          valorPorPuntoHistorial: JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [],
+      };
+      
+      const dataStr = JSON.stringify(dataToExport, null, 2);
+      const blob = new Blob([dataStr], {type: "application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `backup_datos_${getTodayDateString()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
   }
 
-  function setupMainCollapsibles() {
-      document.getElementById('plantaSectionHeader').addEventListener('click', () => {
-          document.getElementById('plantaContainer').classList.toggle('collapsed');
-      });
-      document.getElementById('partTimeSectionHeader').addEventListener('click', () => {
-          document.getElementById('partTimeContainer').classList.toggle('collapsed');
-      });
+  function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+          try {
+              const importedData = JSON.parse(e.target.result);
+              if (confirm("¿Estás seguro de que quieres importar estos datos? Esto sobreescribirá toda la información actual.")) {
+                  Object.keys(importedData).forEach(key => {
+                      localStorage.setItem(key, JSON.stringify(importedData[key]));
+                  });
+                  alert("Datos importados con éxito. La página se recargará.");
+                  location.reload();
+              }
+          } catch (error) {
+              alert("Error al leer el archivo. Asegúrate de que es un archivo JSON válido exportado desde esta aplicación.");
+              console.error("Error de importación:", error);
+          }
+      };
+      reader.readAsText(file);
   }
+
+  document.getElementById('exportBtn').addEventListener('click', exportData);
+  document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+  document.getElementById('importFile').addEventListener('change', importData);
+
+  // =======================================================
+  //                INICIALIZACIÓN Y EVENT LISTENERS
+  // =======================================================
+  
+  // Lógica para colapsar/expandir tarjetas
+  document.querySelectorAll('.persona-form-card h3').forEach(header => {
+      header.addEventListener('click', () => {
+          header.parentElement.classList.toggle('collapsed');
+          header.parentElement.classList.toggle('expanded');
+      });
+  });
+
+  document.querySelectorAll('.fichas-type-container h3').forEach(header => {
+      header.addEventListener('click', () => {
+          header.parentElement.classList.toggle('collapsed');
+      });
+  });
+
+  document.getElementById('importarDesdeSheetsBtn').addEventListener('click', importarDesdeSheets);
+  
+  // Función de inicialización
   function initApp() {
-    checkLogin();
-    if (loggedInUser) {
-        const historial = JSON.parse(localStorage.getItem('historial')) || [];
-        const historialCorregido = historial.filter(persona => {
-            return persona && typeof persona === 'object' && persona.tipo;
-        }).map(persona => {
-            if (persona.tipo && persona.tipo.toLowerCase() === 'parttime') { persona.tipo = 'Part Time'; }
-            if (persona.tipo === 'Part Time' && persona.divisorRetiro === undefined) { persona.divisorRetiro = 1; }
-            return persona;
-        });
-        localStorage.setItem('historial', JSON.stringify(historialCorregido));
+      checkLogin();
+      
+      if (loggedInUser) {
+          // Cargar datos
+          const valorHistorial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
+          if (valorHistorial.length > 0) {
+              latestDivisor = valorHistorial[0].valor;
+          }
+          
+          // Renderizar componentes
+          cargarYMostrarFichas();
+          cargarYMostrarMontos();
+          renderRetirosList();
+          renderAnticiposHistorial();
+          renderMontosPedidosHistorial();
+          renderValorPorPuntoHistorial();
+          renderRetirosGuardados();
 
-        const valorPorPuntoHistorial = JSON.parse(localStorage.getItem('valorPorPuntoHistorial')) || [];
-        if (valorPorPuntoHistorial.length > 0) {
-            latestDivisor = valorPorPuntoHistorial[0].valor;
-        } else {
-            latestDivisor = 0;
-        }
-
-        cargarYMostrarFichas();
-        cargarYMostrarMontos();
-        renderAnticiposHistorial();
-        renderMontosPedidosHistorial();
-        renderValorPorPuntoHistorial();
-        renderRetirosGuardados();
-
-        if (fechaMontoInput) {
-            fechaMontoInput.value = getTodayDateString();
-        }
-        
-        setupCollapsibleCard('plantaCard');
-        setupCollapsibleCard('partTimeCard');
-        setupMainCollapsibles();
-
-        setupCurrencyInput(document.getElementById('monto'));
-        setupCurrencyInput(document.getElementById('anticipoMontoInput'));
-        setupCurrencyInput(document.getElementById('montosPedidosMontoInput'));
-        setupCurrencyInput(document.getElementById('valorPorPuntoInput'));
-        setupCurrencyInput(document.getElementById('editDivisorPartTimeInput'));
-    } else {
-        if (!localStorage.getItem('usuarios')) {
-            localStorage.setItem('usuarios', JSON.stringify({}));
-        }
-    }
+          // Configurar fechas y formatos
+          fechaMontoInput.value = getTodayDateString();
+          setupNumericInputFormatting(document.getElementById('monto'));
+          setupNumericInputFormatting(document.getElementById('anticipoMontoInput'));
+          setupNumericInputFormatting(document.getElementById('montosPedidosMontoInput'));
+          setupNumericInputFormatting(document.getElementById('valorPorPuntoInput'));
+          setupNumericInputFormatting(document.getElementById('editDivisorPartTimeInput'));
+      }
   }
 
-  document.getElementById('exportBtn').addEventListener('click', () => {
-    const keysToExport = ['usuarios', 'loggedInUser', 'historial', 'retirosList', 'retirosGuardados', 'montosPorFecha', 'anticiposHistorial', 'montosPedidosHistorial', 'valorPorPuntoHistorial'];
-    const exportData = {};
-    keysToExport.forEach(key => { exportData[key] = localStorage.getItem(key); });
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `backup_propinas_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-  });
-  document.getElementById('importBtn').addEventListener('click', () => { document.getElementById('importFile').click(); });
-  document.getElementById('importFile').addEventListener('change', function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const importedData = JSON.parse(e.target.result);
-        if (typeof importedData !== 'object' || !importedData) { alert("El archivo no tiene el formato esperado."); return; }
-        if (!confirm('¿Estás seguro de que deseas importar estos datos? Esto sobrescribirá los datos actuales.')) return;
-        Object.keys(importedData).forEach(key => {
-          if (importedData[key] !== undefined && importedData[key] !== null) { localStorage.setItem(key, importedData[key]); }
-        });
-        alert("Datos importados con éxito. La página se recargará para ver los cambios.");
-        location.reload();
-      } catch (err) {
-        alert("Error al importar los datos: " + err.message);
-      }
-    };
-    reader.readAsText(file);
-  });
   initApp();
 });
 </script>
-
 </body>
 </html>
 
