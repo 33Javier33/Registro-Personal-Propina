@@ -319,7 +319,6 @@
 </head>
 <body>
 
-<!-- INICIO: ESTRUCTURA DE MENÚ -->
 <nav id="sideMenu" class="side-menu"></nav>
 
 <div id="mainContainer" class="main-container">
@@ -328,9 +327,7 @@
         <span></span>
         <span></span>
     </button>
-<!-- FIN: ESTRUCTURA DE MENÚ -->
-
-    <div id="login-container">
+<div id="login-container">
       <section id="loginSection">
         <h2>Ingresar</h2>
         <form id="loginForm">
@@ -357,7 +354,6 @@
         <input type="file" id="importFile" accept="application/json" style="display:none;">
       </div>
 
-      <!-- Los <section> ahora son paneles de contenido -->
       <section id="personaSection" class="content-panel">
         <h2>Agregar Persona</h2>
         <div class="persona-forms-container">
@@ -494,10 +490,7 @@
       </section>
     </div>
 
-</div> <!-- Cierre de mainContainer -->
-
-<!-- Modales -->
-<div id="anticipoModal" class="modal-backdrop" style="display: none;">
+</div> <div id="anticipoModal" class="modal-backdrop" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
             <h4 id="modalTitle"></h4>
@@ -2270,6 +2263,9 @@ document.addEventListener('DOMContentLoaded', () => {
           setupNumericInputFormatting(document.getElementById('montosPedidosMontoInput'));
           setupNumericInputFormatting(document.getElementById('valorPorPuntoInput'));
           setupNumericInputFormatting(document.getElementById('editDivisorPartTimeInput'));
+          
+          // Llamada automática a la importación
+          importarDesdeSheets();
       }
   }
 
@@ -2278,5 +2274,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
-
