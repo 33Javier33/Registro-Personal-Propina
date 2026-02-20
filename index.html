@@ -2,7 +2,7 @@
 <html class="dark" lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Gestión de Propina - Dashboard</title>
     
     <!-- Librerías Externas -->
@@ -91,7 +91,8 @@
     </style>
 </head>
 
-<body class="bg-background-dark text-white antialiased overflow-hidden h-screen w-full">
+<!-- MODIFICADO: h-screen cambiado a h-[100dvh] para evitar problemas con barras de navegador en movil -->
+<body class="bg-background-dark text-white antialiased overflow-hidden h-[100dvh] w-full">
 
     <div class="relative flex h-full w-full flex-col overflow-hidden max-w-md mx-auto border-x border-gray-800 shadow-2xl bg-background-dark">
         
@@ -113,7 +114,8 @@
         </div>
 
         <!-- CONTENIDO SCROLLABLE -->
-        <div class="flex-1 overflow-y-auto pb-24 scrollbar-hide" id="scrollContainer">
+        <!-- MODIFICADO: pb-24 cambiado a pb-32 para dar espacio al menú más alto -->
+        <div class="flex-1 overflow-y-auto pb-32 scrollbar-hide" id="scrollContainer">
             <div class="main-container">
                 <div class="container">
                     
@@ -393,7 +395,8 @@
         </div>
 
         <!-- BARRA DE NAVEGACIÓN INFERIOR (5 ÍTEMS) -->
-        <div class="absolute bottom-0 left-0 right-0 h-20 bg-background-dark/90 ios-blur border-t border-white/10 px-2 pb-4 flex items-center justify-around z-30">
+        <!-- MODIFICADO: Eliminado h-20, añadido pb-6 y pt-3, y estilo inline para safe-area-inset-bottom -->
+        <div class="absolute bottom-0 left-0 right-0 bg-background-dark/90 ios-blur border-t border-white/10 px-2 pt-3 pb-6 flex items-center justify-around z-30" style="padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));">
             <button class="nav-item active flex flex-col items-center gap-1 text-gray-500 transition w-14" data-target="balanceContent" data-title="Balance General">
                 <span class="material-symbols-outlined text-[24px]">dashboard</span>
                 <span class="text-[9px] font-bold">Balance</span>
@@ -420,7 +423,7 @@
             </button>
         </div>
 
-        <div class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/20 rounded-full z-40 pointer-events-none"></div>
+        <div class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/20 rounded-full z-40 pointer-events-none hidden"></div>
     </div>
 
     <div id="modal-container"></div>
