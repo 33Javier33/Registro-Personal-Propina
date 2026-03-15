@@ -755,15 +755,14 @@
                     const end = dates[1].toISOString().split('T')[0]; 
                     listaAgrupada = listaAgrupada.filter(d => d.fecha >= start && d.fecha <= end); 
                 } else { 
-                    // CAMBIO APLICADO: RANGO 15 AL 15
                     const now = new Date();
                     let start, end;
                     if (now.getDate() >= 15) {
                         start = new Date(now.getFullYear(), now.getMonth(), 15);
-                        end = new Date(now.getFullYear(), now.getMonth() + 1, 15); // Antes era 14
+                        end = new Date(now.getFullYear(), now.getMonth() + 1, 15);
                     } else {
                         start = new Date(now.getFullYear(), now.getMonth() - 1, 15);
-                        end = new Date(now.getFullYear(), now.getMonth(), 15); // Antes era 14
+                        end = new Date(now.getFullYear(), now.getMonth(), 15);
                     }
                     const startStr = start.toISOString().split('T')[0];
                     const endStr = end.toISOString().split('T')[0];
@@ -1059,11 +1058,13 @@
                     let remanente = 0;
                     if (sal > 0) {
                         aPagar = Math.floor(sal / 1000) * 1000;
-                        remanente = sal - aPagar;
+                        remanente = Math.round(sal - aPagar); 
                     } else {
                         aPagar = 0;
-                        remanente = sal;
+                        remanente = Math.round(sal);
                     }
+
+                    s.ultimoRemanenteCalculado = remanente;
 
                     c.querySelector('.propina-asignada').textContent = `$${formatNumber(s.propinaAsignada)}`; c.querySelector('.total-anticipos').textContent = `$${formatNumber(totA)}`; c.querySelector('.total-desc-personales').textContent = `$${formatNumber(totDescP)}`;
                     
@@ -1226,7 +1227,6 @@
                     showToast('Guardando en la nube...', 'warning'); 
                     const res=await apiCall(SCRIPT_URL_SOCIOS,'guardarDistribucion','POST',{ resumen:{ fecha:new Date().toISOString().split('T')[0], propinaNeta:neta, puntoPlanta:punto, totalPuntos:parseFloat((ui.totalPuntosDisplay.innerText.match(/[\d\.]+/)||['0'])[0]), totalAnticipos:detalleAnts.reduce((a,b)=>a+b.monto,0) }, distribucion, descuentos:getStorage('descuentos_operacionales_v1'), detalleAnticipos:detalleAnts, detalleExtrasCierre: detalleExtrasCierre }); 
                     showToast(`Guardado. Hoja: ${res.sheetName}`); 
-                    // CAMBIO APLICADO: No se borra automáticamente el localStorage aquí para que el cierre sea manual por el usuario.
                     syncData(); 
                 } catch(e){ showToast(e.message,'danger'); } finally{ setBtnLoading(ui.saveAllAnticiposAndDistribucionBtn, false); }
             }
@@ -1254,37 +1254,58 @@
                     const socio = sociosData.find(s => s.ID === socioId);
                     
                     if (socio) {
-                        const card = document.querySelector(`.socio-distribucion-card[data-socio-id="${socioId}"]`);
-                        if(card) {
-                            const saldoRealText = card.querySelector('.saldo-disponible').textContent;
-                            const saldoReal = parseNumber(saldoRealText);
-                            
-                            let remanente = 0;
-                            if (saldoReal > 0) {
-                                const aPagar = Math.floor(saldoReal / 1000) * 1000;
-                                remanente = saldoReal - aPagar;
-                            } else {
-                                remanente = saldoReal; 
-                            }
-
-                            confirmAction(`¿Cerrar mes para ${socio.Nombre} ${socio.Apellido}?\n\nSaldo Pendiente a Guardar: $${formatNumber(remanente)}`, async () => {
-                                try {
-                                    setBtnLoading(btnCierreInd, true, 'Guardando...');
-                                    await apiCall(SCRIPT_URL_SOCIOS, 'guardarCierreIndividual', 'POST', {
-                                        id: socioId,
-                                        nombre: `${socio.Nombre} ${socio.Apellido}`,
-                                        monto: remanente
-                                    });
-                                    showToast('Cierre individual guardado');
-                                    // NO SE LIMPIA LOCAL, SOLO SINCRONIZA
-                                    syncData();
-                                } catch(err) {
-                                    showToast('Error al guardar cierre', 'danger');
-                                } finally {
-                                    setBtnLoading(btnCierreInd, false);
-                                }
-                            });
+                        const ants = getStorage('anticipos_data_v3');
+                        const saldoAntData = getStorage('saldo_anterior_v1');
+                        const descPersonalesData = getStorage('descuentos_personales_v1');
+                        
+                        const totA = (ants[socioId] || []).reduce((a, b) => a + b.cantidad, 0);
+                        const totDescP = (descPersonalesData[socioId] || []).reduce((a, b) => a + (parseFloat(b.monto) || 0), 0);
+                        const saldoTotalAnt = (saldoAntData[socioId] || 0) + (saldosCierreMesData[socioId] || 0);
+                        
+                        const salReal = socio.propinaAsignada - totA - totDescP + saldoTotalAnt;
+                        
+                        let remanenteFinal = 0;
+                        if (salReal > 0) {
+                            const aPagar = Math.floor(salReal / 1000) * 1000;
+                            remanenteFinal = Math.round(salReal - aPagar);
+                        } else {
+                            remanenteFinal = Math.round(salReal);
                         }
+
+                        confirmAction(`¿Cerrar mes para ${socio.Nombre}?\n\nSaldo Pendiente (Remanente): $${formatNumber(remanenteFinal)}`, async () => {
+                            try {
+                                setBtnLoading(btnCierreInd, true, 'Guardando...');
+                                await apiCall(SCRIPT_URL_SOCIOS, 'guardarCierreIndividual', 'POST', {
+                                    id: socioId,
+                                    nombre: `${socio.Nombre} ${socio.Apellido}`,
+                                    monto: remanenteFinal
+                                });
+
+                                // --- LIMPIEZA LOCAL AUTOMÁTICA TRAS EL ÉXITO ---
+                                const localAnts = getStorage('anticipos_data_v3');
+                                if(localAnts[socioId]) delete localAnts[socioId];
+                                setStorage('anticipos_data_v3', localAnts);
+
+                                const localDP = getStorage('descuentos_personales_v1');
+                                if(localDP[socioId]) delete localDP[socioId];
+                                setStorage('descuentos_personales_v1', localDP);
+
+                                const localAbs = getStorage('planta_absences_v1');
+                                if(localAbs[socioId]) delete localAbs[socioId];
+                                setStorage('planta_absences_v1', localAbs);
+
+                                const localPT = getStorage('part_time_data_v3');
+                                if(localPT[socioId]) delete localPT[socioId];
+                                setStorage('part_time_data_v3', localPT);
+
+                                showToast('Cierre exitoso: Datos archivados y memoria local limpia');
+                                syncData(); 
+                            } catch(err) {
+                                showToast('Error al guardar: ' + err.message, 'danger');
+                            } finally {
+                                setBtnLoading(btnCierreInd, false);
+                            }
+                        });
                     }
                 }
             });
