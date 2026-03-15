@@ -5,18 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Gestión de Propina - Dashboard</title>
     
-    <!-- Librerías Externas -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
-    <!-- Librerías de Fechas -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 
-    <!-- Configuración Tailwind -->
     <script>
         tailwind.config = {
             darkMode: "class",
@@ -95,7 +92,6 @@
 
     <div class="relative flex h-full w-full flex-col overflow-hidden max-w-md mx-auto border-x border-gray-800 shadow-2xl bg-background-dark">
         
-        <!-- HEADER -->
         <div class="flex items-center p-4 justify-between shrink-0 bg-background-dark/90 ios-blur z-20 border-b border-white/5">
             <div class="flex size-10 shrink-0 items-center justify-center">
                 <div class="bg-primary/20 rounded-full p-0.5 border border-primary/30">
@@ -112,12 +108,10 @@
             </div>
         </div>
 
-        <!-- CONTENIDO SCROLLABLE -->
         <div class="flex-1 overflow-y-auto pb-32 scrollbar-hide" id="scrollContainer">
             <div class="main-container">
                 <div class="container">
                     
-                    <!-- 1. BALANCE -->
                     <div id="balanceContent" class="content-panel active">
                         <div class="flex flex-col items-center pt-4 pb-8 px-4">
                             <p class="text-gray-400 text-sm font-medium tracking-wide uppercase mb-2">Saldo Final Disponible</p>
@@ -192,7 +186,6 @@
                         </div>
                     </div>
 
-                    <!-- 2. REGISTRO SOCIOS -->
                     <div id="registroContent" class="content-panel">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="text-lg font-bold text-white">Directorio de Socios</h3>
@@ -230,7 +223,6 @@
                         <div id="sociosListContainer" class="space-y-4"></div>
                     </div>
 
-                    <!-- 3. DISTRIBUCIÓN -->
                     <div id="distribucionContent" class="content-panel">
                         <div class="grid grid-cols-4 gap-2 mb-6">
                             <button id="addAnticipoBtn" class="col-span-1 bg-primary text-white p-2 rounded-lg flex flex-col items-center justify-center text-[10px] gap-1 shadow-lg">
@@ -251,7 +243,6 @@
                             </button>
                         </div>
 
-                        <!-- AVISOS DE PUNTOS/INGRESOS -->
                         <div id="notificacionesPuntosContainer" class="hidden mb-4 bg-purple-900/10 border border-purple-500/20 rounded-xl p-4">
                             <h3 class="text-purple-400 font-bold text-sm mb-3 border-b border-purple-500/20 pb-2 flex items-center gap-2">
                                 <span class="material-symbols-outlined text-lg">campaign</span>
@@ -307,7 +298,6 @@
                         <div id="distribucionPartTimeContainer" class="space-y-4"></div>
                     </div>
 
-                    <!-- 4. NOTAS (SECCIÓN) -->
                     <div id="notasContent" class="content-panel">
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="text-lg font-bold text-white">Notas Generales</h3>
@@ -339,7 +329,6 @@
                         </div>
                     </div>
 
-                    <!-- 5. HISTORIAL -->
                     <div id="historialContent" class="content-panel">
                         <div class="bg-white/5 p-4 rounded-xl border border-white/10 mb-6">
                             <label class="text-xs text-gray-400 mb-1 block">Rango de Fechas</label>
@@ -766,14 +755,15 @@
                     const end = dates[1].toISOString().split('T')[0]; 
                     listaAgrupada = listaAgrupada.filter(d => d.fecha >= start && d.fecha <= end); 
                 } else { 
+                    // CAMBIO APLICADO: RANGO 15 AL 15
                     const now = new Date();
                     let start, end;
                     if (now.getDate() >= 15) {
                         start = new Date(now.getFullYear(), now.getMonth(), 15);
-                        end = new Date(now.getFullYear(), now.getMonth() + 1, 14);
+                        end = new Date(now.getFullYear(), now.getMonth() + 1, 15); // Antes era 14
                     } else {
                         start = new Date(now.getFullYear(), now.getMonth() - 1, 15);
-                        end = new Date(now.getFullYear(), now.getMonth(), 14);
+                        end = new Date(now.getFullYear(), now.getMonth(), 15); // Antes era 14
                     }
                     const startStr = start.toISOString().split('T')[0];
                     const endStr = end.toISOString().split('T')[0];
@@ -784,10 +774,10 @@
                         let prevStart, prevEnd;
                         if (now.getDate() >= 15) {
                             prevStart = new Date(now.getFullYear(), now.getMonth() - 1, 15);
-                            prevEnd = new Date(now.getFullYear(), now.getMonth() - 1, 14);
+                            prevEnd = new Date(now.getFullYear(), now.getMonth(), 15);
                         } else {
                             prevStart = new Date(now.getFullYear(), now.getMonth() - 2, 15);
-                            prevEnd = new Date(now.getFullYear(), now.getMonth() - 1, 14);
+                            prevEnd = new Date(now.getFullYear(), now.getMonth() - 1, 15);
                         }
                         filtered = listaAgrupada.filter(d => d.fecha >= prevStart.toISOString().split('T')[0] && d.fecha <= prevEnd.toISOString().split('T')[0]);
                     }
@@ -1123,7 +1113,6 @@
                         recaudacionPorDia = {};
                         valorPuntoPorDia = {};
 
-                        // Agrupar igual que en el historial para sumar proporcionalmente los divisores
                         const agrupadoParaValores = {};
                         montosData.forEach(r => {
                             if(r.fecha && r.monto) {
@@ -1233,7 +1222,13 @@
                 setBtnLoading(ui.saveAllAnticiposAndDistribucionBtn, true, 'Guardando');
                 const ants=getStorage('anticipos_data_v3'); const saldoAnt=getStorage('saldo_anterior_v1'); const descPersonalesData = getStorage('descuentos_personales_v1'); const detalleAnts=[]; const detalleExtrasCierre = [];
                 const distribucion=sociosData.map(s=>{ const l=ants[s.ID]||[]; const sumA=l.reduce((x,y)=>x+y.cantidad,0); const listDP = descPersonalesData[s.ID] || []; const sumDP = listDP.reduce((x,y) => x + (parseFloat(y.monto)||0), 0); const notasTexto = listDP.map(d => d.motivo).join(', '); l.forEach(a=>detalleAnts.push({id:s.ID,nombre:`${s.Nombre} ${s.Apellido}`,fecha:a.fecha,monto:Math.round(a.cantidad), uuid: a.uuid})); listDP.forEach(d => detalleExtrasCierre.push({id:s.ID, fecha: new Date().toISOString().split('T')[0], tipo:'DESCUENTO_PERSONAL', detalle:d.motivo})); const absList = getStorage('planta_absences_v1')[s.ID] || []; absList.forEach(dateStr => detalleExtrasCierre.push({id:s.ID, fecha: dateStr, tipo:'AUSENCIA', detalle:'Ausencia registrada'})); return{ ID:s.ID, NombreCompleto:`${s.Nombre} ${s.Apellido}`, Area:s.Area, TipoContrato:s.TipoContrato, PuntosAntiguedad:s.infoCalculo.puntos, PuntosFinales:s.puntosAsignadosFinales, PropinaAsignada:Math.round(s.propinaAsignada), DescuentoAusencia: Math.round(s.dineroDescontado || 0), TotalDescuentosPersonales: Math.round(sumDP), DetalleNotas: notasTexto, Anticipos: Math.round(sumA), SaldoFinal:Math.round(s.propinaAsignada - sumA - sumDP + (saldoAnt[s.ID]||0)) }; });
-                try{ showToast('Guardando en la nube...', 'warning'); const res=await apiCall(SCRIPT_URL_SOCIOS,'guardarDistribucion','POST',{ resumen:{ fecha:new Date().toISOString().split('T')[0], propinaNeta:neta, puntoPlanta:punto, totalPuntos:parseFloat((ui.totalPuntosDisplay.innerText.match(/[\d\.]+/)||['0'])[0]), totalAnticipos:detalleAnts.reduce((a,b)=>a+b.monto,0) }, distribucion, descuentos:getStorage('descuentos_operacionales_v1'), detalleAnticipos:detalleAnts, detalleExtrasCierre: detalleExtrasCierre }); showToast(`Guardado. Hoja: ${res.sheetName}`); localStorage.removeItem('anticipos_data_v3'); syncData(); } catch(e){ showToast(e.message,'danger'); } finally{ setBtnLoading(ui.saveAllAnticiposAndDistribucionBtn, false); }
+                try{ 
+                    showToast('Guardando en la nube...', 'warning'); 
+                    const res=await apiCall(SCRIPT_URL_SOCIOS,'guardarDistribucion','POST',{ resumen:{ fecha:new Date().toISOString().split('T')[0], propinaNeta:neta, puntoPlanta:punto, totalPuntos:parseFloat((ui.totalPuntosDisplay.innerText.match(/[\d\.]+/)||['0'])[0]), totalAnticipos:detalleAnts.reduce((a,b)=>a+b.monto,0) }, distribucion, descuentos:getStorage('descuentos_operacionales_v1'), detalleAnticipos:detalleAnts, detalleExtrasCierre: detalleExtrasCierre }); 
+                    showToast(`Guardado. Hoja: ${res.sheetName}`); 
+                    // CAMBIO APLICADO: No se borra automáticamente el localStorage aquí para que el cierre sea manual por el usuario.
+                    syncData(); 
+                } catch(e){ showToast(e.message,'danger'); } finally{ setBtnLoading(ui.saveAllAnticiposAndDistribucionBtn, false); }
             }
 
             document.addEventListener('click', e=>{ 
@@ -1281,6 +1276,7 @@
                                         monto: remanente
                                     });
                                     showToast('Cierre individual guardado');
+                                    // NO SE LIMPIA LOCAL, SOLO SINCRONIZA
                                     syncData();
                                 } catch(err) {
                                     showToast('Error al guardar cierre', 'danger');
